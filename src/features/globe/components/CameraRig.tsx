@@ -10,7 +10,7 @@ type OrbitControlsObject = ComponentRef<typeof OrbitControls>;
 const FOCUS_DISTANCE = 0.15;
 const HOME_DISTANCE = 3.5;
 const EASE = 0.08;
-const FOCUS_ZOOM = { min: 0.01, max: 1.5 };
+const FOCUS_ZOOM = { min: 0.05, max: 1.5 };
 const HOME_ZOOM = { min: 1.3, max: 8 };
 
 const goal = new THREE.Vector3();

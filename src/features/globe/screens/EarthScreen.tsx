@@ -1,3 +1,4 @@
+import { fixMultiTouch, quietPixelStorei } from "@/components/three/expoGl";
 import colors from "@/theme/colors";
 import { OrbitControls } from "@react-three/drei/native";
 import { Canvas } from "@react-three/fiber/native";
@@ -20,6 +21,10 @@ export default function EarthScreen() {
         flat
         camera={{ position: [0, 0, 3.5], fov: 45, near: 0.01, far: 100 }}
         onPointerMissed={vm.clearSelection}
+        onCreated={(state) => {
+          quietPixelStorei(state);
+          fixMultiTouch(state);
+        }}
       >
         <color attach="background" args={[colors.space]} />
         <OrbitControls makeDefault enablePan={false} />
