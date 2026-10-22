@@ -1,7 +1,7 @@
 import { Directory, File, Paths } from "expo-file-system";
 
-import type { NewSightingDraft, Sighting } from "@/data/Sighting";
-import type { SightingRepository } from "@/repositories/SightingRepository";
+import type { NewSightingDraft, Sighting } from "./Sighting";
+import type { SightingRepository } from "./SightingRepository";
 
 const sightingsDirectory = new Directory(Paths.document, "sightings");
 const sightingsIndex = new File(Paths.document, "sightings.json");
@@ -35,7 +35,10 @@ export class LocalSightingRepository implements SightingRepository {
     ensureStorage();
     const id = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
     const source = new File(draft.sourcePhotoUri);
-    const storedPhoto = new File(sightingsDirectory, `${id}.${photoExtension(draft.sourcePhotoUri)}`);
+    const storedPhoto = new File(
+      sightingsDirectory,
+      `${id}.${photoExtension(draft.sourcePhotoUri)}`,
+    );
     await source.copy(storedPhoto);
 
     const sighting: Sighting = {

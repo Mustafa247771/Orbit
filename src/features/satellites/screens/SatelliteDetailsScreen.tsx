@@ -1,16 +1,10 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { Stack, router, useLocalSearchParams } from "expo-router";
 import { useRef, useState } from "react";
-import {
-  Pressable,
-  SafeAreaView,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
-import { SatelliteScene } from "@/components/satellite/SatelliteScene";
+import { SatelliteScene } from "@/features/satellites/components/SatelliteScene";
 
 const COLORS = {
   background: "#060914",
@@ -70,7 +64,10 @@ export default function SatelliteDetailsScreen() {
             accessibilityRole="button"
             accessibilityLabel="Go back"
             onPress={() => router.back()}
-            style={({ pressed }) => [styles.circleButton, pressed && styles.pressed]}
+            style={({ pressed }) => [
+              styles.circleButton,
+              pressed && styles.pressed,
+            ]}
           >
             <Text style={styles.backIcon}>‹</Text>
           </Pressable>
@@ -83,7 +80,10 @@ export default function SatelliteDetailsScreen() {
           <Pressable
             accessibilityRole="button"
             accessibilityLabel="Add ISS to tracked objects"
-            style={({ pressed }) => [styles.circleButton, pressed && styles.pressed]}
+            style={({ pressed }) => [
+              styles.circleButton,
+              pressed && styles.pressed,
+            ]}
           >
             <Text style={styles.trackIcon}>＋</Text>
           </Pressable>
@@ -134,9 +134,14 @@ export default function SatelliteDetailsScreen() {
             </View>
             <Pressable
               accessibilityRole="button"
-              accessibilityLabel={paused ? "Resume 3D rotation" : "Pause 3D rotation"}
+              accessibilityLabel={
+                paused ? "Resume 3D rotation" : "Pause 3D rotation"
+              }
               onPress={() => setPaused((current) => !current)}
-              style={({ pressed }) => [styles.pauseButton, pressed && styles.pressed]}
+              style={({ pressed }) => [
+                styles.pauseButton,
+                pressed && styles.pressed,
+              ]}
             >
               <Text style={styles.pauseIcon}>{paused ? "▶" : "Ⅱ"}</Text>
             </Pressable>
@@ -182,8 +187,12 @@ export default function SatelliteDetailsScreen() {
           <Text style={styles.cardEyebrow}>NEXT VISIBLE PASS · CAIRO</Text>
           <View style={styles.passMainRow}>
             <View>
-              <Text style={styles.passTime}>7:42 <Text style={styles.passAmPm}>PM</Text></Text>
-              <Text style={styles.passDate}>Tonight · Northwest → Southeast</Text>
+              <Text style={styles.passTime}>
+                7:42 <Text style={styles.passAmPm}>PM</Text>
+              </Text>
+              <Text style={styles.passDate}>
+                Tonight · Northwest → Southeast
+              </Text>
             </View>
             <View style={styles.elevationWrap}>
               <Text style={styles.elevationValue}>64°</Text>
@@ -203,12 +212,17 @@ export default function SatelliteDetailsScreen() {
         <Pressable
           accessibilityRole="button"
           accessibilityLabel="Enable pass notifications for the ISS"
-          style={({ pressed }) => [styles.secondaryButton, pressed && styles.pressed]}
+          style={({ pressed }) => [
+            styles.secondaryButton,
+            pressed && styles.pressed,
+          ]}
         >
           <Text style={styles.secondaryIcon}>♢</Text>
           <View style={styles.secondaryCopy}>
             <Text style={styles.secondaryTitle}>Notify me when it passes</Text>
-            <Text style={styles.secondarySubtitle}>Current and saved locations</Text>
+            <Text style={styles.secondarySubtitle}>
+              Current and saved locations
+            </Text>
           </View>
           <View style={styles.toggleTrack}>
             <View style={styles.toggleThumb} />
@@ -216,10 +230,10 @@ export default function SatelliteDetailsScreen() {
         </Pressable>
 
         <Text style={styles.disclaimer}>
-          Position and pass information are illustrative until the tracking provider is connected.
+          Position and pass information are illustrative until the tracking
+          provider is connected.
         </Text>
       </ScrollView>
-
     </SafeAreaView>
   );
 }
@@ -246,17 +260,54 @@ const styles = StyleSheet.create({
     width: 50,
   },
   pressed: { opacity: 0.65, transform: [{ scale: 0.98 }] },
-  backIcon: { color: COLORS.text, fontSize: 38, fontWeight: "200", marginTop: -5 },
+  backIcon: {
+    color: COLORS.text,
+    fontSize: 38,
+    fontWeight: "200",
+    marginTop: -5,
+  },
   trackIcon: { color: COLORS.cyan, fontSize: 27, fontWeight: "300" },
   headerTitleWrap: { alignItems: "center" },
-  eyebrow: { color: COLORS.secondary, fontSize: 10, fontWeight: "700", letterSpacing: 2.2 },
-  headerTitle: { color: COLORS.text, fontSize: 16, fontWeight: "600", marginTop: 3 },
+  eyebrow: {
+    color: COLORS.secondary,
+    fontSize: 10,
+    fontWeight: "700",
+    letterSpacing: 2.2,
+  },
+  headerTitle: {
+    color: COLORS.text,
+    fontSize: 16,
+    fontWeight: "600",
+    marginTop: 3,
+  },
   titleBlock: { paddingHorizontal: 26, paddingTop: 30, zIndex: 2 },
   livePill: { alignItems: "center", flexDirection: "row", marginBottom: 13 },
-  liveDot: { backgroundColor: "#7CF3C5", borderRadius: 4, height: 7, marginRight: 8, width: 7 },
-  liveText: { color: "#7CF3C5", fontSize: 11, fontWeight: "700", letterSpacing: 1.8 },
-  title: { color: COLORS.text, fontSize: 38, fontWeight: "700", letterSpacing: -1.35, lineHeight: 42 },
-  subtitle: { color: COLORS.secondary, fontSize: 14, letterSpacing: 0.4, marginTop: 10 },
+  liveDot: {
+    backgroundColor: "#7CF3C5",
+    borderRadius: 4,
+    height: 7,
+    marginRight: 8,
+    width: 7,
+  },
+  liveText: {
+    color: "#7CF3C5",
+    fontSize: 11,
+    fontWeight: "700",
+    letterSpacing: 1.8,
+  },
+  title: {
+    color: COLORS.text,
+    fontSize: 38,
+    fontWeight: "700",
+    letterSpacing: -1.35,
+    lineHeight: 42,
+  },
+  subtitle: {
+    color: COLORS.secondary,
+    fontSize: 14,
+    letterSpacing: 0.4,
+    marginTop: 10,
+  },
   sceneFrame: { height: 380, marginTop: -15, overflow: "hidden" },
   sceneTopRow: {
     flexDirection: "row",
@@ -274,7 +325,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 13,
     paddingVertical: 8,
   },
-  scenePillText: { color: COLORS.cyan, fontSize: 10, fontWeight: "700", letterSpacing: 1.5 },
+  scenePillText: {
+    color: COLORS.cyan,
+    fontSize: 10,
+    fontWeight: "700",
+    letterSpacing: 1.5,
+  },
   pauseButton: {
     alignItems: "center",
     backgroundColor: "rgba(10,18,32,0.78)",
@@ -286,7 +342,13 @@ const styles = StyleSheet.create({
     width: 38,
   },
   pauseIcon: { color: COLORS.text, fontSize: 13, fontWeight: "700" },
-  sceneHint: { alignItems: "center", bottom: 23, flexDirection: "row", left: 28, position: "absolute" },
+  sceneHint: {
+    alignItems: "center",
+    bottom: 23,
+    flexDirection: "row",
+    left: 28,
+    position: "absolute",
+  },
   dragGlyph: {
     alignItems: "center",
     borderColor: "rgba(120,230,255,0.45)",
@@ -308,9 +370,23 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     padding: 24,
   },
-  cardHeadingRow: { alignItems: "flex-start", flexDirection: "row", justifyContent: "space-between" },
-  cardEyebrow: { color: COLORS.secondary, fontSize: 11, fontWeight: "700", letterSpacing: 1.8 },
-  cardTitle: { color: COLORS.text, fontSize: 20, fontWeight: "700", marginTop: 7 },
+  cardHeadingRow: {
+    alignItems: "flex-start",
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  cardEyebrow: {
+    color: COLORS.secondary,
+    fontSize: 11,
+    fontWeight: "700",
+    letterSpacing: 1.8,
+  },
+  cardTitle: {
+    color: COLORS.text,
+    fontSize: 20,
+    fontWeight: "700",
+    marginTop: 7,
+  },
   statusBadge: {
     alignItems: "center",
     backgroundColor: "rgba(31,78,76,0.44)",
@@ -321,16 +397,40 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 6,
   },
-  statusDot: { backgroundColor: "#7CF3C5", borderRadius: 3, height: 6, marginRight: 6, width: 6 },
-  statusText: { color: "#7CF3C5", fontSize: 9, fontWeight: "800", letterSpacing: 1 },
-  telemetryGrid: { flexDirection: "row", justifyContent: "space-between", marginTop: 25 },
+  statusDot: {
+    backgroundColor: "#7CF3C5",
+    borderRadius: 3,
+    height: 6,
+    marginRight: 6,
+    width: 6,
+  },
+  statusText: {
+    color: "#7CF3C5",
+    fontSize: 9,
+    fontWeight: "800",
+    letterSpacing: 1,
+  },
+  telemetryGrid: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 25,
+  },
   telemetryItem: { width: "31%" },
-  telemetryLabel: { color: COLORS.secondary, fontSize: 9, fontWeight: "700", letterSpacing: 1.2 },
+  telemetryLabel: {
+    color: COLORS.secondary,
+    fontSize: 9,
+    fontWeight: "700",
+    letterSpacing: 1.2,
+  },
   valueRow: { alignItems: "baseline", flexDirection: "row", marginTop: 6 },
   telemetryValue: { color: COLORS.text, fontSize: 25, fontWeight: "700" },
   telemetryUnit: { color: COLORS.secondary, fontSize: 10, marginLeft: 4 },
   divider: { backgroundColor: COLORS.line, height: 1, marginVertical: 20 },
-  dataRow: { flexDirection: "row", justifyContent: "space-between", paddingVertical: 5 },
+  dataRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingVertical: 5,
+  },
   dataLabel: { color: COLORS.secondary, fontSize: 13 },
   dataValue: { color: COLORS.text, fontSize: 13, fontWeight: "600" },
   passCard: {
@@ -353,14 +453,34 @@ const styles = StyleSheet.create({
     top: -74,
     width: 165,
   },
-  passMainRow: { alignItems: "flex-end", flexDirection: "row", justifyContent: "space-between", marginTop: 15 },
-  passTime: { color: COLORS.text, fontSize: 38, fontWeight: "600", letterSpacing: -1 },
+  passMainRow: {
+    alignItems: "flex-end",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 15,
+  },
+  passTime: {
+    color: COLORS.text,
+    fontSize: 38,
+    fontWeight: "600",
+    letterSpacing: -1,
+  },
   passAmPm: { color: COLORS.secondary, fontSize: 15 },
   passDate: { color: COLORS.secondary, fontSize: 12, marginTop: 5 },
   elevationWrap: { alignItems: "flex-end" },
   elevationValue: { color: COLORS.cyan, fontSize: 25, fontWeight: "700" },
-  elevationLabel: { color: COLORS.secondary, fontSize: 8, letterSpacing: 1.3, marginTop: 3 },
-  conditionRow: { alignItems: "center", flexDirection: "row", justifyContent: "space-between", marginTop: 20 },
+  elevationLabel: {
+    color: COLORS.secondary,
+    fontSize: 8,
+    letterSpacing: 1.3,
+    marginTop: 3,
+  },
+  conditionRow: {
+    alignItems: "center",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 20,
+  },
   conditionPill: {
     alignItems: "center",
     backgroundColor: "rgba(20,75,83,0.45)",
@@ -371,7 +491,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 11,
     paddingVertical: 8,
   },
-  goodDot: { backgroundColor: "#7CF3C5", borderRadius: 3, height: 6, marginRight: 7, width: 6 },
+  goodDot: {
+    backgroundColor: "#7CF3C5",
+    borderRadius: 3,
+    height: 6,
+    marginRight: 7,
+    width: 6,
+  },
   conditionText: { color: COLORS.cyan, fontSize: 11, fontWeight: "600" },
   cloudText: { color: COLORS.secondary, fontSize: 11 },
   primaryButton: {
@@ -386,7 +512,12 @@ const styles = StyleSheet.create({
   },
   primaryButtonIcon: { color: "#062238", fontSize: 20, marginRight: 10 },
   primaryButtonText: { color: "#061524", fontSize: 16, fontWeight: "800" },
-  primaryButtonArrow: { color: "#061524", fontSize: 24, position: "absolute", right: 24 },
+  primaryButtonArrow: {
+    color: "#061524",
+    fontSize: 24,
+    position: "absolute",
+    right: 24,
+  },
   secondaryButton: {
     alignItems: "center",
     backgroundColor: "rgba(17,26,43,0.68)",
@@ -410,7 +541,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 3,
     width: 48,
   },
-  toggleThumb: { backgroundColor: COLORS.cyan, borderRadius: 11, height: 22, marginLeft: 20, width: 22 },
+  toggleThumb: {
+    backgroundColor: COLORS.cyan,
+    borderRadius: 11,
+    height: 22,
+    marginLeft: 20,
+    width: 22,
+  },
   disclaimer: {
     color: "#71819B",
     fontSize: 10,

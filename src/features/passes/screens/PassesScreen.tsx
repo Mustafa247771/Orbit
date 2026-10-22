@@ -1,14 +1,8 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { Stack, router, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
-import {
-  Pressable,
-  SafeAreaView,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const COLORS = {
   background: "#060914",
@@ -37,7 +31,9 @@ function formatCountdown(totalSeconds: number) {
   const minutes = Math.floor((totalSeconds % 3600) / 60);
   const seconds = totalSeconds % 60;
 
-  return [hours, minutes, seconds].map((value) => String(value).padStart(2, "0"));
+  return [hours, minutes, seconds].map((value) =>
+    String(value).padStart(2, "0"),
+  );
 }
 
 function CountdownUnit({ value, label }: { value: string; label: string }) {
@@ -87,8 +83,18 @@ function UpcomingPass({
           <Text style={styles.upcomingMeta}>{duration} visible</Text>
           <View style={styles.metaDot} />
           <Text style={styles.upcomingMeta}>{elevation} elevation</Text>
-          <View style={[styles.qualityPill, quality === "Fair" && styles.qualityFair]}>
-            <Text style={[styles.qualityText, quality === "Fair" && styles.qualityFairText]}>
+          <View
+            style={[
+              styles.qualityPill,
+              quality === "Fair" && styles.qualityFair,
+            ]}
+          >
+            <Text
+              style={[
+                styles.qualityText,
+                quality === "Fair" && styles.qualityFairText,
+              ]}
+            >
               {quality}
             </Text>
           </View>
@@ -128,7 +134,10 @@ export default function VisiblePassesScreen() {
             accessibilityRole="button"
             accessibilityLabel="Go back"
             onPress={() => router.back()}
-            style={({ pressed }) => [styles.circleButton, pressed && styles.pressed]}
+            style={({ pressed }) => [
+              styles.circleButton,
+              pressed && styles.pressed,
+            ]}
           >
             <Text style={styles.backIcon}>‹</Text>
           </Pressable>
@@ -147,8 +156,13 @@ export default function VisiblePassesScreen() {
           <Pressable
             accessibilityRole="button"
             accessibilityLabel={`Observing location ${LOCATIONS[locationIndex]}. Change location`}
-            onPress={() => setLocationIndex((current) => (current + 1) % LOCATIONS.length)}
-            style={({ pressed }) => [styles.locationButton, pressed && styles.pressed]}
+            onPress={() =>
+              setLocationIndex((current) => (current + 1) % LOCATIONS.length)
+            }
+            style={({ pressed }) => [
+              styles.locationButton,
+              pressed && styles.pressed,
+            ]}
           >
             <Text style={styles.locationPin}>⌾</Text>
             <Text style={styles.locationText}>{LOCATIONS[locationIndex]}</Text>
@@ -178,7 +192,9 @@ export default function VisiblePassesScreen() {
           </View>
 
           <Text style={styles.heroEyebrow}>NEXT VISIBLE PASS</Text>
-          <Text style={styles.heroTime}>7:42 <Text style={styles.heroAmPm}>PM</Text></Text>
+          <Text style={styles.heroTime}>
+            7:42 <Text style={styles.heroAmPm}>PM</Text>
+          </Text>
           <Text style={styles.heroDate}>Tonight · Northwest → Southeast</Text>
 
           <View style={styles.countdownWrap}>
@@ -199,7 +215,6 @@ export default function VisiblePassesScreen() {
             <View style={styles.metricDivider} />
             <PassMetric label="CLOUDS" value="12%" />
           </View>
-
         </LinearGradient>
 
         <View style={styles.reminderCard}>
@@ -220,7 +235,12 @@ export default function VisiblePassesScreen() {
               onPress={() => setReminderEnabled((current) => !current)}
               style={[styles.toggle, reminderEnabled && styles.toggleOn]}
             >
-              <View style={[styles.toggleThumb, reminderEnabled && styles.toggleThumbOn]} />
+              <View
+                style={[
+                  styles.toggleThumb,
+                  reminderEnabled && styles.toggleThumbOn,
+                ]}
+              />
             </Pressable>
           </View>
 
@@ -231,17 +251,21 @@ export default function VisiblePassesScreen() {
                 <Pressable
                   key={minutesOption}
                   accessibilityRole="button"
-                  accessibilityState={{ selected: leadMinutes === minutesOption }}
+                  accessibilityState={{
+                    selected: leadMinutes === minutesOption,
+                  }}
                   onPress={() => setLeadMinutes(minutesOption)}
                   style={[
                     styles.leadTimeButton,
-                    leadMinutes === minutesOption && styles.leadTimeButtonActive,
+                    leadMinutes === minutesOption &&
+                      styles.leadTimeButtonActive,
                   ]}
                 >
                   <Text
                     style={[
                       styles.leadTimeText,
-                      leadMinutes === minutesOption && styles.leadTimeTextActive,
+                      leadMinutes === minutesOption &&
+                        styles.leadTimeTextActive,
                     ]}
                   >
                     {minutesOption} min
@@ -257,8 +281,11 @@ export default function VisiblePassesScreen() {
             <Text style={styles.sectionEyebrow}>NEXT 7 DAYS</Text>
             <Text style={styles.sectionTitle}>Coming into view</Text>
           </View>
-          <Pressable accessibilityRole="button" accessibilityLabel="Pass filters">
-            <Text style={styles.filterText}>Filter  ≡</Text>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Pass filters"
+          >
+            <Text style={styles.filterText}>Filter ≡</Text>
           </Pressable>
         </View>
 
@@ -290,11 +317,11 @@ export default function VisiblePassesScreen() {
         <View style={styles.forecastNote}>
           <Text style={styles.forecastIcon}>i</Text>
           <Text style={styles.forecastText}>
-            Passes are optical predictions. Clear skies improve visibility but do not guarantee a sighting.
+            Passes are optical predictions. Clear skies improve visibility but
+            do not guarantee a sighting.
           </Text>
         </View>
       </ScrollView>
-
     </SafeAreaView>
   );
 }
@@ -321,10 +348,25 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     width: 50,
   },
-  backIcon: { color: COLORS.text, fontSize: 38, fontWeight: "200", marginTop: -5 },
+  backIcon: {
+    color: COLORS.text,
+    fontSize: 38,
+    fontWeight: "200",
+    marginTop: -5,
+  },
   headerCopy: { alignItems: "center" },
-  headerEyebrow: { color: COLORS.secondary, fontSize: 9, fontWeight: "800", letterSpacing: 2.2 },
-  headerTitle: { color: COLORS.text, fontSize: 15, fontWeight: "600", marginTop: 4 },
+  headerEyebrow: {
+    color: COLORS.secondary,
+    fontSize: 9,
+    fontWeight: "800",
+    letterSpacing: 2.2,
+  },
+  headerTitle: {
+    color: COLORS.text,
+    fontSize: 15,
+    fontWeight: "600",
+    marginTop: 4,
+  },
   signalButton: {
     alignItems: "center",
     backgroundColor: "rgba(17,26,43,0.9)",
@@ -335,10 +377,28 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     width: 50,
   },
-  signalDot: { backgroundColor: COLORS.green, borderRadius: 4, height: 7, position: "absolute", right: 9, top: 9, width: 7 },
-  signalIcon: { color: COLORS.cyan, fontSize: 27, transform: [{ rotate: "-25deg" }] },
+  signalDot: {
+    backgroundColor: COLORS.green,
+    borderRadius: 4,
+    height: 7,
+    position: "absolute",
+    right: 9,
+    top: 9,
+    width: 7,
+  },
+  signalIcon: {
+    color: COLORS.cyan,
+    fontSize: 27,
+    transform: [{ rotate: "-25deg" }],
+  },
   intro: { paddingHorizontal: 24, paddingTop: 30 },
-  title: { color: COLORS.text, fontSize: 39, fontWeight: "700", letterSpacing: -1.3, lineHeight: 43 },
+  title: {
+    color: COLORS.text,
+    fontSize: 39,
+    fontWeight: "700",
+    letterSpacing: -1.3,
+    lineHeight: 43,
+  },
   locationButton: {
     alignItems: "center",
     alignSelf: "flex-start",
@@ -384,12 +444,38 @@ const styles = StyleSheet.create({
     top: -58,
     width: 180,
   },
-  satelliteMark: { height: 28, position: "absolute", right: 42, top: 75, transform: [{ rotate: "-22deg" }], width: 47 },
-  satelliteBody: { backgroundColor: COLORS.text, borderRadius: 4, height: 18, left: 19, position: "absolute", top: 5, width: 9 },
-  satellitePanel: { backgroundColor: COLORS.cyan, borderRadius: 2, height: 13, position: "absolute", top: 7, width: 15 },
+  satelliteMark: {
+    height: 28,
+    position: "absolute",
+    right: 42,
+    top: 75,
+    transform: [{ rotate: "-22deg" }],
+    width: 47,
+  },
+  satelliteBody: {
+    backgroundColor: COLORS.text,
+    borderRadius: 4,
+    height: 18,
+    left: 19,
+    position: "absolute",
+    top: 5,
+    width: 9,
+  },
+  satellitePanel: {
+    backgroundColor: COLORS.cyan,
+    borderRadius: 2,
+    height: 13,
+    position: "absolute",
+    top: 7,
+    width: 15,
+  },
   satellitePanelLeft: { left: 0 },
   satellitePanelRight: { right: 0 },
-  heroTopRow: { alignItems: "center", flexDirection: "row", justifyContent: "space-between" },
+  heroTopRow: {
+    alignItems: "center",
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
   conditionPill: {
     alignItems: "center",
     backgroundColor: "rgba(22,82,82,0.55)",
@@ -400,11 +486,39 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 8,
   },
-  goodDot: { backgroundColor: COLORS.green, borderRadius: 4, height: 7, marginRight: 7, width: 7 },
-  conditionText: { color: COLORS.cyan, fontSize: 9, fontWeight: "800", letterSpacing: 1.1 },
-  demoLabel: { color: COLORS.secondary, fontSize: 9, fontWeight: "700", letterSpacing: 1.4 },
-  heroEyebrow: { color: COLORS.secondary, fontSize: 11, fontWeight: "700", letterSpacing: 1.8, marginTop: 30 },
-  heroTime: { color: COLORS.text, fontSize: 52, fontWeight: "600", letterSpacing: -2, marginTop: 7 },
+  goodDot: {
+    backgroundColor: COLORS.green,
+    borderRadius: 4,
+    height: 7,
+    marginRight: 7,
+    width: 7,
+  },
+  conditionText: {
+    color: COLORS.cyan,
+    fontSize: 9,
+    fontWeight: "800",
+    letterSpacing: 1.1,
+  },
+  demoLabel: {
+    color: COLORS.secondary,
+    fontSize: 9,
+    fontWeight: "700",
+    letterSpacing: 1.4,
+  },
+  heroEyebrow: {
+    color: COLORS.secondary,
+    fontSize: 11,
+    fontWeight: "700",
+    letterSpacing: 1.8,
+    marginTop: 30,
+  },
+  heroTime: {
+    color: COLORS.text,
+    fontSize: 52,
+    fontWeight: "600",
+    letterSpacing: -2,
+    marginTop: 7,
+  },
   heroAmPm: { color: COLORS.secondary, fontSize: 19, letterSpacing: 0 },
   heroDate: { color: COLORS.secondary, fontSize: 14, marginTop: 2 },
   countdownWrap: {
@@ -416,16 +530,54 @@ const styles = StyleSheet.create({
     paddingHorizontal: 18,
     paddingVertical: 15,
   },
-  countdownHeading: { color: COLORS.secondary, fontSize: 9, fontWeight: "800", letterSpacing: 1.6, textAlign: "center" },
-  countdownRow: { alignItems: "flex-start", flexDirection: "row", justifyContent: "center", marginTop: 8 },
+  countdownHeading: {
+    color: COLORS.secondary,
+    fontSize: 9,
+    fontWeight: "800",
+    letterSpacing: 1.6,
+    textAlign: "center",
+  },
+  countdownRow: {
+    alignItems: "flex-start",
+    flexDirection: "row",
+    justifyContent: "center",
+    marginTop: 8,
+  },
   countdownUnit: { alignItems: "center", minWidth: 52 },
-  countdownValue: { color: COLORS.text, fontSize: 26, fontVariant: ["tabular-nums"], fontWeight: "600" },
-  countdownLabel: { color: "#7688A3", fontSize: 7, fontWeight: "700", letterSpacing: 1.2, marginTop: 2 },
-  countdownColon: { color: COLORS.cyan, fontSize: 22, marginHorizontal: 3, marginTop: 2 },
-  metricRow: { alignItems: "center", flexDirection: "row", justifyContent: "space-between", marginTop: 23 },
+  countdownValue: {
+    color: COLORS.text,
+    fontSize: 26,
+    fontVariant: ["tabular-nums"],
+    fontWeight: "600",
+  },
+  countdownLabel: {
+    color: "#7688A3",
+    fontSize: 7,
+    fontWeight: "700",
+    letterSpacing: 1.2,
+    marginTop: 2,
+  },
+  countdownColon: {
+    color: COLORS.cyan,
+    fontSize: 22,
+    marginHorizontal: 3,
+    marginTop: 2,
+  },
+  metricRow: {
+    alignItems: "center",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 23,
+  },
   metric: { alignItems: "center", flex: 1 },
   metricValue: { color: COLORS.text, fontSize: 18, fontWeight: "700" },
-  metricLabel: { color: COLORS.secondary, fontSize: 8, fontWeight: "700", letterSpacing: 1.3, marginTop: 6 },
+  metricLabel: {
+    color: COLORS.secondary,
+    fontSize: 8,
+    fontWeight: "700",
+    letterSpacing: 1.3,
+    marginTop: 6,
+  },
   metricDivider: { backgroundColor: COLORS.line, height: 35, width: 1 },
   skyFinderButton: {
     alignItems: "center",
@@ -438,7 +590,12 @@ const styles = StyleSheet.create({
   },
   skyFinderIcon: { color: "#061524", fontSize: 23, marginRight: 10 },
   skyFinderText: { color: "#061524", fontSize: 16, fontWeight: "800" },
-  skyFinderArrow: { color: "#061524", fontSize: 23, position: "absolute", right: 22 },
+  skyFinderArrow: {
+    color: "#061524",
+    fontSize: 23,
+    position: "absolute",
+    right: 22,
+  },
   reminderCard: {
     backgroundColor: "rgba(17,26,43,0.68)",
     borderColor: COLORS.line,
@@ -462,19 +619,70 @@ const styles = StyleSheet.create({
   reminderCopy: { flex: 1 },
   reminderTitle: { color: COLORS.text, fontSize: 14, fontWeight: "700" },
   reminderSubtitle: { color: COLORS.secondary, fontSize: 10, marginTop: 3 },
-  toggle: { backgroundColor: "#28354A", borderRadius: 16, height: 30, justifyContent: "center", paddingHorizontal: 3, width: 52 },
+  toggle: {
+    backgroundColor: "#28354A",
+    borderRadius: 16,
+    height: 30,
+    justifyContent: "center",
+    paddingHorizontal: 3,
+    width: 52,
+  },
   toggleOn: { backgroundColor: "#24596E" },
-  toggleThumb: { backgroundColor: "#8291A8", borderRadius: 12, height: 24, width: 24 },
+  toggleThumb: {
+    backgroundColor: "#8291A8",
+    borderRadius: 12,
+    height: 24,
+    width: 24,
+  },
   toggleThumbOn: { backgroundColor: COLORS.cyan, marginLeft: 22 },
-  leadTimeRow: { alignItems: "center", borderTopColor: COLORS.line, borderTopWidth: 1, flexDirection: "row", marginTop: 16, paddingTop: 15 },
-  leadTimeLabel: { color: COLORS.secondary, flex: 1, fontSize: 8, fontWeight: "800", letterSpacing: 1.3 },
-  leadTimeButton: { borderColor: COLORS.line, borderRadius: 14, borderWidth: 1, marginLeft: 7, paddingHorizontal: 10, paddingVertical: 7 },
-  leadTimeButtonActive: { backgroundColor: "rgba(120,230,255,0.14)", borderColor: COLORS.cyan },
+  leadTimeRow: {
+    alignItems: "center",
+    borderTopColor: COLORS.line,
+    borderTopWidth: 1,
+    flexDirection: "row",
+    marginTop: 16,
+    paddingTop: 15,
+  },
+  leadTimeLabel: {
+    color: COLORS.secondary,
+    flex: 1,
+    fontSize: 8,
+    fontWeight: "800",
+    letterSpacing: 1.3,
+  },
+  leadTimeButton: {
+    borderColor: COLORS.line,
+    borderRadius: 14,
+    borderWidth: 1,
+    marginLeft: 7,
+    paddingHorizontal: 10,
+    paddingVertical: 7,
+  },
+  leadTimeButtonActive: {
+    backgroundColor: "rgba(120,230,255,0.14)",
+    borderColor: COLORS.cyan,
+  },
   leadTimeText: { color: COLORS.secondary, fontSize: 10, fontWeight: "600" },
   leadTimeTextActive: { color: COLORS.cyan },
-  sectionHeader: { alignItems: "flex-end", flexDirection: "row", justifyContent: "space-between", marginHorizontal: 22, marginTop: 31 },
-  sectionEyebrow: { color: COLORS.cyan, fontSize: 9, fontWeight: "800", letterSpacing: 1.7 },
-  sectionTitle: { color: COLORS.text, fontSize: 24, fontWeight: "700", marginTop: 5 },
+  sectionHeader: {
+    alignItems: "flex-end",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginHorizontal: 22,
+    marginTop: 31,
+  },
+  sectionEyebrow: {
+    color: COLORS.cyan,
+    fontSize: 9,
+    fontWeight: "800",
+    letterSpacing: 1.7,
+  },
+  sectionTitle: {
+    color: COLORS.text,
+    fontSize: 24,
+    fontWeight: "700",
+    marginTop: 5,
+  },
   filterText: { color: COLORS.cyan, fontSize: 12, fontWeight: "600" },
   upcomingCard: {
     alignItems: "center",
@@ -487,22 +695,84 @@ const styles = StyleSheet.create({
     marginTop: 12,
     padding: 14,
   },
-  dateTile: { alignItems: "center", backgroundColor: "#152238", borderColor: "#354967", borderRadius: 15, borderWidth: 1, justifyContent: "center", minHeight: 66, paddingHorizontal: 10, width: 78 },
-  dateTileDay: { color: COLORS.cyan, fontSize: 8, fontWeight: "800", letterSpacing: 0.8 },
-  dateTileTime: { color: COLORS.text, fontSize: 14, fontWeight: "700", marginTop: 6 },
+  dateTile: {
+    alignItems: "center",
+    backgroundColor: "#152238",
+    borderColor: "#354967",
+    borderRadius: 15,
+    borderWidth: 1,
+    justifyContent: "center",
+    minHeight: 66,
+    paddingHorizontal: 10,
+    width: 78,
+  },
+  dateTileDay: {
+    color: COLORS.cyan,
+    fontSize: 8,
+    fontWeight: "800",
+    letterSpacing: 0.8,
+  },
+  dateTileTime: {
+    color: COLORS.text,
+    fontSize: 14,
+    fontWeight: "700",
+    marginTop: 6,
+  },
   upcomingCopy: { flex: 1, marginLeft: 14 },
-  upcomingTitleRow: { alignItems: "center", flexDirection: "row", justifyContent: "space-between" },
-  upcomingTitle: { color: COLORS.text, flex: 1, fontSize: 13, fontWeight: "700" },
+  upcomingTitleRow: {
+    alignItems: "center",
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  upcomingTitle: {
+    color: COLORS.text,
+    flex: 1,
+    fontSize: 13,
+    fontWeight: "700",
+  },
   chevron: { color: COLORS.cyan, fontSize: 25, marginLeft: 5 },
   upcomingDirection: { color: COLORS.secondary, fontSize: 10, marginTop: 4 },
-  upcomingMetaRow: { alignItems: "center", flexDirection: "row", flexWrap: "wrap", marginTop: 9 },
+  upcomingMetaRow: {
+    alignItems: "center",
+    flexDirection: "row",
+    flexWrap: "wrap",
+    marginTop: 9,
+  },
   upcomingMeta: { color: "#8FA0B8", fontSize: 9 },
-  metaDot: { backgroundColor: "#596A82", borderRadius: 2, height: 3, marginHorizontal: 6, width: 3 },
-  qualityPill: { backgroundColor: "rgba(124,243,197,0.12)", borderRadius: 10, marginLeft: 8, paddingHorizontal: 7, paddingVertical: 3 },
+  metaDot: {
+    backgroundColor: "#596A82",
+    borderRadius: 2,
+    height: 3,
+    marginHorizontal: 6,
+    width: 3,
+  },
+  qualityPill: {
+    backgroundColor: "rgba(124,243,197,0.12)",
+    borderRadius: 10,
+    marginLeft: 8,
+    paddingHorizontal: 7,
+    paddingVertical: 3,
+  },
   qualityFair: { backgroundColor: "rgba(255,211,112,0.12)" },
   qualityText: { color: COLORS.green, fontSize: 8, fontWeight: "700" },
   qualityFairText: { color: "#FFD370" },
-  forecastNote: { alignItems: "flex-start", flexDirection: "row", marginHorizontal: 28, marginTop: 20 },
-  forecastIcon: { borderColor: "#52647E", borderRadius: 9, borderWidth: 1, color: COLORS.secondary, fontSize: 10, height: 18, lineHeight: 16, marginRight: 9, textAlign: "center", width: 18 },
+  forecastNote: {
+    alignItems: "flex-start",
+    flexDirection: "row",
+    marginHorizontal: 28,
+    marginTop: 20,
+  },
+  forecastIcon: {
+    borderColor: "#52647E",
+    borderRadius: 9,
+    borderWidth: 1,
+    color: COLORS.secondary,
+    fontSize: 10,
+    height: 18,
+    lineHeight: 16,
+    marginRight: 9,
+    textAlign: "center",
+    width: 18,
+  },
   forecastText: { color: "#7889A3", flex: 1, fontSize: 10, lineHeight: 15 },
 });

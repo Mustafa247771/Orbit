@@ -1,4 +1,4 @@
-import type { NewSightingDraft, Sighting } from "@/data/Sighting";
+import type { NewSightingDraft, Sighting } from "./Sighting";
 
 export interface SightingRepository {
   list(): Promise<Sighting[]>;

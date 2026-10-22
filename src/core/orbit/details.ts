@@ -1,9 +1,9 @@
 import {
-    degreesLat,
-    degreesLong,
-    eciToGeodetic,
-    gstime,
-    propagate,
+  degreesLat,
+  degreesLong,
+  eciToGeodetic,
+  gstime,
+  propagate,
 } from "satellite.js";
 
 import type { TrackedSatellite } from "./propagate";

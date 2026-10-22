@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import type { Launch } from "@/data/Launch";
-import { launchService } from "@/services/LaunchService";
+import type { Launch } from "@/features/launches/model/Launch";
+import { launchService } from "@/features/launches/model/LaunchService";
 
 export function launchCountdown(net: string, now: number) {
   const remaining = Math.max(0, new Date(net).getTime() - now);
@@ -30,7 +30,11 @@ export function useLaunchCalendarViewModel() {
       setSource(result.source);
       setError(null);
     } catch (caught) {
-      setError(caught instanceof Error ? caught.message : "Launch data is unavailable.");
+      setError(
+        caught instanceof Error
+          ? caught.message
+          : "Launch data is unavailable.",
+      );
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -49,14 +53,17 @@ export function useLaunchCalendarViewModel() {
     };
   }, [load]);
 
-  return useMemo(() => ({
-    error,
-    featuredLaunch: launches[0] ?? null,
-    launches,
-    loading,
-    now,
-    refresh: () => load(true),
-    refreshing,
-    source,
-  }), [error, launches, loading, load, now, refreshing, source]);
+  return useMemo(
+    () => ({
+      error,
+      featuredLaunch: launches[0] ?? null,
+      launches,
+      loading,
+      now,
+      refresh: () => load(true),
+      refreshing,
+      source,
+    }),
+    [error, launches, loading, load, now, refreshing, source],
+  );
 }
