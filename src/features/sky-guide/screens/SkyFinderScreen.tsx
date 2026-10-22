@@ -1,19 +1,11 @@
-import {
-  InteractiveStarField,
-  StarPointer,
-} from "@/features/passes/components/InteractiveStarField";
 import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
 import { Stack, router, useLocalSearchParams } from "expo-router";
 import { DeviceMotion, Magnetometer } from "expo-sensors";
 import { useEffect, useMemo, useRef, useState } from "react";
-import {
-  GestureResponderEvent,
-  LayoutChangeEvent,
-  PointerEvent,
-  Pressable, ScrollView, StyleSheet, Text, View,
-} from "react-native";
+import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+
 const TARGET_AZIMUTH = 312;
 const TARGET_ELEVATION = 48;
 
@@ -33,31 +25,6 @@ function cardinalDirection(heading: number) {
 }
 
 export default function SkyFinderScreen() {
-  const screenSize = useRef({ height: 1, width: 1 });
-
-const starPointer = useRef<StarPointer>({
-  active: false,
-  x: 0.5,
-  y: 0.5,
-});
-
-function trackStars(event: GestureResponderEvent | PointerEvent) {
-  const { pageX, pageY } = event.nativeEvent;
-
-  starPointer.current = {
-    active: true,
-    x: Math.max(0, Math.min(1, pageX / screenSize.current.width)),
-    y: Math.max(0, Math.min(1, pageY / screenSize.current.height)),
-  };
-}
-
-function releaseStars() {
-  starPointer.current.active = false;
-}
-
-function measureScreen(event: LayoutChangeEvent) {
-  screenSize.current = event.nativeEvent.layout;
-}
   const { id } = useLocalSearchParams<{ id: string }>();
   const [heading, setHeading] = useState(276);
   const [elevation, setElevation] = useState(34);
@@ -175,26 +142,10 @@ function measureScreen(event: LayoutChangeEvent) {
         : "Numeric mode";
 
   return (
-    <SafeAreaView
-  onLayout={measureScreen}
-  onPointerLeave={releaseStars}
-  onPointerMove={trackStars}
-  onTouchEnd={releaseStars}
-  onTouchMove={trackStars}
-  onTouchStart={trackStars}
-  style={styles.safeArea}
->
-<View pointerEvents="none" style={styles.starField}>
-  <InteractiveStarField pointer={starPointer} />
-</View>
-      
+    <SafeAreaView style={styles.safeArea}>
       <Stack.Screen options={{ headerShown: false }} />
       <LinearGradient
-        colors={[
-          "rgba(6,9,20,0.72)",
-          "rgba(8,19,41,0.58)",
-          "rgba(6,9,20,0.72)",
-        ]}
+        colors={["#060914", "#081329", "#060914"]}
         style={StyleSheet.absoluteFill}
       />
       <View style={[styles.star, styles.starOne]} />
@@ -417,14 +368,7 @@ function measureScreen(event: LayoutChangeEvent) {
 }
 
 const styles = StyleSheet.create({
-  starField: {
-    position: "absolute",
-    top: 0,
-    right: 0,
-    bottom: 0,
-    left: 0,
-  },
-  safeArea: { backgroundColor: "transparent", flex: 1 },
+  safeArea: { backgroundColor: "#060914", flex: 1 },
   scroll: { flex: 1 },
   content: { paddingBottom: 42 },
   pressed: { opacity: 0.68, transform: [{ scale: 0.985 }] },

@@ -1,22 +1,8 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { Stack, router, useLocalSearchParams } from "expo-router";
-import { useEffect, useRef, useState } from "react";
-import {
-  GestureResponderEvent,
-  LayoutChangeEvent,
-  PointerEvent,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { useEffect, useState } from "react";
+import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-
-import {
-  InteractiveStarField,
-  StarPointer,
-} from "../components/InteractiveStarField";
 
 const COLORS = {
   background: "#060914",
@@ -124,8 +110,6 @@ export default function VisiblePassesScreen() {
   const [reminderEnabled, setReminderEnabled] = useState(true);
   const [leadMinutes, setLeadMinutes] = useState(10);
   const [countdown, setCountdown] = useState(1 * 3600 + 18 * 60 + 32);
-  const screenSize = useRef({ height: 1, width: 1 });
-  const starPointer = useRef<StarPointer>({ active: false, x: 0.5, y: 0.5 });
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -137,39 +121,9 @@ export default function VisiblePassesScreen() {
 
   const [hours, minutes, seconds] = formatCountdown(countdown);
 
-  function trackStars(event: GestureResponderEvent | PointerEvent) {
-    const nativeEvent = event.nativeEvent;
-    const locationX = nativeEvent.pageX;
-    const locationY = nativeEvent.pageY;
-    starPointer.current = {
-      active: true,
-      x: Math.max(0, Math.min(1, locationX / screenSize.current.width)),
-      y: Math.max(0, Math.min(1, locationY / screenSize.current.height)),
-    };
-  }
-
-  function releaseStars() {
-    starPointer.current.active = false;
-  }
-
-  function measureScreen(event: LayoutChangeEvent) {
-    screenSize.current = event.nativeEvent.layout;
-  }
-
   return (
-    <SafeAreaView
-      onLayout={measureScreen}
-      onPointerLeave={releaseStars}
-      onPointerMove={trackStars}
-      onTouchEnd={releaseStars}
-      onTouchMove={trackStars}
-      onTouchStart={trackStars}
-      style={styles.safeArea}
-    >
+    <SafeAreaView style={styles.safeArea}>
       <Stack.Screen options={{ headerShown: false }} />
-      <View pointerEvents="none" style={styles.starField}>
-        <InteractiveStarField pointer={starPointer} />
-      </View>
       <ScrollView
         style={styles.screen}
         contentContainerStyle={styles.content}
@@ -374,14 +328,7 @@ export default function VisiblePassesScreen() {
 
 const styles = StyleSheet.create({
   safeArea: { backgroundColor: COLORS.background, flex: 1 },
-  screen: { backgroundColor: "transparent", flex: 1 },
-  starField: {
-    bottom: 0,
-    left: 0,
-    position: "absolute",
-    right: 0,
-    top: 0,
-  },
+  screen: { backgroundColor: COLORS.background, flex: 1 },
   content: { paddingBottom: 126 },
   pressed: { opacity: 0.68, transform: [{ scale: 0.985 }] },
   header: {

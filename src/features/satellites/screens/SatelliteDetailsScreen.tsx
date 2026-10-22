@@ -1,21 +1,13 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { Stack, router, useLocalSearchParams } from "expo-router";
 import { useRef, useState } from "react";
-import {
-  GestureResponderEvent,
-  LayoutChangeEvent,
-  PointerEvent,
-  Pressable, ScrollView, StyleSheet, Text, View
-} from "react-native";
+import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import {
-  InteractiveStarField,
-  StarPointer,
-} from "@/features/passes/components/InteractiveStarField";
 import { SatelliteScene } from "@/features/satellites/components/SatelliteScene";
+
 const COLORS = {
-  background: "transparent",
+  background: "#060914",
   surface: "#111A2B",
   cyan: "#78E6FF",
   violet: "#AB9EFF",
@@ -58,44 +50,9 @@ export default function SatelliteDetailsScreen() {
   const [paused, setPaused] = useState(false);
   const rotation = useRef({ x: 0.22, y: -0.5 });
   const dragStart = useRef({ pageX: 0, pageY: 0, rotationX: 0, rotationY: 0 });
-  const screenSize = useRef({ height: 1, width: 1 });
 
-  const starPointer = useRef<StarPointer>({
-    active: false,
-    x: 0.5,
-    y: 0.5,
-  });
-  
-  function trackStars(event: GestureResponderEvent | PointerEvent) {
-    const { pageX, pageY } = event.nativeEvent;
-  
-    starPointer.current = {
-      active: true,
-      x: Math.max(0, Math.min(1, pageX / screenSize.current.width)),
-      y: Math.max(0, Math.min(1, pageY / screenSize.current.height)),
-    };
-  }
-  
-  function releaseStars() {
-    starPointer.current.active = false;
-  }
-  
-  function measureScreen(event: LayoutChangeEvent) {
-    screenSize.current = event.nativeEvent.layout;
-  }
   return (
-    <SafeAreaView
-  onLayout={measureScreen}
-  onPointerLeave={releaseStars}
-  onPointerMove={trackStars}
-  onTouchEnd={releaseStars}
-  onTouchMove={trackStars}
-  onTouchStart={trackStars}
-  style={styles.safeArea}
->
-<View pointerEvents="none" style={styles.starField}>
-  <InteractiveStarField pointer={starPointer} />
-</View>
+    <SafeAreaView style={styles.safeArea}>
       <Stack.Screen options={{ headerShown: false }} />
       <ScrollView
         style={styles.screen}
@@ -282,13 +239,6 @@ export default function SatelliteDetailsScreen() {
 }
 
 const styles = StyleSheet.create({
-  starField: {
-    position: "absolute",
-    top: 0,
-    right: 0,
-    bottom: 0,
-    left: 0,
-  },
   safeArea: { flex: 1, backgroundColor: COLORS.background },
   screen: { flex: 1, backgroundColor: COLORS.background },
   content: { paddingBottom: 126 },
