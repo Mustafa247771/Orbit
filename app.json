@@ -33,7 +33,25 @@
           "imageWidth": 76
         }
       ],
-      "expo-asset"
+      "expo-asset",
+      "expo-font",
+      "expo-image",
+      [
+        "expo-image-picker",
+        {
+          "cameraPermission": "Allow Orbit to use the camera to record a space sighting.",
+          "microphonePermission": false,
+          "photosPermission": "Allow Orbit to choose a photo for your observation journal."
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Allow Orbit to attach your observing location to a sighting."
+        }
+      ],
+      "expo-status-bar",
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true
