@@ -16,7 +16,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import {
   InteractiveStarField,
   StarPointer,
-} from "../components/InteractiveStarField";
+} from "@/components/ui/InteractiveStarField";
 
 const COLORS = {
   background: "#060914",

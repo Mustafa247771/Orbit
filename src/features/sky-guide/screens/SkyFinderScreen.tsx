@@ -1,7 +1,7 @@
 import {
   InteractiveStarField,
   StarPointer,
-} from "@/features/passes/components/InteractiveStarField";
+} from "@/components/ui/InteractiveStarField";
 import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
 import { Stack, router, useLocalSearchParams } from "expo-router";
@@ -11,7 +11,11 @@ import {
   GestureResponderEvent,
   LayoutChangeEvent,
   PointerEvent,
-  Pressable, ScrollView, StyleSheet, Text, View,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 const TARGET_AZIMUTH = 312;
@@ -35,29 +39,29 @@ function cardinalDirection(heading: number) {
 export default function SkyFinderScreen() {
   const screenSize = useRef({ height: 1, width: 1 });
 
-const starPointer = useRef<StarPointer>({
-  active: false,
-  x: 0.5,
-  y: 0.5,
-});
+  const starPointer = useRef<StarPointer>({
+    active: false,
+    x: 0.5,
+    y: 0.5,
+  });
 
-function trackStars(event: GestureResponderEvent | PointerEvent) {
-  const { pageX, pageY } = event.nativeEvent;
+  function trackStars(event: GestureResponderEvent | PointerEvent) {
+    const { pageX, pageY } = event.nativeEvent;
 
-  starPointer.current = {
-    active: true,
-    x: Math.max(0, Math.min(1, pageX / screenSize.current.width)),
-    y: Math.max(0, Math.min(1, pageY / screenSize.current.height)),
-  };
-}
+    starPointer.current = {
+      active: true,
+      x: Math.max(0, Math.min(1, pageX / screenSize.current.width)),
+      y: Math.max(0, Math.min(1, pageY / screenSize.current.height)),
+    };
+  }
 
-function releaseStars() {
-  starPointer.current.active = false;
-}
+  function releaseStars() {
+    starPointer.current.active = false;
+  }
 
-function measureScreen(event: LayoutChangeEvent) {
-  screenSize.current = event.nativeEvent.layout;
-}
+  function measureScreen(event: LayoutChangeEvent) {
+    screenSize.current = event.nativeEvent.layout;
+  }
   const { id } = useLocalSearchParams<{ id: string }>();
   const [heading, setHeading] = useState(276);
   const [elevation, setElevation] = useState(34);
@@ -176,18 +180,18 @@ function measureScreen(event: LayoutChangeEvent) {
 
   return (
     <SafeAreaView
-  onLayout={measureScreen}
-  onPointerLeave={releaseStars}
-  onPointerMove={trackStars}
-  onTouchEnd={releaseStars}
-  onTouchMove={trackStars}
-  onTouchStart={trackStars}
-  style={styles.safeArea}
->
-<View pointerEvents="none" style={styles.starField}>
-  <InteractiveStarField pointer={starPointer} />
-</View>
-      
+      onLayout={measureScreen}
+      onPointerLeave={releaseStars}
+      onPointerMove={trackStars}
+      onTouchEnd={releaseStars}
+      onTouchMove={trackStars}
+      onTouchStart={trackStars}
+      style={styles.safeArea}
+    >
+      <View pointerEvents="none" style={styles.starField}>
+        <InteractiveStarField pointer={starPointer} />
+      </View>
+
       <Stack.Screen options={{ headerShown: false }} />
       <LinearGradient
         colors={[
