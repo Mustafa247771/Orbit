@@ -1,8 +1,16 @@
+import {
+  InteractiveStarField,
+  StarPointer,
+} from "@/features/passes/components/InteractiveStarField";
 import { LinearGradient } from "expo-linear-gradient";
 import { Stack, router } from "expo-router";
+import { useRef } from "react";
 import {
   ActivityIndicator,
+  GestureResponderEvent,
   Image,
+  LayoutChangeEvent,
+  PointerEvent,
   Pressable,
   RefreshControl,
   ScrollView,
@@ -83,9 +91,44 @@ function LaunchCard({ launch, now }: { launch: Launch; now: number }) {
 export default function LaunchCalendarScreen() {
   const viewModel = useLaunchCalendarViewModel();
   const featured = viewModel.featuredLaunch;
+  const screenSize = useRef({ height: 1, width: 1 });
 
+  const starPointer = useRef<StarPointer>({
+    active: false,
+    x: 0.5,
+    y: 0.5,
+  });
+  
+  function trackStars(event: GestureResponderEvent | PointerEvent) {
+    const { pageX, pageY } = event.nativeEvent;
+  
+    starPointer.current = {
+      active: true,
+      x: Math.max(0, Math.min(1, pageX / screenSize.current.width)),
+      y: Math.max(0, Math.min(1, pageY / screenSize.current.height)),
+    };
+  }
+  
+  function releaseStars() {
+    starPointer.current.active = false;
+  }
+  
+  function measureScreen(event: LayoutChangeEvent) {
+    screenSize.current = event.nativeEvent.layout;
+  }
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView
+  onLayout={measureScreen}
+  onPointerLeave={releaseStars}
+  onPointerMove={trackStars}
+  onTouchEnd={releaseStars}
+  onTouchMove={trackStars}
+  onTouchStart={trackStars}
+  style={styles.safeArea}
+>
+<View pointerEvents="none" style={styles.starField}>
+  <InteractiveStarField pointer={starPointer} />
+</View>
       <Stack.Screen options={{ headerShown: false }} />
       <ScrollView
         contentContainerStyle={styles.content}
@@ -241,7 +284,7 @@ export default function LaunchCalendarScreen() {
 }
 
 const styles = StyleSheet.create({
-  safeArea: { backgroundColor: "#060914", flex: 1 },
+  safeArea: { backgroundColor: "transparent", flex: 1 },
   screen: { flex: 1 },
   content: { paddingBottom: 130 },
   header: {
@@ -550,5 +593,11 @@ const styles = StyleSheet.create({
     marginHorizontal: 40,
     marginTop: 20,
     textAlign: "center",
+  }, starField: {
+    position: "absolute",
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0,
   },
 });

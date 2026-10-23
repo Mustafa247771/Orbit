@@ -1,9 +1,18 @@
+import {
+  InteractiveStarField,
+  StarPointer,
+} from "@/features/passes/components/InteractiveStarField";
+import { useNewSightingViewModel } from "@/features/sightings/viewmodels/useNewSightingViewModel";
 import { LinearGradient } from "expo-linear-gradient";
 import { Stack, router } from "expo-router";
+import { useRef } from "react";
 import {
   ActivityIndicator,
   Alert,
+  GestureResponderEvent,
   Image,
+  LayoutChangeEvent,
+  PointerEvent,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -12,10 +21,32 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-
-import { useNewSightingViewModel } from "@/features/sightings/viewmodels/useNewSightingViewModel";
-
 export default function NewSightingScreen() {
+  const screenSize = useRef({ height: 1, width: 1 });
+
+const starPointer = useRef<StarPointer>({
+  active: false,
+  x: 0.5,
+  y: 0.5,
+});
+
+function trackStars(event: GestureResponderEvent | PointerEvent) {
+  const { pageX, pageY } = event.nativeEvent;
+
+  starPointer.current = {
+    active: true,
+    x: Math.max(0, Math.min(1, pageX / screenSize.current.width)),
+    y: Math.max(0, Math.min(1, pageY / screenSize.current.height)),
+  };
+}
+
+function releaseStars() {
+  starPointer.current.active = false;
+}
+
+function measureScreen(event: LayoutChangeEvent) {
+  screenSize.current = event.nativeEvent.layout;
+}
   const viewModel = useNewSightingViewModel();
 
   async function saveSighting() {
@@ -30,7 +61,18 @@ export default function NewSightingScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView
+  onLayout={measureScreen}
+  onPointerLeave={releaseStars}
+  onPointerMove={trackStars}
+  onTouchEnd={releaseStars}
+  onTouchMove={trackStars}
+  onTouchStart={trackStars}
+  style={styles.safeArea}
+>
+<View pointerEvents="none" style={styles.starField}>
+  <InteractiveStarField pointer={starPointer} />
+</View>
       <Stack.Screen options={{ headerShown: false }} />
       <ScrollView
         style={styles.scroll}
@@ -364,7 +406,14 @@ export default function NewSightingScreen() {
 }
 
 const styles = StyleSheet.create({
-  safeArea: { backgroundColor: "#060914", flex: 1 },
+  starField: {
+    position: "absolute",
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0,
+  },
+  safeArea: { backgroundColor: "transparent", flex: 1 },
   scroll: { flex: 1 },
   content: { paddingBottom: 126 },
   pressed: { opacity: 0.68, transform: [{ scale: 0.985 }] },
