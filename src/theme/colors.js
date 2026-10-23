@@ -6,4 +6,6 @@ module.exports = {
   muted: "#8A93B5",
   accent: "#7CFFB2",
   danger: "#FB7185",
+  cyan: "#78E6FF",
+  gold: "#FFD370",
 };

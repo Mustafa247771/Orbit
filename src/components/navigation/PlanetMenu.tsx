@@ -51,11 +51,26 @@ const MENU_ITEMS: MenuItem[] = [
     href: "/launches",
     match: "/launches",
   },
-  { label: "Community", symbol: "✧", href: null, match: "/community" },
-  { label: "NASA picture", symbol: "◇", href: null, match: "/apod" },
-  { label: "Spaceflight", symbol: "≋", href: null, match: "/spaceflight" },
-  { label: "Achievements", symbol: "★", href: null, match: "/achievements" },
-  { label: "Profile & settings", symbol: "⚙", href: null, match: "/profile" },
+  { label: "Community", symbol: "✧", href: "/community", match: "/community" },
+  { label: "NASA picture", symbol: "◇", href: "/apod", match: "/apod" },
+  {
+    label: "Spaceflight",
+    symbol: "≋",
+    href: "/spaceflight",
+    match: "/spaceflight",
+  },
+  {
+    label: "Achievements",
+    symbol: "★",
+    href: "/achievements",
+    match: "/achievements",
+  },
+  {
+    label: "Profile & settings",
+    symbol: "⚙",
+    href: "/profile",
+    match: "/profile",
+  },
 ];
 
 const STAGE_WIDTH = Math.min(Dimensions.get("window").width, 430);
