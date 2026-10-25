@@ -5,10 +5,11 @@ import { Icon } from "@/components/ui/Icon";
 import colors from "@/theme/colors";
 import type { SpacePicture } from "../model/SpacePicture";
 
+// Where each of the three covers sits in the fanned stack.
 const STACK = [
-  { left: 0, rotate: "-8deg" },
-  { left: 22, rotate: "0deg" },
-  { left: 44, rotate: "8deg" },
+  "left-0 -rotate-[8deg]",
+  "left-[22px] rotate-0",
+  "left-[44px] rotate-[8deg]",
 ];
 
 type CollectionCardProps = {
@@ -34,16 +35,12 @@ export function CollectionCard({ saved, onPress }: CollectionCardProps) {
           covers.map((picture, index) => (
             <View
               key={picture.id}
-              className="absolute top-1 h-[72px] w-14 overflow-hidden rounded-xl border border-line bg-surface"
-              style={{
-                left: STACK[index].left,
-                transform: [{ rotate: STACK[index].rotate }],
-              }}
+              className={`absolute top-1 h-[72px] w-14 overflow-hidden rounded-xl border border-line bg-surface ${STACK[index]}`}
             >
               <Image
                 source={{ uri: picture.thumbnailUrl }}
                 contentFit="cover"
-                style={{ flex: 1 }}
+                className="flex-1"
               />
             </View>
           ))

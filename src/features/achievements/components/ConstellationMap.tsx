@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, Text, View } from "react-native";
 import Svg, { Line } from "react-native-svg";
 
 import { Icon } from "@/components/ui/Icon";
@@ -7,9 +7,9 @@ import { ProgressRing } from "@/components/ui/ProgressRing";
 import colors from "@/theme/colors";
 import type { BadgeView } from "../viewmodels/useAchievementsViewModel";
 
-const MAP_HEIGHT = 300;
-const NODE = 48;
-const LABEL_WIDTH = 92;
+const MAP_HEIGHT = 300; // keep in sync with h-[300px] below
+const NODE = 48; // keep in sync with h-12 w-12 below
+const LABEL_WIDTH = 92; // keep in sync with w-[92px] below
 const TOP = 34;
 const BOTTOM = 58;
 
@@ -35,12 +35,10 @@ function BadgeNode({ badge, x, y, onPress }: BadgeNodeProps) {
       onPress={onPress}
       accessibilityRole="button"
       accessibilityLabel={`${badge.title}, ${badge.stateLabel}`}
-      className="items-center active:opacity-70"
+      className="absolute w-[92px] items-center active:opacity-70"
       style={{
-        position: "absolute",
         left: x - LABEL_WIDTH / 2,
         top: y - NODE / 2,
-        width: LABEL_WIDTH,
       }}
     >
       {badge.state === "progress" ? (
@@ -54,8 +52,7 @@ function BadgeNode({ badge, x, y, onPress }: BadgeNodeProps) {
         </ProgressRing>
       ) : (
         <View
-          className={`items-center justify-center rounded-full border ${badge.state === "earned" ? "border-gold bg-gold/15" : "border-dashed border-line bg-space"}`}
-          style={{ width: NODE, height: NODE }}
+          className={`h-12 w-12 items-center justify-center rounded-full border ${badge.state === "earned" ? "border-gold bg-gold/15" : "border-dashed border-line bg-space"}`}
         >
           <Icon name={icon} size={18} color={color} />
         </View>
@@ -106,16 +103,12 @@ export function ConstellationMap({
       </View>
 
       <View
-        style={{ height: MAP_HEIGHT }}
+        className="h-[300px]"
         onLayout={(event) => setWidth(event.nativeEvent.layout.width)}
       >
         {width > 0 ? (
           <>
-            <Svg
-              width={width}
-              height={MAP_HEIGHT}
-              style={StyleSheet.absoluteFill}
-            >
+            <Svg width={width} height={MAP_HEIGHT} className="absolute inset-0">
               {lines.map(({ from, to }) => {
                 const lit = from.state === "earned" && to.state === "earned";
                 const a = point(from);

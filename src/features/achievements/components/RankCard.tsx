@@ -38,10 +38,7 @@ export function RankCard({ rank, progress, stats }: RankCardProps) {
           <Text className="font-display text-[28px] leading-[30px] text-ink">
             {rank.title}
           </Text>
-          <Text
-            className="font-mono text-[11px] uppercase tracking-[1.5px] text-muted"
-            style={{ fontVariant: ["tabular-nums"] }}
-          >
+          <Text className="font-mono text-[11px] uppercase tracking-[1.5px] text-muted">
             {grouped(rank.xp)} / {grouped(rank.nextXp)} XP
           </Text>
           <Text className="text-[13px] leading-[18px] text-muted">

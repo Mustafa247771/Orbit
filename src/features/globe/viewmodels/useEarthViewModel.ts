@@ -99,6 +99,8 @@ export function useEarthViewModel() {
     return () => clearInterval(timer);
   }, [selectedId, detailsFor]);
 
+  const [menuOpen, setMenuOpen] = useState(false);
+  const toggleMenu = useCallback(() => setMenuOpen((open) => !open), []);
   const getSunDirection = useCallback(() => sunDirection(now()), [now]);
   const getEarthRotation = useCallback(() => earthRotation(now()), [now]);
   const getSatellitePosition = useCallback(
@@ -130,5 +132,8 @@ export function useEarthViewModel() {
     selectSatellite,
     clearSelection,
     details,
+    menuOpen,
+    toggleMenu,
+    getDate: now,
   };
 }

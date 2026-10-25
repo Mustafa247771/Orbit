@@ -18,10 +18,7 @@ export function Stepper({
   return (
     <View className="flex-row items-center">
       <IconButton icon="remove" label={`Less ${label}`} onPress={onDecrease} />
-      <Text
-        className="w-16 text-center font-mono text-[13px] text-accent"
-        style={{ fontVariant: ["tabular-nums"] }}
-      >
+      <Text className="w-16 text-center font-mono text-[13px] text-accent">
         {value}
       </Text>
       <IconButton icon="add" label={`More ${label}`} onPress={onIncrease} />

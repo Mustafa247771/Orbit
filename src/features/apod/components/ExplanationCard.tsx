@@ -18,7 +18,7 @@ export function ExplanationCard({ text }: ExplanationCardProps) {
   return (
     <Animated.View
       layout={LinearTransition.duration(250)}
-      style={{ marginHorizontal: 20, marginTop: 24 }}
+      className="mx-5 mt-6"
     >
       <Card className="gap-3 p-5">
         <Text className="font-mono text-[11px] uppercase tracking-[2px] text-muted">

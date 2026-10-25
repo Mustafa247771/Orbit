@@ -1,5 +1,5 @@
 import { Pressable, Text, View } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 import { Icon } from "@/components/ui/Icon";
 import { ScreenHeader } from "@/components/ui/ScreenHeader";
@@ -18,22 +18,26 @@ import {
 
 export default function CommunityScreen() {
   const vm = useCommunityViewModel();
-  const insets = useSafeAreaInsets();
 
   return (
     <StarryScreen
       overlay={
-        <Pressable
-          onPress={vm.logSighting}
-          accessibilityRole="button"
-          className="absolute right-5 h-14 flex-row items-center gap-2.5 rounded-full bg-accent px-5 active:opacity-80"
-          style={{ bottom: insets.bottom + 24 }}
+        <SafeAreaView
+          edges={["bottom"]}
+          pointerEvents="box-none"
+          className="absolute bottom-0 right-5 pb-6"
         >
-          <Icon name="camera" color={colors.space} />
-          <Text className="text-[15px] font-semibold text-space">
-            Log sighting
-          </Text>
-        </Pressable>
+          <Pressable
+            onPress={vm.logSighting}
+            accessibilityRole="button"
+            className="h-14 flex-row items-center gap-2.5 rounded-full bg-accent px-5 active:opacity-80"
+          >
+            <Icon name="camera" color={colors.space} />
+            <Text className="text-[15px] font-semibold text-space">
+              Log sighting
+            </Text>
+          </Pressable>
+        </SafeAreaView>
       }
     >
       <ScreenHeader

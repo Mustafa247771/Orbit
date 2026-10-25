@@ -1,16 +1,15 @@
 import { useState } from "react";
 import {
-    KeyboardAvoidingView,
-    Modal,
-    Platform,
-    Pressable,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    View,
+  KeyboardAvoidingView,
+  Modal,
+  Platform,
+  Pressable,
+  ScrollView,
+  Text,
+  TextInput,
+  View,
 } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 import { Avatar } from "@/components/ui/Avatar";
 import { IconButton } from "@/components/ui/IconButton";
@@ -24,7 +23,6 @@ type CommentsSheetProps = {
 };
 
 export function CommentsSheet({ post, onClose, onSend }: CommentsSheetProps) {
-  const insets = useSafeAreaInsets();
   const [draft, setDraft] = useState("");
 
   const send = () => {
@@ -43,20 +41,17 @@ export function CommentsSheet({ post, onClose, onSend }: CommentsSheetProps) {
     >
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : undefined}
-        style={{ flex: 1, justifyContent: "flex-end" }}
+        className="flex-1 justify-end"
       >
         <Pressable
           onPress={onClose}
           accessibilityLabel="Close comments"
-          style={[
-            StyleSheet.absoluteFill,
-            { backgroundColor: "rgba(0,0,0,0.6)" },
-          ]}
+          className="absolute inset-0 bg-black/60"
         />
         {post ? (
-          <View
-            className="max-h-[75%] rounded-t-[32px] border-t border-line bg-surface px-5 pt-3"
-            style={{ paddingBottom: insets.bottom + 12 }}
+          <SafeAreaView
+            edges={["bottom"]}
+            className="max-h-[75%] rounded-t-[32px] border-t border-line bg-surface px-5 pb-3 pt-3"
           >
             <View className="h-1.5 w-10 self-center rounded-full bg-line" />
             <View className="mt-3 flex-row items-center justify-between gap-3">
@@ -79,8 +74,8 @@ export function CommentsSheet({ post, onClose, onSend }: CommentsSheetProps) {
             </View>
 
             <ScrollView
-              style={{ flexShrink: 1, marginTop: 12 }}
-              contentContainerStyle={{ gap: 16, paddingBottom: 8 }}
+              className="mt-3 shrink"
+              contentContainerClassName="gap-4 pb-2"
             >
               {post.comments.length === 0 ? (
                 <Text className="text-sm text-muted">
@@ -120,7 +115,7 @@ export function CommentsSheet({ post, onClose, onSend }: CommentsSheetProps) {
               />
               <IconButton icon="send" label="Send comment" onPress={send} />
             </View>
-          </View>
+          </SafeAreaView>
         ) : null}
       </KeyboardAvoidingView>
     </Modal>

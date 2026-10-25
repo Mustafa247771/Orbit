@@ -1,5 +1,5 @@
-import { Modal, Pressable, StyleSheet, Text, View } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Modal, Pressable, Text, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 import { IconButton } from "@/components/ui/IconButton";
 import type { BadgeView } from "../viewmodels/useAchievementsViewModel";
@@ -18,8 +18,6 @@ type BadgeSheetProps = {
 };
 
 export function BadgeSheet({ badge, onClose, onShare }: BadgeSheetProps) {
-  const insets = useSafeAreaInsets();
-
   return (
     <Modal
       visible={badge !== null}
@@ -28,19 +26,16 @@ export function BadgeSheet({ badge, onClose, onShare }: BadgeSheetProps) {
       onRequestClose={onClose}
       statusBarTranslucent
     >
-      <View style={{ flex: 1, justifyContent: "flex-end" }}>
+      <View className="flex-1 justify-end">
         <Pressable
           onPress={onClose}
           accessibilityLabel="Close badge"
-          style={[
-            StyleSheet.absoluteFill,
-            { backgroundColor: "rgba(0,0,0,0.6)" },
-          ]}
+          className="absolute inset-0 bg-black/60"
         />
         {badge ? (
-          <View
-            className="rounded-t-[32px] border-t border-line bg-surface px-5 pt-3"
-            style={{ paddingBottom: insets.bottom + 16 }}
+          <SafeAreaView
+            edges={["bottom"]}
+            className="rounded-t-[32px] border-t border-line bg-surface px-5 pb-4 pt-3"
           >
             <View className="h-1.5 w-10 self-center rounded-full bg-line" />
             <View className="absolute right-4 top-4 z-10">
@@ -100,7 +95,7 @@ export function BadgeSheet({ badge, onClose, onShare }: BadgeSheetProps) {
                 </Text>
               </Pressable>
             ) : null}
-          </View>
+          </SafeAreaView>
         ) : null}
       </View>
     </Modal>

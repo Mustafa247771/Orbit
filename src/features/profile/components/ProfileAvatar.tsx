@@ -1,5 +1,4 @@
 import { IconButton } from "@/components/ui/IconButton";
-import colors from "@/theme/colors";
 import { useCallback, useEffect, useState } from "react";
 import { Text, View } from "react-native";
 import Animated, {
@@ -13,13 +12,12 @@ import Animated, {
 } from "react-native-reanimated";
 import { HelmetAvatar } from "./HelmetAvatar";
 
-const PHOTO = 108;
+const PHOTO = 108; // keep in sync with h-[108px] w-[108px] below
 const HELMET = 150;
 const ORBIT_RADIUS = 90;
-const ORBIT_SQUASH = 0.39;
-const ORBIT_TILT_DEG = -16;
+const ORBIT_SQUASH = 0.39; // keep in sync with scale-y-[0.39] below
+const ORBIT_TILT_DEG = -16; // keep in sync with -rotate-[16deg] below
 const LAP_MS = 14_000;
-const DOT = 8;
 
 const tilt = (ORBIT_TILT_DEG * Math.PI) / 180;
 
@@ -73,24 +71,16 @@ export function ProfileAvatar({
     <View className="h-[150px] w-[200px] items-center justify-center">
       <View
         pointerEvents="none"
-        className="absolute h-[180px] w-[180px] rounded-full border border-accent/40"
-        style={{
-          transform: [
-            { rotate: `${ORBIT_TILT_DEG}deg` },
-            { scaleY: ORBIT_SQUASH },
-          ],
-        }}
+        className="absolute h-[180px] w-[180px] -rotate-[16deg] scale-y-[0.39] rounded-full border border-accent/40"
       />
       <View
         pointerEvents="none"
-        className="absolute h-[150px] w-[150px] rounded-full border border-cyan/25"
-        style={{ transform: [{ rotate: "22deg" }, { scaleY: 0.37 }] }}
+        className="absolute h-[150px] w-[150px] rotate-[22deg] scale-y-[0.37] rounded-full border border-cyan/25"
       />
       <View
         accessibilityRole="image"
         accessibilityLabel="Profile avatar"
-        className="items-center justify-center rounded-full border-2 border-line bg-surface"
-        style={{ width: PHOTO, height: PHOTO }}
+        className="h-[108px] w-[108px] items-center justify-center rounded-full border-2 border-line bg-surface"
       >
         {helmetReady ? null : (
           <Text className="font-display text-4xl text-ink">{initials}</Text>
@@ -101,16 +91,8 @@ export function ProfileAvatar({
       </View>
       <Animated.View
         pointerEvents="none"
-        style={[
-          {
-            position: "absolute",
-            width: DOT,
-            height: DOT,
-            borderRadius: DOT / 2,
-            backgroundColor: colors.accent,
-          },
-          satellite,
-        ]}
+        className="absolute h-2 w-2 rounded-full bg-accent"
+        style={satellite}
       />
       <View className="absolute bottom-0 right-7">
         <IconButton

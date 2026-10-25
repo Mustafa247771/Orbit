@@ -1,7 +1,7 @@
 import { useRef } from "react";
 import { Pressable, Text, View } from "react-native";
 import Animated, { useSharedValue } from "react-native-reanimated";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 import { Card } from "@/components/ui/Card";
 import { ScreenHeader } from "@/components/ui/ScreenHeader";
@@ -19,7 +19,6 @@ import { useApodViewModel } from "../viewmodels/useApodViewModel";
 
 export default function ApodScreen() {
   const vm = useApodViewModel();
-  const insets = useSafeAreaInsets();
   const scrollY = useSharedValue(0);
   const scrollRef = useRef<Animated.ScrollView>(null);
   const { picture } = vm;
@@ -36,7 +35,7 @@ export default function ApodScreen() {
   return (
     <StarryScreen edgeToEdge scrollY={scrollY} scrollRef={scrollRef}>
       {vm.loading ? (
-        <View style={{ paddingTop: insets.top }}>
+        <SafeAreaView edges={["top"]}>
           {header}
           <View className="mx-5 mt-5 gap-3">
             <Skeleton height={HERO_HEIGHT - 120} radius={28} />
@@ -44,9 +43,9 @@ export default function ApodScreen() {
             <Skeleton height={30} />
             <Skeleton width="60%" height={30} />
           </View>
-        </View>
+        </SafeAreaView>
       ) : !picture ? (
-        <View style={{ paddingTop: insets.top }}>
+        <SafeAreaView edges={["top"]}>
           {header}
           <Card className="mx-5 mt-5 items-start gap-2 p-5">
             <Text className="text-[17px] font-semibold text-ink">
@@ -63,7 +62,7 @@ export default function ApodScreen() {
               <Text className="text-sm font-semibold text-cyan">Try again</Text>
             </Pressable>
           </Card>
-        </View>
+        </SafeAreaView>
       ) : (
         <>
           <View>
@@ -73,12 +72,13 @@ export default function ApodScreen() {
               scrollY={scrollY}
               onDoubleTap={() => vm.save(picture)}
             />
-            <View
-              className="absolute left-0 right-0"
-              style={{ top: insets.top }}
+            <SafeAreaView
+              edges={["top"]}
+              pointerEvents="box-none"
+              className="absolute left-0 right-0 top-0"
             >
               {header}
-            </View>
+            </SafeAreaView>
           </View>
 
           <PictureActions

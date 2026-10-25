@@ -1,15 +1,13 @@
 import { useEffect } from "react";
 import type { DimensionValue } from "react-native";
 import Animated, {
-    cancelAnimation,
-    useAnimatedStyle,
-    useReducedMotion,
-    useSharedValue,
-    withRepeat,
-    withTiming,
+  cancelAnimation,
+  useAnimatedStyle,
+  useReducedMotion,
+  useSharedValue,
+  withRepeat,
+  withTiming,
 } from "react-native-reanimated";
-
-import colors from "@/theme/colors";
 
 const PULSE_MS = 800;
 
@@ -38,15 +36,8 @@ export function Skeleton({
 
   return (
     <Animated.View
-      style={[
-        {
-          width,
-          height,
-          borderRadius: radius,
-          backgroundColor: colors.surface,
-        },
-        pulse,
-      ]}
+      className="bg-surface"
+      style={[{ width, height, borderRadius: radius }, pulse]}
     />
   );
 }

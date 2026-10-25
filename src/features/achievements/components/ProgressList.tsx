@@ -35,10 +35,7 @@ export function ProgressList({ badges, onSelect }: ProgressListProps) {
                   <Text className="text-[15px] font-semibold text-ink">
                     {badge.title}
                   </Text>
-                  <Text
-                    className="font-mono text-[11px] text-cyan"
-                    style={{ fontVariant: ["tabular-nums"] }}
-                  >
+                  <Text className="font-mono text-[11px] text-cyan">
                     {badge.progress} / {badge.goal}
                   </Text>
                 </View>

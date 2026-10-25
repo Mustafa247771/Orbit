@@ -9,7 +9,6 @@ import { quietPixelStorei } from "@/components/three/expoGl";
 import colors from "@/theme/colors";
 import type { BadgeTier } from "../model/Achievement";
 
-const HEIGHT = 220;
 const IDLE_SPEED = 0.6;
 const DRAG_PER_PIXEL = 0.012;
 const FLING = 8;
@@ -76,7 +75,7 @@ export function MedalCanvas({ tier, locked }: MedalCanvasProps) {
       onTouchCancel={release}
       accessibilityRole="image"
       accessibilityLabel="3D medal. Drag to spin it."
-      style={{ height: HEIGHT }}
+      className="h-[220px]"
     >
       <Canvas
         camera={{ position: [0, 0, 4.2], fov: 35 }}

@@ -1,6 +1,6 @@
 import { Image } from "expo-image";
 import { Modal, View } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 import { IconButton } from "@/components/ui/IconButton";
 import type { SpacePicture } from "../model/SpacePicture";
@@ -16,8 +16,6 @@ export function FullViewModal({
   visible,
   onClose,
 }: FullViewModalProps) {
-  const insets = useSafeAreaInsets();
-
   return (
     <Modal
       visible={visible}
@@ -31,11 +29,15 @@ export function FullViewModal({
           placeholder={{ uri: picture.thumbnailUrl }}
           contentFit="contain"
           accessibilityLabel={picture.title}
-          style={{ flex: 1 }}
+          className="flex-1"
         />
-        <View className="absolute right-5" style={{ top: insets.top + 8 }}>
+        <SafeAreaView
+          edges={["top"]}
+          pointerEvents="box-none"
+          className="absolute right-5 top-0 pt-2"
+        >
           <IconButton icon="close" label="Close full view" onPress={onClose} />
-        </View>
+        </SafeAreaView>
       </View>
     </Modal>
   );

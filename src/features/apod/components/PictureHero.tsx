@@ -3,21 +3,21 @@ import { Image } from "expo-image";
 import { useRef } from "react";
 import { Pressable } from "react-native";
 import Animated, {
-    Extrapolation,
-    interpolate,
-    useAnimatedStyle,
-    useReducedMotion,
-    useSharedValue,
-    withSequence,
-    withTiming,
-    type SharedValue,
+  Extrapolation,
+  interpolate,
+  useAnimatedStyle,
+  useReducedMotion,
+  useSharedValue,
+  withSequence,
+  withTiming,
+  type SharedValue,
 } from "react-native-reanimated";
 
 import { Icon } from "@/components/ui/Icon";
 import colors from "@/theme/colors";
 import type { SpacePicture } from "../model/SpacePicture";
 
-export const HERO_HEIGHT = 460;
+export const HERO_HEIGHT = 460; // keep in sync with h-[460px] below
 const DOUBLE_TAP_MS = 280;
 
 type PictureHeroProps = {
@@ -83,42 +83,24 @@ export function PictureHero({
       accessibilityRole="imagebutton"
       accessibilityLabel={picture.title}
       accessibilityHint="Double-tap to save"
-      style={{ height: HERO_HEIGHT }}
+      className="h-[460px]"
     >
       <Animated.View
-        style={[
-          {
-            position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
-            height: HERO_HEIGHT,
-          },
-          stretch,
-        ]}
+        className="absolute inset-x-0 top-0 h-[460px]"
+        style={stretch}
       >
         <Image
           source={{ uri: picture.imageUrl }}
           placeholder={{ uri: picture.thumbnailUrl }}
           contentFit="cover"
           transition={400}
-          style={{ flex: 1 }}
+          className="flex-1"
         />
       </Animated.View>
       <Animated.View
         pointerEvents="none"
-        style={[
-          {
-            position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            alignItems: "center",
-            justifyContent: "center",
-          },
-          star,
-        ]}
+        className="absolute inset-0 items-center justify-center"
+        style={star}
       >
         <Icon name="starFilled" size={72} color={colors.gold} />
       </Animated.View>
