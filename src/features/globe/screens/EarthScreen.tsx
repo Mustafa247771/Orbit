@@ -5,6 +5,7 @@ import { Canvas } from "@react-three/fiber/native";
 import { Suspense } from "react";
 import { View } from "react-native";
 import { CameraRig } from "../components/CameraRig";
+import { CAMERA_FOV, START_DISTANCE } from "../components/cameraSettings";
 import { ConstellationMenu } from "../components/ConstellationMenu";
 import { Earth } from "../components/Earth";
 import { FocusedSatellite } from "../components/FocusedSatellite";
@@ -16,7 +17,7 @@ import { Satellite } from "../components/Satellite";
 import { SatelliteDetailsSheet } from "../components/SatelliteDetailsSheet";
 import { ShootingStar } from "../components/ShootingStar";
 import { SkyDome } from "../components/SkyDome";
-import { CAMERA_FOV, START_DISTANCE } from "../components/cameraSettings";
+import { SolarSystem } from "../components/SolarSystem";
 import { useEarthViewModel } from "../viewmodels/useEarthViewModel";
 
 export default function EarthScreen() {
@@ -30,7 +31,7 @@ export default function EarthScreen() {
           position: [0, 0, START_DISTANCE],
           fov: CAMERA_FOV,
           near: 0.01,
-          far: 100,
+          far: 500,
         }}
         onPointerMissed={vm.clearSelection}
         onCreated={(state) => {
@@ -49,6 +50,9 @@ export default function EarthScreen() {
           getSatellitePosition={vm.getSatellitePosition}
           menuOpen={vm.menuOpen}
         />
+        <Suspense fallback={null}>
+          <SolarSystem getDate={vm.getDate} />
+        </Suspense>
         <Suspense fallback={null}>
           <Earth
             getSunDirection={vm.getSunDirection}

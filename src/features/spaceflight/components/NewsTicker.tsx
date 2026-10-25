@@ -1,8 +1,8 @@
 import { Text, View } from "react-native";
 import Animated, {
-    FadeInDown,
-    FadeOutUp,
-    useReducedMotion,
+  FadeInDown,
+  FadeOutUp,
+  useReducedMotion,
 } from "react-native-reanimated";
 
 type NewsTickerProps = {
@@ -26,7 +26,7 @@ export function NewsTicker({ headline, tick }: NewsTickerProps) {
           key={tick}
           entering={reduceMotion ? undefined : FadeInDown.duration(300)}
           exiting={reduceMotion ? undefined : FadeOutUp.duration(200)}
-          style={{ position: "absolute", left: 12, right: 12 }}
+          className="absolute inset-x-3"
         >
           <Text numberOfLines={1} className="text-[13px] text-ink">
             {headline}

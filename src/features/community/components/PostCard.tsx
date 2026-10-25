@@ -2,11 +2,11 @@ import * as Haptics from "expo-haptics";
 import { Image } from "expo-image";
 import { Pressable, Text, View } from "react-native";
 import Animated, {
-    useAnimatedStyle,
-    useSharedValue,
-    withSequence,
-    withSpring,
-    withTiming,
+  useAnimatedStyle,
+  useSharedValue,
+  withSequence,
+  withSpring,
+  withTiming,
 } from "react-native-reanimated";
 
 import { Avatar } from "@/components/ui/Avatar";
@@ -95,13 +95,13 @@ export function PostCard({
       </View>
 
       {post.photoUri ? (
-        <View className="bg-space" style={{ aspectRatio: 4 / 3 }}>
+        <View className="aspect-[4/3] bg-space">
           <Image
             source={{ uri: post.photoUri }}
             contentFit="cover"
             transition={300}
             accessibilityLabel={`${post.object} photo`}
-            style={{ flex: 1 }}
+            className="flex-1"
           />
           <View className="absolute left-3 top-3">
             <Tag label={post.object} tone="dark" />

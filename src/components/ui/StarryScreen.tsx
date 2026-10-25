@@ -5,7 +5,6 @@ import {
   type RefObject,
 } from "react";
 import {
-  StyleSheet,
   View,
   type GestureResponderEvent,
   type LayoutChangeEvent,
@@ -68,7 +67,7 @@ export function StarryScreen({
       onTouchMove={track}
       onTouchEnd={release}
     >
-      <View pointerEvents="none" style={StyleSheet.absoluteFill}>
+      <View pointerEvents="none" className="absolute inset-0">
         <InteractiveStarField pointer={pointer} />
       </View>
       <Animated.ScrollView

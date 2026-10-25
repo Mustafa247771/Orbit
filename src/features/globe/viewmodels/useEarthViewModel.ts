@@ -134,5 +134,6 @@ export function useEarthViewModel() {
     details,
     menuOpen,
     toggleMenu,
+    getDate: now,
   };
 }

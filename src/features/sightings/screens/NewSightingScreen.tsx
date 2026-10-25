@@ -15,12 +15,13 @@ import {
   PointerEvent,
   Pressable,
   ScrollView,
-  StyleSheet,
   Text,
   TextInput,
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+
+import colors from "@/theme/colors";
 export default function NewSightingScreen() {
   const screenSize = useRef({ height: 1, width: 1 });
 
@@ -68,45 +69,50 @@ export default function NewSightingScreen() {
       onTouchEnd={releaseStars}
       onTouchMove={trackStars}
       onTouchStart={trackStars}
-      style={styles.safeArea}
+      className="flex-1 bg-transparent"
     >
-      <View pointerEvents="none" style={styles.starField}>
+      <View pointerEvents="none" className="absolute inset-0">
         <InteractiveStarField pointer={starPointer} />
       </View>
       <Stack.Screen options={{ headerShown: false }} />
       <ScrollView
-        style={styles.scroll}
-        contentContainerStyle={styles.content}
+        className="flex-1"
+        contentContainerClassName="pb-[126px]"
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-        <View style={styles.header}>
+        <View className="flex-row items-center justify-between px-[20px] pt-[10px]">
           <Pressable
             accessibilityRole="button"
             accessibilityLabel="Go back"
             onPress={() => router.back()}
-            style={({ pressed }) => [
-              styles.circleButton,
-              pressed && styles.pressed,
-            ]}
+            className="h-[50px] w-[50px] items-center justify-center rounded-[25px] border border-edge-strong bg-panel/[0.9] active:scale-[0.985] active:opacity-[0.68]"
           >
-            <Text style={styles.backIcon}>‹</Text>
+            <Text className="-mt-[5px] text-[38px] font-extralight text-frost">
+              ‹
+            </Text>
           </Pressable>
-          <View style={styles.headerCopy}>
-            <Text style={styles.headerEyebrow}>OBSERVATION JOURNAL</Text>
-            <Text style={styles.headerTitle}>New sighting</Text>
+          <View className="items-center">
+            <Text className="text-[8px] font-extrabold tracking-[1.8px] text-haze">
+              OBSERVATION JOURNAL
+            </Text>
+            <Text className="mt-[4px] text-[16px] font-semibold text-frost">
+              New sighting
+            </Text>
           </View>
-          <View style={styles.draftBadge}>
-            <View style={styles.draftDot} />
-            <Text style={styles.draftText}>
+          <View className="flex-row items-center rounded-[16px] border border-edge-strong bg-panel/[0.9] px-[10px] py-[8px]">
+            <View className="mr-[6px] h-[6px] w-[6px] rounded-[3px] bg-gold" />
+            <Text className="text-[8px] font-extrabold tracking-[1px] text-gold">
               {viewModel.busyAction === "save" ? "SAVING" : "DRAFT"}
             </Text>
           </View>
         </View>
 
-        <View style={styles.intro}>
-          <Text style={styles.title}>Keep the{`\n`}moment.</Text>
-          <Text style={styles.subtitle}>
+        <View className="px-[24px] pt-[28px]">
+          <Text className="text-[40px] font-bold leading-[43px] tracking-[-1.3px] text-frost">
+            Keep the{`\n`}moment.
+          </Text>
+          <Text className="mt-[12px] max-w-[340px] text-[14px] leading-[21px] text-haze">
             A streak of light, a precise time and your own view of the sky.
           </Text>
         </View>
@@ -119,70 +125,66 @@ export default function NewSightingScreen() {
               : "Choose a sighting photo"
           }
           onPress={viewModel.choosePhoto}
-          style={({ pressed }) => [
-            styles.photoFrame,
-            pressed && styles.pressed,
-          ]}
+          className="mx-[20px] mt-[24px] h-[246px] overflow-hidden rounded-[26px] border border-edge-soft active:scale-[0.985] active:opacity-[0.68]"
         >
           <LinearGradient
             colors={
               viewModel.photoUri
                 ? ["#1D3155", "#0B1426"]
-                : ["#111A2B", "#0A101D"]
+                : [colors.panel, "#0A101D"]
             }
-            style={StyleSheet.absoluteFill}
+            className="absolute inset-0"
           />
-          <View style={styles.photoStarOne} />
-          <View style={styles.photoStarTwo} />
-          <View style={styles.photoStarThree} />
+          <View className="absolute left-[16%] top-[22%] h-[3px] w-[3px] rounded-[2px] bg-ice opacity-[0.62]" />
+          <View className="absolute left-[76%] top-[31%] h-[2px] w-[2px] rounded-[2px] bg-ice opacity-[0.52]" />
+          <View className="absolute left-[61%] top-[14%] h-[3px] w-[3px] rounded-[2px] bg-ice opacity-[0.58]" />
           {viewModel.photoUri ? (
             <>
               <Image
                 resizeMode="cover"
                 source={{ uri: viewModel.photoUri }}
-                style={StyleSheet.absoluteFill}
+                className="absolute inset-0"
               />
               <LinearGradient
                 colors={["transparent", "rgba(2,8,18,0.7)"]}
-                style={StyleSheet.absoluteFill}
+                className="absolute inset-0"
               />
-              <View style={styles.photoStatus}>
-                <Text style={styles.photoStatusIcon}>✓</Text>
-                <Text style={styles.photoStatusText}>
+              <View className="absolute bottom-[14px] left-[14px] flex-row items-center rounded-[16px] border border-cyan/[0.44] bg-deep/[0.86] px-[11px] py-[7px]">
+                <Text className="mr-[7px] text-[11px] text-mint">✓</Text>
+                <Text className="text-[10px] font-semibold text-[#CDEBF4]">
                   Sighting photo selected
                 </Text>
               </View>
             </>
           ) : (
-            <View style={styles.emptyPhoto}>
-              <View style={styles.cameraCircle}>
-                <Text style={styles.cameraGlyph}>▣</Text>
+            <View className="flex-1 items-center justify-center px-[26px]">
+              <View className="h-[56px] w-[56px] items-center justify-center rounded-[28px] border border-cyan/[0.4] bg-cyan/[0.1]">
+                <Text className="text-[25px] text-cyan">▣</Text>
               </View>
-              <Text style={styles.emptyPhotoTitle}>Add a view of the sky</Text>
-              <Text style={styles.emptyPhotoSubtitle}>
+              <Text className="mt-[14px] text-[16px] font-bold text-frost">
+                Add a view of the sky
+              </Text>
+              <Text className="mt-[6px] text-center text-[11px] text-mist">
                 Take a photo or choose one from your library
               </Text>
             </View>
           )}
         </Pressable>
 
-        <View style={styles.photoActions}>
+        <View className="mx-[20px] mt-[10px] flex-row gap-[10px]">
           <Pressable
             accessibilityRole="button"
             accessibilityLabel="Capture photo"
             disabled={viewModel.busyAction !== null}
             onPress={viewModel.takePhoto}
-            style={({ pressed }) => [
-              styles.photoAction,
-              pressed && styles.pressed,
-            ]}
+            className="h-[50px] flex-1 flex-row items-center justify-center rounded-[18px] border border-edge-soft bg-panel/[0.72] active:scale-[0.985] active:opacity-[0.68]"
           >
             {viewModel.busyAction === "camera" ? (
-              <ActivityIndicator color="#78E6FF" />
+              <ActivityIndicator color={colors.cyan} />
             ) : (
-              <Text style={styles.photoActionIcon}>◉</Text>
+              <Text className="mr-[8px] text-[18px] text-cyan">◉</Text>
             )}
-            <Text style={styles.photoActionText}>
+            <Text className="text-[12px] font-semibold text-frost">
               {viewModel.busyAction === "camera" ? "Opening…" : "Take photo"}
             </Text>
           </Pressable>
@@ -191,25 +193,24 @@ export default function NewSightingScreen() {
             accessibilityLabel="Choose photo from library"
             disabled={viewModel.busyAction !== null}
             onPress={viewModel.choosePhoto}
-            style={({ pressed }) => [
-              styles.photoAction,
-              pressed && styles.pressed,
-            ]}
+            className="h-[50px] flex-1 flex-row items-center justify-center rounded-[18px] border border-edge-soft bg-panel/[0.72] active:scale-[0.985] active:opacity-[0.68]"
           >
             {viewModel.busyAction === "library" ? (
-              <ActivityIndicator color="#78E6FF" />
+              <ActivityIndicator color={colors.cyan} />
             ) : (
-              <Text style={styles.photoActionIcon}>▧</Text>
+              <Text className="mr-[8px] text-[18px] text-cyan">▧</Text>
             )}
-            <Text style={styles.photoActionText}>
+            <Text className="text-[12px] font-semibold text-frost">
               {viewModel.busyAction === "library" ? "Opening…" : "Choose photo"}
             </Text>
           </Pressable>
         </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionLabel}>YOUR OBSERVATION</Text>
-          <View style={styles.inputWrap}>
+        <View className="mx-[20px] mt-[25px]">
+          <Text className="mb-[10px] text-[9px] font-extrabold tracking-[1.7px] text-haze">
+            YOUR OBSERVATION
+          </Text>
+          <View className="min-h-[126px] overflow-hidden rounded-[20px] border border-edge-strong bg-panel/[0.7]">
             <TextInput
               accessibilityLabel="Observation caption"
               multiline
@@ -217,108 +218,103 @@ export default function NewSightingScreen() {
               onChangeText={viewModel.setCaption}
               placeholder="What did you notice?"
               placeholderTextColor="#65748D"
-              style={styles.input}
+              className="min-h-[100px] p-[16px] pb-[30px] text-[14px] leading-[21px] text-frost"
               textAlignVertical="top"
               value={viewModel.caption}
             />
-            <Text style={styles.characterCount}>
+            <Text className="absolute bottom-[11px] right-[14px] text-[9px] text-dusk">
               {viewModel.caption.length}/240
             </Text>
           </View>
         </View>
 
-        <View style={styles.metadataCard}>
-          <View style={styles.metadataRow}>
-            <View style={styles.metadataIconWrap}>
-              <Text style={styles.metadataIcon}>⌁</Text>
+        <View className="mx-[20px] mt-[20px] overflow-hidden rounded-[22px] border border-edge bg-panel/[0.58] px-[16px]">
+          <View className="min-h-[76px] flex-row items-center">
+            <View className="mr-[12px] h-[34px] w-[34px] items-center justify-center rounded-[16px] bg-cyan/[0.08]">
+              <Text className="text-[20px] text-cyan">⌁</Text>
             </View>
-            <View style={styles.metadataCopy}>
-              <Text style={styles.metadataLabel}>OBJECT</Text>
-              <Text style={styles.metadataValue}>{viewModel.object.name}</Text>
+            <View className="flex-1">
+              <Text className="text-[7px] font-extrabold tracking-[1.2px] text-dusk">
+                OBJECT
+              </Text>
+              <Text className="mt-[4px] text-[13px] font-semibold text-frost">
+                {viewModel.object.name}
+              </Text>
             </View>
-            <Text style={styles.metadataChevron}>›</Text>
+            <Text className="text-[25px] text-cyan">›</Text>
           </View>
-          <View style={styles.metadataDivider} />
-          <View style={styles.metadataRow}>
-            <View style={styles.metadataIconWrap}>
-              <Text style={styles.metadataIcon}>◷</Text>
+          <View className="ml-[46px] h-[1px] bg-edge" />
+          <View className="min-h-[76px] flex-row items-center">
+            <View className="mr-[12px] h-[34px] w-[34px] items-center justify-center rounded-[16px] bg-cyan/[0.08]">
+              <Text className="text-[20px] text-cyan">◷</Text>
             </View>
-            <View style={styles.metadataCopy}>
-              <Text style={styles.metadataLabel}>OBSERVED</Text>
-              <Text style={styles.metadataValue}>
+            <View className="flex-1">
+              <Text className="text-[7px] font-extrabold tracking-[1.2px] text-dusk">
+                OBSERVED
+              </Text>
+              <Text className="mt-[4px] text-[13px] font-semibold text-frost">
                 {viewModel.observedLabel}
               </Text>
             </View>
-            <Text style={styles.metadataChevron}>›</Text>
+            <Text className="text-[25px] text-cyan">›</Text>
           </View>
-          <View style={styles.metadataDivider} />
+          <View className="ml-[46px] h-[1px] bg-edge" />
           <Pressable
             accessibilityRole="button"
             accessibilityLabel="Attach current location"
             disabled={viewModel.busyAction !== null}
             onPress={viewModel.useCurrentLocation}
-            style={({ pressed }) => [
-              styles.metadataRow,
-              pressed && styles.pressed,
-            ]}
+            className="min-h-[76px] flex-row items-center active:scale-[0.985] active:opacity-[0.68]"
           >
-            <View style={styles.metadataIconWrap}>
-              <Text style={styles.metadataIcon}>⌾</Text>
+            <View className="mr-[12px] h-[34px] w-[34px] items-center justify-center rounded-[16px] bg-cyan/[0.08]">
+              <Text className="text-[20px] text-cyan">⌾</Text>
             </View>
-            <View style={styles.metadataCopy}>
-              <Text style={styles.metadataLabel}>LOCATION</Text>
-              <Text style={styles.metadataValue}>
+            <View className="flex-1">
+              <Text className="text-[7px] font-extrabold tracking-[1.2px] text-dusk">
+                LOCATION
+              </Text>
+              <Text className="mt-[4px] text-[13px] font-semibold text-frost">
                 {viewModel.location?.cityLabel ?? "Use current location"}
               </Text>
-              <Text style={styles.metadataNote}>
+              <Text className="mt-[3px] text-[9px] text-mist">
                 {viewModel.location
                   ? "Precise coordinates stay private"
                   : "Tap to attach GPS coordinates"}
               </Text>
             </View>
             {viewModel.busyAction === "location" ? (
-              <ActivityIndicator color="#78E6FF" />
+              <ActivityIndicator color={colors.cyan} />
             ) : (
-              <Text style={styles.metadataChevron}>›</Text>
+              <Text className="text-[25px] text-cyan">›</Text>
             )}
           </Pressable>
         </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionLabel}>VISIBILITY</Text>
-          <View style={styles.visibilitySelector}>
+        <View className="mx-[20px] mt-[25px]">
+          <Text className="mb-[10px] text-[9px] font-extrabold tracking-[1.7px] text-haze">
+            VISIBILITY
+          </Text>
+          <View className="flex-row gap-[10px]">
             <Pressable
               accessibilityRole="button"
               accessibilityState={{
                 selected: viewModel.visibility === "private",
               }}
               onPress={() => viewModel.setVisibility("private")}
-              style={[
-                styles.visibilityOption,
-                viewModel.visibility === "private" &&
-                  styles.visibilityOptionActive,
-              ]}
+              className={`min-h-[72px] flex-1 flex-row items-center rounded-[20px] border p-[13px] ${viewModel.visibility === "private" ? "border-cyan bg-[rgba(24,70,86,0.62)]" : "border-edge bg-panel/[0.55]"}`}
             >
               <Text
-                style={[
-                  styles.visibilityIcon,
-                  viewModel.visibility === "private" &&
-                    styles.visibilityTextActive,
-                ]}
+                className={`mr-[9px] text-[19px] ${viewModel.visibility === "private" ? "text-cyan" : "text-mist"}`}
               >
                 ◉
               </Text>
               <View>
                 <Text
-                  style={[
-                    styles.visibilityTitle,
-                    viewModel.visibility === "private" &&
-                      styles.visibilityTextActive,
-                  ]}
+                  className={`text-[12px] font-bold ${viewModel.visibility === "private" ? "text-cyan" : "text-haze"}`}
                 >
                   Private
                 </Text>
-                <Text style={styles.visibilitySubtitle}>
+                <Text className="mt-[3px] text-[8px] text-dusk">
                   Only in my journal
                 </Text>
               </View>
@@ -329,41 +325,29 @@ export default function NewSightingScreen() {
                 selected: viewModel.visibility === "community",
               }}
               onPress={() => viewModel.setVisibility("community")}
-              style={[
-                styles.visibilityOption,
-                viewModel.visibility === "community" &&
-                  styles.visibilityOptionActive,
-              ]}
+              className={`min-h-[72px] flex-1 flex-row items-center rounded-[20px] border p-[13px] ${viewModel.visibility === "community" ? "border-cyan bg-[rgba(24,70,86,0.62)]" : "border-edge bg-panel/[0.55]"}`}
             >
               <Text
-                style={[
-                  styles.visibilityIcon,
-                  viewModel.visibility === "community" &&
-                    styles.visibilityTextActive,
-                ]}
+                className={`mr-[9px] text-[19px] ${viewModel.visibility === "community" ? "text-cyan" : "text-mist"}`}
               >
                 ✦
               </Text>
               <View>
                 <Text
-                  style={[
-                    styles.visibilityTitle,
-                    viewModel.visibility === "community" &&
-                      styles.visibilityTextActive,
-                  ]}
+                  className={`text-[12px] font-bold ${viewModel.visibility === "community" ? "text-cyan" : "text-haze"}`}
                 >
                   Community
                 </Text>
-                <Text style={styles.visibilitySubtitle}>
+                <Text className="mt-[3px] text-[8px] text-dusk">
                   Share city-level location
                 </Text>
               </View>
             </Pressable>
           </View>
           {viewModel.visibility === "community" && (
-            <View style={styles.privacyNotice}>
-              <Text style={styles.privacyNoticeIcon}>✓</Text>
-              <Text style={styles.privacyNoticeText}>
+            <View className="mt-[10px] flex-row items-start rounded-[15px] border border-mint/[0.2] bg-mint/[0.07] p-[11px]">
+              <Text className="mr-[8px] text-[11px] text-mint">✓</Text>
+              <Text className="flex-1 text-[9px] leading-[13px] text-[#8FB7AC]">
                 Exact GPS and photo metadata will be removed before publishing.
               </Text>
             </View>
@@ -371,8 +355,13 @@ export default function NewSightingScreen() {
         </View>
 
         {viewModel.error && (
-          <View accessibilityRole="alert" style={styles.errorNotice}>
-            <Text style={styles.errorNoticeText}>{viewModel.error}</Text>
+          <View
+            accessibilityRole="alert"
+            className="mx-[20px] mt-[16px] rounded-[15px] border border-rose/[0.42] bg-rose/[0.1] p-[12px]"
+          >
+            <Text className="text-center text-[11px] leading-[16px] text-rose-light">
+              {viewModel.error}
+            </Text>
           </View>
         )}
 
@@ -381,22 +370,19 @@ export default function NewSightingScreen() {
           accessibilityLabel="Save sighting"
           disabled={viewModel.busyAction !== null}
           onPress={saveSighting}
-          style={({ pressed }) => [
-            styles.saveButton,
-            pressed && styles.pressed,
-          ]}
+          className="mx-[20px] mt-[24px] h-[64px] flex-row items-center justify-center rounded-[21px] bg-cyan active:scale-[0.985] active:opacity-[0.68]"
         >
           {viewModel.busyAction === "save" ? (
-            <ActivityIndicator color="#061524" />
+            <ActivityIndicator color={colors.deep} />
           ) : (
-            <Text style={styles.saveIcon}>✓</Text>
+            <Text className="mr-[10px] text-[17px] text-deep">✓</Text>
           )}
-          <Text style={styles.saveText}>
+          <Text className="text-[16px] font-extrabold text-deep">
             {viewModel.busyAction === "save" ? "Saving…" : "Save sighting"}
           </Text>
         </Pressable>
 
-        <Text style={styles.footerNote}>
+        <Text className="mx-[30px] mt-[14px] text-center text-[9px] text-dusk">
           Photos and sightings are saved offline on this device. Community posts
           are queued until a backend is connected.
         </Text>
@@ -404,369 +390,3 @@ export default function NewSightingScreen() {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  starField: {
-    position: "absolute",
-    top: 0,
-    right: 0,
-    bottom: 0,
-    left: 0,
-  },
-  safeArea: { backgroundColor: "transparent", flex: 1 },
-  scroll: { flex: 1 },
-  content: { paddingBottom: 126 },
-  pressed: { opacity: 0.68, transform: [{ scale: 0.985 }] },
-  header: {
-    alignItems: "center",
-    flexDirection: "row",
-    justifyContent: "space-between",
-    paddingHorizontal: 20,
-    paddingTop: 10,
-  },
-  circleButton: {
-    alignItems: "center",
-    backgroundColor: "rgba(17,26,43,0.9)",
-    borderColor: "#344967",
-    borderRadius: 25,
-    borderWidth: 1,
-    height: 50,
-    justifyContent: "center",
-    width: 50,
-  },
-  backIcon: {
-    color: "#F1F5FF",
-    fontSize: 38,
-    fontWeight: "200",
-    marginTop: -5,
-  },
-  headerCopy: { alignItems: "center" },
-  headerEyebrow: {
-    color: "#A8B6CE",
-    fontSize: 8,
-    fontWeight: "800",
-    letterSpacing: 1.8,
-  },
-  headerTitle: {
-    color: "#F1F5FF",
-    fontSize: 16,
-    fontWeight: "600",
-    marginTop: 4,
-  },
-  draftBadge: {
-    alignItems: "center",
-    backgroundColor: "rgba(17,26,43,0.9)",
-    borderColor: "#344967",
-    borderRadius: 16,
-    borderWidth: 1,
-    flexDirection: "row",
-    paddingHorizontal: 10,
-    paddingVertical: 8,
-  },
-  draftDot: {
-    backgroundColor: "#FFD370",
-    borderRadius: 3,
-    height: 6,
-    marginRight: 6,
-    width: 6,
-  },
-  draftText: {
-    color: "#FFD370",
-    fontSize: 8,
-    fontWeight: "800",
-    letterSpacing: 1,
-  },
-  intro: { paddingHorizontal: 24, paddingTop: 28 },
-  title: {
-    color: "#F1F5FF",
-    fontSize: 40,
-    fontWeight: "700",
-    letterSpacing: -1.3,
-    lineHeight: 43,
-  },
-  subtitle: {
-    color: "#A8B6CE",
-    fontSize: 14,
-    lineHeight: 21,
-    marginTop: 12,
-    maxWidth: 340,
-  },
-  photoFrame: {
-    borderColor: "#30435F",
-    borderRadius: 26,
-    borderWidth: 1,
-    height: 246,
-    marginHorizontal: 20,
-    marginTop: 24,
-    overflow: "hidden",
-  },
-  photoStarOne: {
-    backgroundColor: "#DDF8FF",
-    borderRadius: 2,
-    height: 3,
-    left: "16%",
-    opacity: 0.62,
-    position: "absolute",
-    top: "22%",
-    width: 3,
-  },
-  photoStarTwo: {
-    backgroundColor: "#DDF8FF",
-    borderRadius: 2,
-    height: 2,
-    left: "76%",
-    opacity: 0.52,
-    position: "absolute",
-    top: "31%",
-    width: 2,
-  },
-  photoStarThree: {
-    backgroundColor: "#DDF8FF",
-    borderRadius: 2,
-    height: 3,
-    left: "61%",
-    opacity: 0.58,
-    position: "absolute",
-    top: "14%",
-    width: 3,
-  },
-  emptyPhoto: {
-    alignItems: "center",
-    flex: 1,
-    justifyContent: "center",
-    paddingHorizontal: 26,
-  },
-  cameraCircle: {
-    alignItems: "center",
-    backgroundColor: "rgba(120,230,255,0.1)",
-    borderColor: "rgba(120,230,255,0.4)",
-    borderRadius: 28,
-    borderWidth: 1,
-    height: 56,
-    justifyContent: "center",
-    width: 56,
-  },
-  cameraGlyph: { color: "#78E6FF", fontSize: 25 },
-  emptyPhotoTitle: {
-    color: "#F1F5FF",
-    fontSize: 16,
-    fontWeight: "700",
-    marginTop: 14,
-  },
-  emptyPhotoSubtitle: {
-    color: "#8091AA",
-    fontSize: 11,
-    marginTop: 6,
-    textAlign: "center",
-  },
-  horizonBack: {
-    backgroundColor: "#09121E",
-    bottom: -28,
-    height: 92,
-    left: -18,
-    position: "absolute",
-    transform: [{ rotate: "8deg" }],
-    width: "62%",
-  },
-  horizonFront: {
-    backgroundColor: "#060B13",
-    bottom: -18,
-    height: 88,
-    position: "absolute",
-    right: -20,
-    transform: [{ rotate: "-7deg" }],
-    width: "65%",
-  },
-  lightTrailGlow: {
-    backgroundColor: "rgba(168,219,255,0.15)",
-    borderRadius: 7,
-    height: 12,
-    left: "31%",
-    position: "absolute",
-    top: "40%",
-    transform: [{ rotate: "-23deg" }],
-    width: 156,
-  },
-  lightTrail: {
-    backgroundColor: "#DFF7FF",
-    borderRadius: 2,
-    height: 2,
-    left: "33%",
-    position: "absolute",
-    shadowColor: "#78E6FF",
-    shadowOffset: { height: 0, width: 0 },
-    shadowOpacity: 1,
-    shadowRadius: 8,
-    top: "41%",
-    transform: [{ rotate: "-23deg" }],
-    width: 142,
-  },
-  photoStatus: {
-    alignItems: "center",
-    backgroundColor: "rgba(8,20,35,0.86)",
-    borderColor: "rgba(120,230,255,0.44)",
-    borderRadius: 16,
-    borderWidth: 1,
-    bottom: 14,
-    flexDirection: "row",
-    left: 14,
-    paddingHorizontal: 11,
-    paddingVertical: 7,
-    position: "absolute",
-  },
-  photoStatusIcon: { color: "#7CF3C5", fontSize: 11, marginRight: 7 },
-  photoStatusText: { color: "#CDEBF4", fontSize: 10, fontWeight: "600" },
-  photoActions: {
-    flexDirection: "row",
-    gap: 10,
-    marginHorizontal: 20,
-    marginTop: 10,
-  },
-  photoAction: {
-    alignItems: "center",
-    backgroundColor: "rgba(17,26,43,0.72)",
-    borderColor: "#30435F",
-    borderRadius: 18,
-    borderWidth: 1,
-    flex: 1,
-    flexDirection: "row",
-    height: 50,
-    justifyContent: "center",
-  },
-  photoActionIcon: { color: "#78E6FF", fontSize: 18, marginRight: 8 },
-  photoActionText: { color: "#F1F5FF", fontSize: 12, fontWeight: "600" },
-  section: { marginHorizontal: 20, marginTop: 25 },
-  sectionLabel: {
-    color: "#A8B6CE",
-    fontSize: 9,
-    fontWeight: "800",
-    letterSpacing: 1.7,
-    marginBottom: 10,
-  },
-  inputWrap: {
-    backgroundColor: "rgba(17,26,43,0.7)",
-    borderColor: "#344967",
-    borderRadius: 20,
-    borderWidth: 1,
-    minHeight: 126,
-    overflow: "hidden",
-  },
-  input: {
-    color: "#F1F5FF",
-    fontSize: 14,
-    lineHeight: 21,
-    minHeight: 100,
-    padding: 16,
-    paddingBottom: 30,
-  },
-  characterCount: {
-    bottom: 11,
-    color: "#71819B",
-    fontSize: 9,
-    position: "absolute",
-    right: 14,
-  },
-  metadataCard: {
-    backgroundColor: "rgba(17,26,43,0.58)",
-    borderColor: "#2C3D59",
-    borderRadius: 22,
-    borderWidth: 1,
-    marginHorizontal: 20,
-    marginTop: 20,
-    overflow: "hidden",
-    paddingHorizontal: 16,
-  },
-  metadataRow: { alignItems: "center", flexDirection: "row", minHeight: 76 },
-  metadataIconWrap: {
-    alignItems: "center",
-    backgroundColor: "rgba(120,230,255,0.08)",
-    borderRadius: 16,
-    height: 34,
-    justifyContent: "center",
-    marginRight: 12,
-    width: 34,
-  },
-  metadataIcon: { color: "#78E6FF", fontSize: 20 },
-  metadataCopy: { flex: 1 },
-  metadataLabel: {
-    color: "#71819B",
-    fontSize: 7,
-    fontWeight: "800",
-    letterSpacing: 1.2,
-  },
-  metadataValue: {
-    color: "#F1F5FF",
-    fontSize: 13,
-    fontWeight: "600",
-    marginTop: 4,
-  },
-  metadataNote: { color: "#8091AA", fontSize: 9, marginTop: 3 },
-  metadataChevron: { color: "#78E6FF", fontSize: 25 },
-  metadataDivider: { backgroundColor: "#2C3D59", height: 1, marginLeft: 46 },
-  visibilitySelector: { flexDirection: "row", gap: 10 },
-  visibilityOption: {
-    alignItems: "center",
-    backgroundColor: "rgba(17,26,43,0.55)",
-    borderColor: "#2C3D59",
-    borderRadius: 20,
-    borderWidth: 1,
-    flex: 1,
-    flexDirection: "row",
-    minHeight: 72,
-    padding: 13,
-  },
-  visibilityOptionActive: {
-    backgroundColor: "rgba(24,70,86,0.62)",
-    borderColor: "#78E6FF",
-  },
-  visibilityIcon: { color: "#8091AA", fontSize: 19, marginRight: 9 },
-  visibilityTitle: { color: "#A8B6CE", fontSize: 12, fontWeight: "700" },
-  visibilityTextActive: { color: "#78E6FF" },
-  visibilitySubtitle: { color: "#71819B", fontSize: 8, marginTop: 3 },
-  privacyNotice: {
-    alignItems: "flex-start",
-    backgroundColor: "rgba(124,243,197,0.07)",
-    borderColor: "rgba(124,243,197,0.2)",
-    borderRadius: 15,
-    borderWidth: 1,
-    flexDirection: "row",
-    marginTop: 10,
-    padding: 11,
-  },
-  privacyNoticeIcon: { color: "#7CF3C5", fontSize: 11, marginRight: 8 },
-  privacyNoticeText: { color: "#8FB7AC", flex: 1, fontSize: 9, lineHeight: 13 },
-  errorNotice: {
-    backgroundColor: "rgba(255,102,128,0.1)",
-    borderColor: "rgba(255,102,128,0.42)",
-    borderRadius: 15,
-    borderWidth: 1,
-    marginHorizontal: 20,
-    marginTop: 16,
-    padding: 12,
-  },
-  errorNoticeText: {
-    color: "#FF9CAF",
-    fontSize: 11,
-    lineHeight: 16,
-    textAlign: "center",
-  },
-  saveButton: {
-    alignItems: "center",
-    backgroundColor: "#78E6FF",
-    borderRadius: 21,
-    flexDirection: "row",
-    height: 64,
-    justifyContent: "center",
-    marginHorizontal: 20,
-    marginTop: 24,
-  },
-  saveIcon: { color: "#061524", fontSize: 17, marginRight: 10 },
-  saveText: { color: "#061524", fontSize: 16, fontWeight: "800" },
-  footerNote: {
-    color: "#71819B",
-    fontSize: 9,
-    marginHorizontal: 30,
-    marginTop: 14,
-    textAlign: "center",
-  },
-});

@@ -1,11 +1,11 @@
 import { useEffect, type ReactNode } from "react";
-import { StyleSheet, View } from "react-native";
+import { View } from "react-native";
 import Animated, {
-    Easing,
-    useAnimatedProps,
-    useReducedMotion,
-    useSharedValue,
-    withTiming,
+  Easing,
+  useAnimatedProps,
+  useReducedMotion,
+  useSharedValue,
+  withTiming,
 } from "react-native-reanimated";
 import Svg, { Circle } from "react-native-svg";
 
@@ -55,7 +55,7 @@ export function ProgressRing({
       className="items-center justify-center"
       style={{ width: size, height: size }}
     >
-      <Svg width={size} height={size} style={StyleSheet.absoluteFill}>
+      <Svg width={size} height={size} className="absolute inset-0">
         <Circle
           cx={center}
           cy={center}

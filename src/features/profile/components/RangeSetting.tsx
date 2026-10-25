@@ -32,10 +32,7 @@ export function RangeSetting({
     <View className={`gap-2 px-4 py-4 ${last ? "" : "border-b border-line"}`}>
       <View className="flex-row items-baseline justify-between">
         <Text className="text-[15px] font-semibold text-ink">{label}</Text>
-        <Text
-          className="font-mono text-[12px] text-accent"
-          style={{ fontVariant: ["tabular-nums"] }}
-        >
+        <Text className="font-mono text-[12px] text-accent">
           {`${value}${unit}`}
         </Text>
       </View>

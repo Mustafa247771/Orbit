@@ -20,8 +20,8 @@ export function ObserverRow({
     <ScrollView
       horizontal
       showsHorizontalScrollIndicator={false}
-      style={{ flexGrow: 0 }}
-      contentContainerStyle={{ gap: 14, paddingHorizontal: 20 }}
+      className="grow-0"
+      contentContainerClassName="gap-3.5 px-5"
     >
       <Pressable
         onPress={onAddSighting}

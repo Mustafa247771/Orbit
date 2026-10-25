@@ -3,7 +3,7 @@ import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 
 const STAR_COUNT = 100000;
-const SKY_RADIUS = 40;
+const SKY_RADIUS = 300;
 
 // A share of the stars sits in a thin tilted band, a hint of the Milky Way.
 const BAND_SHARE = 0.35;

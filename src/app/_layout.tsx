@@ -4,6 +4,7 @@ import "fast-text-encoding";
 import { Stack } from "expo-router";
 import { View } from "react-native";
 import "../../global.css";
+import "@/theme/interop";
 
 import colors from "@/theme/colors";
 import { JetBrainsMono_500Medium } from "@expo-google-fonts/jetbrains-mono";

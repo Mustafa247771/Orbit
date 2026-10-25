@@ -27,8 +27,8 @@ export function CategoryChips<T extends string>({
     <ScrollView
       horizontal
       showsHorizontalScrollIndicator={false}
-      style={{ flexGrow: 0, marginTop: 16 }}
-      contentContainerStyle={{ gap: 8, paddingHorizontal: 20 }}
+      className="mt-4 grow-0"
+      contentContainerClassName="gap-2 px-5"
     >
       {categories.map((category) => {
         const selected = category.id === value;

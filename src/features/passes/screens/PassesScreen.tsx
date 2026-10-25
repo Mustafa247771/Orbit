@@ -7,7 +7,6 @@ import {
   PointerEvent,
   Pressable,
   ScrollView,
-  StyleSheet,
   Text,
   View,
 } from "react-native";
@@ -17,17 +16,6 @@ import {
   InteractiveStarField,
   StarPointer,
 } from "@/components/ui/InteractiveStarField";
-
-const COLORS = {
-  background: "#060914",
-  surface: "#111A2B",
-  cyan: "#78E6FF",
-  violet: "#AB9EFF",
-  text: "#F1F5FF",
-  secondary: "#A8B6CE",
-  line: "#2C3D59",
-  green: "#7CF3C5",
-};
 
 const LOCATIONS = ["Cairo, Egypt", "Alexandria, Egypt", "New Cairo, Egypt"];
 
@@ -52,18 +40,27 @@ function formatCountdown(totalSeconds: number) {
 
 function CountdownUnit({ value, label }: { value: string; label: string }) {
   return (
-    <View style={styles.countdownUnit}>
-      <Text style={styles.countdownValue}>{value}</Text>
-      <Text style={styles.countdownLabel}>{label}</Text>
+    <View className="min-w-[52px] items-center">
+      <Text
+        className="text-[26px] font-semibold text-frost"
+        style={{ fontVariant: ["tabular-nums"] }}
+      >
+        {value}
+      </Text>
+      <Text className="mt-[2px] text-[7px] font-bold tracking-[1.2px] text-fog">
+        {label}
+      </Text>
     </View>
   );
 }
 
 function PassMetric({ label, value }: { label: string; value: string }) {
   return (
-    <View style={styles.metric}>
-      <Text style={styles.metricValue}>{value}</Text>
-      <Text style={styles.metricLabel}>{label}</Text>
+    <View className="flex-1 items-center">
+      <Text className="text-[18px] font-bold text-frost">{value}</Text>
+      <Text className="mt-[6px] text-[8px] font-bold tracking-[1.3px] text-haze">
+        {label}
+      </Text>
     </View>
   );
 }
@@ -80,34 +77,36 @@ function UpcomingPass({
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={`${day} at ${time}, ${duration} visible`}
-      style={({ pressed }) => [styles.upcomingCard, pressed && styles.pressed]}
+      className="mx-[20px] mt-[12px] flex-row items-center rounded-[21px] border border-edge bg-panel/[0.48] p-[14px] active:scale-[0.985] active:opacity-[0.68]"
     >
-      <View style={styles.dateTile}>
-        <Text style={styles.dateTileDay}>{day}</Text>
-        <Text style={styles.dateTileTime}>{time}</Text>
+      <View className="min-h-[66px] w-[78px] items-center justify-center rounded-[15px] border border-edge-strong bg-[#152238] px-[10px]">
+        <Text className="text-[8px] font-extrabold tracking-[0.8px] text-cyan">
+          {day}
+        </Text>
+        <Text className="mt-[6px] text-[14px] font-bold text-frost">
+          {time}
+        </Text>
       </View>
 
-      <View style={styles.upcomingCopy}>
-        <View style={styles.upcomingTitleRow}>
-          <Text style={styles.upcomingTitle}>International Space Station</Text>
-          <Text style={styles.chevron}>›</Text>
+      <View className="ml-[14px] flex-1">
+        <View className="flex-row items-center justify-between">
+          <Text className="flex-1 text-[13px] font-bold text-frost">
+            International Space Station
+          </Text>
+          <Text className="ml-[5px] text-[25px] text-cyan">›</Text>
         </View>
-        <Text style={styles.upcomingDirection}>{direction}</Text>
-        <View style={styles.upcomingMetaRow}>
-          <Text style={styles.upcomingMeta}>{duration} visible</Text>
-          <View style={styles.metaDot} />
-          <Text style={styles.upcomingMeta}>{elevation} elevation</Text>
+        <Text className="mt-[4px] text-[10px] text-haze">{direction}</Text>
+        <View className="mt-[9px] flex-row flex-wrap items-center">
+          <Text className="text-[9px] text-[#8FA0B8]">{duration} visible</Text>
+          <View className="mx-[6px] h-[3px] w-[3px] rounded-[2px] bg-[#596A82]" />
+          <Text className="text-[9px] text-[#8FA0B8]">
+            {elevation} elevation
+          </Text>
           <View
-            style={[
-              styles.qualityPill,
-              quality === "Fair" && styles.qualityFair,
-            ]}
+            className={`ml-[8px] rounded-[10px] px-[7px] py-[3px] ${quality === "Fair" ? "bg-gold/[0.12]" : "bg-mint/[0.12]"}`}
           >
             <Text
-              style={[
-                styles.qualityText,
-                quality === "Fair" && styles.qualityFairText,
-              ]}
+              className={`text-[8px] font-bold ${quality === "Fair" ? "text-gold" : "text-mint"}`}
             >
               {quality}
             </Text>
@@ -164,113 +163,133 @@ export default function VisiblePassesScreen() {
       onTouchEnd={releaseStars}
       onTouchMove={trackStars}
       onTouchStart={trackStars}
-      style={styles.safeArea}
+      className="flex-1 bg-night"
     >
       <Stack.Screen options={{ headerShown: false }} />
-      <View pointerEvents="none" style={styles.starField}>
+      <View
+        pointerEvents="none"
+        className="absolute bottom-0 left-0 right-0 top-0"
+      >
         <InteractiveStarField pointer={starPointer} />
       </View>
       <ScrollView
-        style={styles.screen}
-        contentContainerStyle={styles.content}
+        className="flex-1 bg-transparent"
+        contentContainerClassName="pb-[126px]"
         showsVerticalScrollIndicator={false}
       >
-        <View style={styles.header}>
+        <View className="flex-row items-center justify-between px-[20px] pt-[10px]">
           <Pressable
             accessibilityRole="button"
             accessibilityLabel="Go back"
             onPress={() => router.back()}
-            style={({ pressed }) => [
-              styles.circleButton,
-              pressed && styles.pressed,
-            ]}
+            className="h-[50px] w-[50px] items-center justify-center rounded-[25px] border border-edge-strong bg-panel/[0.9] active:scale-[0.985] active:opacity-[0.68]"
           >
-            <Text style={styles.backIcon}>‹</Text>
+            <Text className="-mt-[5px] text-[38px] font-extralight text-frost">
+              ‹
+            </Text>
           </Pressable>
-          <View style={styles.headerCopy}>
-            <Text style={styles.headerEyebrow}>VISIBLE PASSES</Text>
-            <Text style={styles.headerTitle}>ISS · {id ?? "25544"}</Text>
+          <View className="items-center">
+            <Text className="text-[9px] font-extrabold tracking-[2.2px] text-haze">
+              VISIBLE PASSES
+            </Text>
+            <Text className="mt-[4px] text-[15px] font-semibold text-frost">
+              ISS · {id ?? "25544"}
+            </Text>
           </View>
-          <View style={styles.signalButton}>
-            <View style={styles.signalDot} />
-            <Text style={styles.signalIcon}>⌁</Text>
+          <View className="h-[50px] w-[50px] items-center justify-center rounded-[25px] border border-edge-strong bg-panel/[0.9]">
+            <View className="absolute right-[9px] top-[9px] h-[7px] w-[7px] rounded-[4px] bg-mint" />
+            <Text className="-rotate-[25deg] text-[27px] text-cyan">⌁</Text>
           </View>
         </View>
 
-        <View style={styles.intro}>
-          <Text style={styles.title}>Your sky,{`\n`}tonight.</Text>
+        <View className="px-[24px] pt-[30px]">
+          <Text className="text-[39px] font-bold leading-[43px] tracking-[-1.3px] text-frost">
+            Your sky,{`\n`}tonight.
+          </Text>
           <Pressable
             accessibilityRole="button"
             accessibilityLabel={`Observing location ${LOCATIONS[locationIndex]}. Change location`}
             onPress={() =>
               setLocationIndex((current) => (current + 1) % LOCATIONS.length)
             }
-            style={({ pressed }) => [
-              styles.locationButton,
-              pressed && styles.pressed,
-            ]}
+            className="mt-[17px] min-h-[45px] flex-row items-center self-start rounded-[22px] border border-edge-bright bg-panel/[0.72] px-[14px] active:scale-[0.985] active:opacity-[0.68]"
           >
-            <Text style={styles.locationPin}>⌾</Text>
-            <Text style={styles.locationText}>{LOCATIONS[locationIndex]}</Text>
-            <Text style={styles.locationChevron}>⌄</Text>
+            <Text className="mr-[8px] text-[22px] text-cyan">⌾</Text>
+            <Text className="text-[13px] font-semibold text-frost">
+              {LOCATIONS[locationIndex]}
+            </Text>
+            <Text className="ml-[9px] text-[15px] text-haze">⌄</Text>
           </Pressable>
         </View>
 
         <LinearGradient
           colors={["#162640", "#10192C", "#0C1424"]}
           locations={[0, 0.64, 1]}
-          style={styles.heroCard}
+          className="mx-[20px] mt-[22px] overflow-hidden rounded-[28px] border border-edge-strong p-[23px]"
         >
-          <View style={styles.orbitRingLarge} />
-          <View style={styles.orbitRingSmall} />
-          <View style={styles.satelliteMark}>
-            <View style={styles.satelliteBody} />
-            <View style={[styles.satellitePanel, styles.satellitePanelLeft]} />
-            <View style={[styles.satellitePanel, styles.satellitePanelRight]} />
+          <View className="absolute -right-[122px] -top-[90px] h-[245px] w-[245px] rotate-[18deg] rounded-[150px] border border-cyan/[0.22]" />
+          <View className="absolute -right-[90px] -top-[58px] h-[180px] w-[180px] rounded-[110px] border border-violet/[0.16]" />
+          <View className="absolute right-[42px] top-[75px] h-[28px] w-[47px] -rotate-[22deg]">
+            <View className="absolute left-[19px] top-[5px] h-[18px] w-[9px] rounded-[4px] bg-frost" />
+            <View className="absolute left-0 top-[7px] h-[13px] w-[15px] rounded-[2px] bg-cyan" />
+            <View className="absolute right-0 top-[7px] h-[13px] w-[15px] rounded-[2px] bg-cyan" />
           </View>
 
-          <View style={styles.heroTopRow}>
-            <View style={styles.conditionPill}>
-              <View style={styles.goodDot} />
-              <Text style={styles.conditionText}>GOOD CONDITIONS</Text>
+          <View className="flex-row items-center justify-between">
+            <View className="flex-row items-center rounded-[17px] border border-cyan/[0.45] bg-[rgba(22,82,82,0.55)] px-[12px] py-[8px]">
+              <View className="mr-[7px] h-[7px] w-[7px] rounded-[4px] bg-mint" />
+              <Text className="text-[9px] font-extrabold tracking-[1.1px] text-cyan">
+                GOOD CONDITIONS
+              </Text>
             </View>
-            <Text style={styles.demoLabel}>PREDICTED</Text>
+            <Text className="text-[9px] font-bold tracking-[1.4px] text-haze">
+              PREDICTED
+            </Text>
           </View>
 
-          <Text style={styles.heroEyebrow}>NEXT VISIBLE PASS</Text>
-          <Text style={styles.heroTime}>
-            7:42 <Text style={styles.heroAmPm}>PM</Text>
+          <Text className="mt-[30px] text-[11px] font-bold tracking-[1.8px] text-haze">
+            NEXT VISIBLE PASS
           </Text>
-          <Text style={styles.heroDate}>Tonight · Northwest → Southeast</Text>
+          <Text className="mt-[7px] text-[52px] font-semibold tracking-[-2px] text-frost">
+            7:42{" "}
+            <Text className="text-[19px] tracking-[0px] text-haze">PM</Text>
+          </Text>
+          <Text className="mt-[2px] text-[14px] text-haze">
+            Tonight · Northwest → Southeast
+          </Text>
 
-          <View style={styles.countdownWrap}>
-            <Text style={styles.countdownHeading}>BEGINS IN</Text>
-            <View style={styles.countdownRow}>
+          <View className="mt-[22px] rounded-[20px] border border-[rgba(64,86,117,0.55)] bg-night/[0.38] px-[18px] py-[15px]">
+            <Text className="text-center text-[9px] font-extrabold tracking-[1.6px] text-haze">
+              BEGINS IN
+            </Text>
+            <View className="mt-[8px] flex-row items-start justify-center">
               <CountdownUnit value={hours} label="HOURS" />
-              <Text style={styles.countdownColon}>:</Text>
+              <Text className="mx-[3px] mt-[2px] text-[22px] text-cyan">:</Text>
               <CountdownUnit value={minutes} label="MIN" />
-              <Text style={styles.countdownColon}>:</Text>
+              <Text className="mx-[3px] mt-[2px] text-[22px] text-cyan">:</Text>
               <CountdownUnit value={seconds} label="SEC" />
             </View>
           </View>
 
-          <View style={styles.metricRow}>
+          <View className="mt-[23px] flex-row items-center justify-between">
             <PassMetric label="VISIBLE" value="6 min" />
-            <View style={styles.metricDivider} />
+            <View className="h-[35px] w-[1px] bg-edge" />
             <PassMetric label="MAX ELEV." value="64°" />
-            <View style={styles.metricDivider} />
+            <View className="h-[35px] w-[1px] bg-edge" />
             <PassMetric label="CLOUDS" value="12%" />
           </View>
         </LinearGradient>
 
-        <View style={styles.reminderCard}>
-          <View style={styles.reminderTopRow}>
-            <View style={styles.reminderIconWrap}>
-              <Text style={styles.reminderIcon}>♢</Text>
+        <View className="mx-[20px] mt-[16px] rounded-[24px] border border-edge bg-panel/[0.68] p-[18px]">
+          <View className="flex-row items-center">
+            <View className="mr-[11px] h-[36px] w-[36px] items-center justify-center rounded-[18px] bg-violet/[0.12]">
+              <Text className="text-[23px] text-violet">♢</Text>
             </View>
-            <View style={styles.reminderCopy}>
-              <Text style={styles.reminderTitle}>Pass reminder</Text>
-              <Text style={styles.reminderSubtitle}>
+            <View className="flex-1">
+              <Text className="text-[14px] font-bold text-frost">
+                Pass reminder
+              </Text>
+              <Text className="mt-[3px] text-[10px] text-haze">
                 Alert me before the ISS becomes visible
               </Text>
             </View>
@@ -279,20 +298,19 @@ export default function VisiblePassesScreen() {
               accessibilityState={{ checked: reminderEnabled }}
               accessibilityLabel="Pass reminder"
               onPress={() => setReminderEnabled((current) => !current)}
-              style={[styles.toggle, reminderEnabled && styles.toggleOn]}
+              className={`h-[30px] w-[52px] justify-center rounded-[16px] px-[3px] ${reminderEnabled ? "bg-teal" : "bg-edge-dim"}`}
             >
               <View
-                style={[
-                  styles.toggleThumb,
-                  reminderEnabled && styles.toggleThumbOn,
-                ]}
+                className={`h-[24px] w-[24px] rounded-[12px] ${reminderEnabled ? "ml-[22px] bg-cyan" : "bg-mist"}`}
               />
             </Pressable>
           </View>
 
           {reminderEnabled && (
-            <View style={styles.leadTimeRow}>
-              <Text style={styles.leadTimeLabel}>REMIND ME</Text>
+            <View className="mt-[16px] flex-row items-center border-t border-t-edge pt-[15px]">
+              <Text className="flex-1 text-[8px] font-extrabold tracking-[1.3px] text-haze">
+                REMIND ME
+              </Text>
               {[5, 10, 20].map((minutesOption) => (
                 <Pressable
                   key={minutesOption}
@@ -301,18 +319,10 @@ export default function VisiblePassesScreen() {
                     selected: leadMinutes === minutesOption,
                   }}
                   onPress={() => setLeadMinutes(minutesOption)}
-                  style={[
-                    styles.leadTimeButton,
-                    leadMinutes === minutesOption &&
-                      styles.leadTimeButtonActive,
-                  ]}
+                  className={`ml-[7px] rounded-[14px] border px-[10px] py-[7px] ${leadMinutes === minutesOption ? "border-cyan bg-cyan/[0.14]" : "border-edge"}`}
                 >
                   <Text
-                    style={[
-                      styles.leadTimeText,
-                      leadMinutes === minutesOption &&
-                        styles.leadTimeTextActive,
-                    ]}
+                    className={`text-[10px] font-semibold ${leadMinutes === minutesOption ? "text-cyan" : "text-haze"}`}
                   >
                     {minutesOption} min
                   </Text>
@@ -322,16 +332,22 @@ export default function VisiblePassesScreen() {
           )}
         </View>
 
-        <View style={styles.sectionHeader}>
+        <View className="mx-[22px] mt-[31px] flex-row items-end justify-between">
           <View>
-            <Text style={styles.sectionEyebrow}>NEXT 7 DAYS</Text>
-            <Text style={styles.sectionTitle}>Coming into view</Text>
+            <Text className="text-[9px] font-extrabold tracking-[1.7px] text-cyan">
+              NEXT 7 DAYS
+            </Text>
+            <Text className="mt-[5px] text-[24px] font-bold text-frost">
+              Coming into view
+            </Text>
           </View>
           <Pressable
             accessibilityRole="button"
             accessibilityLabel="Pass filters"
           >
-            <Text style={styles.filterText}>Filter ≡</Text>
+            <Text className="text-[12px] font-semibold text-cyan">
+              Filter ≡
+            </Text>
           </Pressable>
         </View>
 
@@ -360,9 +376,11 @@ export default function VisiblePassesScreen() {
           quality="Good"
         />
 
-        <View style={styles.forecastNote}>
-          <Text style={styles.forecastIcon}>i</Text>
-          <Text style={styles.forecastText}>
+        <View className="mx-[28px] mt-[20px] flex-row items-start">
+          <Text className="mr-[9px] h-[18px] w-[18px] rounded-[9px] border border-[#52647E] text-center text-[10px] leading-[16px] text-haze">
+            i
+          </Text>
+          <Text className="flex-1 text-[10px] leading-[15px] text-fog">
             Passes are optical predictions. Clear skies improve visibility but
             do not guarantee a sighting.
           </Text>
@@ -371,461 +389,3 @@ export default function VisiblePassesScreen() {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  safeArea: { backgroundColor: COLORS.background, flex: 1 },
-  screen: { backgroundColor: "transparent", flex: 1 },
-  starField: {
-    bottom: 0,
-    left: 0,
-    position: "absolute",
-    right: 0,
-    top: 0,
-  },
-  content: { paddingBottom: 126 },
-  pressed: { opacity: 0.68, transform: [{ scale: 0.985 }] },
-  header: {
-    alignItems: "center",
-    flexDirection: "row",
-    justifyContent: "space-between",
-    paddingHorizontal: 20,
-    paddingTop: 10,
-  },
-  circleButton: {
-    alignItems: "center",
-    backgroundColor: "rgba(17,26,43,0.9)",
-    borderColor: "#344967",
-    borderRadius: 25,
-    borderWidth: 1,
-    height: 50,
-    justifyContent: "center",
-    width: 50,
-  },
-  backIcon: {
-    color: COLORS.text,
-    fontSize: 38,
-    fontWeight: "200",
-    marginTop: -5,
-  },
-  headerCopy: { alignItems: "center" },
-  headerEyebrow: {
-    color: COLORS.secondary,
-    fontSize: 9,
-    fontWeight: "800",
-    letterSpacing: 2.2,
-  },
-  headerTitle: {
-    color: COLORS.text,
-    fontSize: 15,
-    fontWeight: "600",
-    marginTop: 4,
-  },
-  signalButton: {
-    alignItems: "center",
-    backgroundColor: "rgba(17,26,43,0.9)",
-    borderColor: "#344967",
-    borderRadius: 25,
-    borderWidth: 1,
-    height: 50,
-    justifyContent: "center",
-    width: 50,
-  },
-  signalDot: {
-    backgroundColor: COLORS.green,
-    borderRadius: 4,
-    height: 7,
-    position: "absolute",
-    right: 9,
-    top: 9,
-    width: 7,
-  },
-  signalIcon: {
-    color: COLORS.cyan,
-    fontSize: 27,
-    transform: [{ rotate: "-25deg" }],
-  },
-  intro: { paddingHorizontal: 24, paddingTop: 30 },
-  title: {
-    color: COLORS.text,
-    fontSize: 39,
-    fontWeight: "700",
-    letterSpacing: -1.3,
-    lineHeight: 43,
-  },
-  locationButton: {
-    alignItems: "center",
-    alignSelf: "flex-start",
-    backgroundColor: "rgba(17,26,43,0.72)",
-    borderColor: "#3B5271",
-    borderRadius: 22,
-    borderWidth: 1,
-    flexDirection: "row",
-    marginTop: 17,
-    minHeight: 45,
-    paddingHorizontal: 14,
-  },
-  locationPin: { color: COLORS.cyan, fontSize: 22, marginRight: 8 },
-  locationText: { color: COLORS.text, fontSize: 13, fontWeight: "600" },
-  locationChevron: { color: COLORS.secondary, fontSize: 15, marginLeft: 9 },
-  heroCard: {
-    borderColor: "#344967",
-    borderRadius: 28,
-    borderWidth: 1,
-    marginHorizontal: 20,
-    marginTop: 22,
-    overflow: "hidden",
-    padding: 23,
-  },
-  orbitRingLarge: {
-    borderColor: "rgba(120,230,255,0.22)",
-    borderRadius: 150,
-    borderWidth: 1,
-    height: 245,
-    position: "absolute",
-    right: -122,
-    top: -90,
-    transform: [{ rotate: "18deg" }],
-    width: 245,
-  },
-  orbitRingSmall: {
-    borderColor: "rgba(171,158,255,0.16)",
-    borderRadius: 110,
-    borderWidth: 1,
-    height: 180,
-    position: "absolute",
-    right: -90,
-    top: -58,
-    width: 180,
-  },
-  satelliteMark: {
-    height: 28,
-    position: "absolute",
-    right: 42,
-    top: 75,
-    transform: [{ rotate: "-22deg" }],
-    width: 47,
-  },
-  satelliteBody: {
-    backgroundColor: COLORS.text,
-    borderRadius: 4,
-    height: 18,
-    left: 19,
-    position: "absolute",
-    top: 5,
-    width: 9,
-  },
-  satellitePanel: {
-    backgroundColor: COLORS.cyan,
-    borderRadius: 2,
-    height: 13,
-    position: "absolute",
-    top: 7,
-    width: 15,
-  },
-  satellitePanelLeft: { left: 0 },
-  satellitePanelRight: { right: 0 },
-  heroTopRow: {
-    alignItems: "center",
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
-  conditionPill: {
-    alignItems: "center",
-    backgroundColor: "rgba(22,82,82,0.55)",
-    borderColor: "rgba(120,230,255,0.45)",
-    borderRadius: 17,
-    borderWidth: 1,
-    flexDirection: "row",
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-  },
-  goodDot: {
-    backgroundColor: COLORS.green,
-    borderRadius: 4,
-    height: 7,
-    marginRight: 7,
-    width: 7,
-  },
-  conditionText: {
-    color: COLORS.cyan,
-    fontSize: 9,
-    fontWeight: "800",
-    letterSpacing: 1.1,
-  },
-  demoLabel: {
-    color: COLORS.secondary,
-    fontSize: 9,
-    fontWeight: "700",
-    letterSpacing: 1.4,
-  },
-  heroEyebrow: {
-    color: COLORS.secondary,
-    fontSize: 11,
-    fontWeight: "700",
-    letterSpacing: 1.8,
-    marginTop: 30,
-  },
-  heroTime: {
-    color: COLORS.text,
-    fontSize: 52,
-    fontWeight: "600",
-    letterSpacing: -2,
-    marginTop: 7,
-  },
-  heroAmPm: { color: COLORS.secondary, fontSize: 19, letterSpacing: 0 },
-  heroDate: { color: COLORS.secondary, fontSize: 14, marginTop: 2 },
-  countdownWrap: {
-    backgroundColor: "rgba(6,9,20,0.38)",
-    borderColor: "rgba(64,86,117,0.55)",
-    borderRadius: 20,
-    borderWidth: 1,
-    marginTop: 22,
-    paddingHorizontal: 18,
-    paddingVertical: 15,
-  },
-  countdownHeading: {
-    color: COLORS.secondary,
-    fontSize: 9,
-    fontWeight: "800",
-    letterSpacing: 1.6,
-    textAlign: "center",
-  },
-  countdownRow: {
-    alignItems: "flex-start",
-    flexDirection: "row",
-    justifyContent: "center",
-    marginTop: 8,
-  },
-  countdownUnit: { alignItems: "center", minWidth: 52 },
-  countdownValue: {
-    color: COLORS.text,
-    fontSize: 26,
-    fontVariant: ["tabular-nums"],
-    fontWeight: "600",
-  },
-  countdownLabel: {
-    color: "#7688A3",
-    fontSize: 7,
-    fontWeight: "700",
-    letterSpacing: 1.2,
-    marginTop: 2,
-  },
-  countdownColon: {
-    color: COLORS.cyan,
-    fontSize: 22,
-    marginHorizontal: 3,
-    marginTop: 2,
-  },
-  metricRow: {
-    alignItems: "center",
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginTop: 23,
-  },
-  metric: { alignItems: "center", flex: 1 },
-  metricValue: { color: COLORS.text, fontSize: 18, fontWeight: "700" },
-  metricLabel: {
-    color: COLORS.secondary,
-    fontSize: 8,
-    fontWeight: "700",
-    letterSpacing: 1.3,
-    marginTop: 6,
-  },
-  metricDivider: { backgroundColor: COLORS.line, height: 35, width: 1 },
-  skyFinderButton: {
-    alignItems: "center",
-    backgroundColor: COLORS.cyan,
-    borderRadius: 20,
-    flexDirection: "row",
-    height: 62,
-    justifyContent: "center",
-    marginTop: 23,
-  },
-  skyFinderIcon: { color: "#061524", fontSize: 23, marginRight: 10 },
-  skyFinderText: { color: "#061524", fontSize: 16, fontWeight: "800" },
-  skyFinderArrow: {
-    color: "#061524",
-    fontSize: 23,
-    position: "absolute",
-    right: 22,
-  },
-  reminderCard: {
-    backgroundColor: "rgba(17,26,43,0.68)",
-    borderColor: COLORS.line,
-    borderRadius: 24,
-    borderWidth: 1,
-    marginHorizontal: 20,
-    marginTop: 16,
-    padding: 18,
-  },
-  reminderTopRow: { alignItems: "center", flexDirection: "row" },
-  reminderIconWrap: {
-    alignItems: "center",
-    backgroundColor: "rgba(171,158,255,0.12)",
-    borderRadius: 18,
-    height: 36,
-    justifyContent: "center",
-    marginRight: 11,
-    width: 36,
-  },
-  reminderIcon: { color: COLORS.violet, fontSize: 23 },
-  reminderCopy: { flex: 1 },
-  reminderTitle: { color: COLORS.text, fontSize: 14, fontWeight: "700" },
-  reminderSubtitle: { color: COLORS.secondary, fontSize: 10, marginTop: 3 },
-  toggle: {
-    backgroundColor: "#28354A",
-    borderRadius: 16,
-    height: 30,
-    justifyContent: "center",
-    paddingHorizontal: 3,
-    width: 52,
-  },
-  toggleOn: { backgroundColor: "#24596E" },
-  toggleThumb: {
-    backgroundColor: "#8291A8",
-    borderRadius: 12,
-    height: 24,
-    width: 24,
-  },
-  toggleThumbOn: { backgroundColor: COLORS.cyan, marginLeft: 22 },
-  leadTimeRow: {
-    alignItems: "center",
-    borderTopColor: COLORS.line,
-    borderTopWidth: 1,
-    flexDirection: "row",
-    marginTop: 16,
-    paddingTop: 15,
-  },
-  leadTimeLabel: {
-    color: COLORS.secondary,
-    flex: 1,
-    fontSize: 8,
-    fontWeight: "800",
-    letterSpacing: 1.3,
-  },
-  leadTimeButton: {
-    borderColor: COLORS.line,
-    borderRadius: 14,
-    borderWidth: 1,
-    marginLeft: 7,
-    paddingHorizontal: 10,
-    paddingVertical: 7,
-  },
-  leadTimeButtonActive: {
-    backgroundColor: "rgba(120,230,255,0.14)",
-    borderColor: COLORS.cyan,
-  },
-  leadTimeText: { color: COLORS.secondary, fontSize: 10, fontWeight: "600" },
-  leadTimeTextActive: { color: COLORS.cyan },
-  sectionHeader: {
-    alignItems: "flex-end",
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginHorizontal: 22,
-    marginTop: 31,
-  },
-  sectionEyebrow: {
-    color: COLORS.cyan,
-    fontSize: 9,
-    fontWeight: "800",
-    letterSpacing: 1.7,
-  },
-  sectionTitle: {
-    color: COLORS.text,
-    fontSize: 24,
-    fontWeight: "700",
-    marginTop: 5,
-  },
-  filterText: { color: COLORS.cyan, fontSize: 12, fontWeight: "600" },
-  upcomingCard: {
-    alignItems: "center",
-    backgroundColor: "rgba(17,26,43,0.48)",
-    borderColor: COLORS.line,
-    borderRadius: 21,
-    borderWidth: 1,
-    flexDirection: "row",
-    marginHorizontal: 20,
-    marginTop: 12,
-    padding: 14,
-  },
-  dateTile: {
-    alignItems: "center",
-    backgroundColor: "#152238",
-    borderColor: "#354967",
-    borderRadius: 15,
-    borderWidth: 1,
-    justifyContent: "center",
-    minHeight: 66,
-    paddingHorizontal: 10,
-    width: 78,
-  },
-  dateTileDay: {
-    color: COLORS.cyan,
-    fontSize: 8,
-    fontWeight: "800",
-    letterSpacing: 0.8,
-  },
-  dateTileTime: {
-    color: COLORS.text,
-    fontSize: 14,
-    fontWeight: "700",
-    marginTop: 6,
-  },
-  upcomingCopy: { flex: 1, marginLeft: 14 },
-  upcomingTitleRow: {
-    alignItems: "center",
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
-  upcomingTitle: {
-    color: COLORS.text,
-    flex: 1,
-    fontSize: 13,
-    fontWeight: "700",
-  },
-  chevron: { color: COLORS.cyan, fontSize: 25, marginLeft: 5 },
-  upcomingDirection: { color: COLORS.secondary, fontSize: 10, marginTop: 4 },
-  upcomingMetaRow: {
-    alignItems: "center",
-    flexDirection: "row",
-    flexWrap: "wrap",
-    marginTop: 9,
-  },
-  upcomingMeta: { color: "#8FA0B8", fontSize: 9 },
-  metaDot: {
-    backgroundColor: "#596A82",
-    borderRadius: 2,
-    height: 3,
-    marginHorizontal: 6,
-    width: 3,
-  },
-  qualityPill: {
-    backgroundColor: "rgba(124,243,197,0.12)",
-    borderRadius: 10,
-    marginLeft: 8,
-    paddingHorizontal: 7,
-    paddingVertical: 3,
-  },
-  qualityFair: { backgroundColor: "rgba(255,211,112,0.12)" },
-  qualityText: { color: COLORS.green, fontSize: 8, fontWeight: "700" },
-  qualityFairText: { color: "#FFD370" },
-  forecastNote: {
-    alignItems: "flex-start",
-    flexDirection: "row",
-    marginHorizontal: 28,
-    marginTop: 20,
-  },
-  forecastIcon: {
-    borderColor: "#52647E",
-    borderRadius: 9,
-    borderWidth: 1,
-    color: COLORS.secondary,
-    fontSize: 10,
-    height: 18,
-    lineHeight: 16,
-    marginRight: 9,
-    textAlign: "center",
-    width: 18,
-  },
-  forecastText: { color: "#7889A3", flex: 1, fontSize: 10, lineHeight: 15 },
-});

@@ -37,7 +37,7 @@ export function ArticleRow({
               source={{ uri: article.imageUrl }}
               contentFit="cover"
               transition={300}
-              style={{ flex: 1 }}
+              className="flex-1"
             />
           ) : null}
         </View>

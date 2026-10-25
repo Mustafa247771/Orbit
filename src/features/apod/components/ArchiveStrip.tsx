@@ -13,8 +13,8 @@ export function ArchiveStrip({ pictures, onSelect }: ArchiveStripProps) {
     <ScrollView
       horizontal
       showsHorizontalScrollIndicator={false}
-      style={{ flexGrow: 0 }}
-      contentContainerStyle={{ gap: 12, paddingHorizontal: 20 }}
+      className="grow-0"
+      contentContainerClassName="gap-3 px-5"
     >
       {pictures.map((picture) => (
         <Pressable
@@ -29,7 +29,7 @@ export function ArchiveStrip({ pictures, onSelect }: ArchiveStripProps) {
               source={{ uri: picture.thumbnailUrl }}
               contentFit="cover"
               transition={300}
-              style={{ flex: 1 }}
+              className="flex-1"
             />
           </View>
           <Text

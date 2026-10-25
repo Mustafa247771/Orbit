@@ -1,11 +1,9 @@
 import { useState } from "react";
 import { Text, View } from "react-native";
 
-import colors from "@/theme/colors";
 import type { PassTraceData } from "../model/Post";
 
-const HEIGHT = 96;
-const BASELINE = 76;
+const BASELINE = 76; // keep in sync with top-[76px] and top-[80px] below
 const PAD = 16;
 const DOTS = 25;
 const PEAK = (DOTS - 1) / 2;
@@ -39,41 +37,24 @@ export function PassTrace({ maxElevation, rises, sets }: PassTraceData) {
         </Text>
       </View>
       <View
-        style={{ height: HEIGHT }}
+        className="h-[96px]"
         onLayout={(event) => setWidth(event.nativeEvent.layout.width)}
       >
-        <View
-          className="absolute h-px bg-line"
-          style={{ left: 0, right: 0, top: BASELINE }}
-        />
+        <View className="absolute inset-x-0 top-[76px] h-px bg-line" />
         {dots.map((dot, index) => {
           const size = index === PEAK ? 8 : 3;
           return (
             <View
               key={index}
-              style={{
-                position: "absolute",
-                left: dot.x - size / 2,
-                top: dot.y - size / 2,
-                width: size,
-                height: size,
-                borderRadius: size / 2,
-                backgroundColor: colors.cyan,
-                opacity: index === PEAK ? 1 : 0.55,
-              }}
+              className={`absolute rounded-full bg-cyan ${index === PEAK ? "h-2 w-2" : "h-[3px] w-[3px] opacity-[0.55]"}`}
+              style={{ left: dot.x - size / 2, top: dot.y - size / 2 }}
             />
           );
         })}
-        <Text
-          className="absolute left-0 font-mono text-[11px] text-muted"
-          style={{ top: BASELINE + 4 }}
-        >
+        <Text className="absolute left-0 top-[80px] font-mono text-[11px] text-muted">
           {rises}
         </Text>
-        <Text
-          className="absolute right-0 font-mono text-[11px] text-muted"
-          style={{ top: BASELINE + 4 }}
-        >
+        <Text className="absolute right-0 top-[80px] font-mono text-[11px] text-muted">
           {sets}
         </Text>
       </View>

@@ -25,7 +25,7 @@ export function FeaturedArticle({ article, onOpen }: FeaturedArticleProps) {
             source={{ uri: article.imageUrl }}
             contentFit="cover"
             transition={300}
-            style={{ flex: 1 }}
+            className="flex-1"
           />
         ) : null}
         <View className="absolute left-3.5 top-3.5">
