@@ -8,6 +8,8 @@ const ICONS = {
   eye: { ios: "eye", android: "visibility" },
   flame: { ios: "flame", android: "local_fire_department" },
   launch: { ios: "airplane.departure", android: "rocket_launch" },
+  menu: { ios: "line.3.horizontal", android: "menu" },
+  globe: { ios: "globe.europe.africa", android: "public" },
   lock: { ios: "lock", android: "lock" },
   moon: { ios: "moon", android: "bedtime" },
   satellite: {

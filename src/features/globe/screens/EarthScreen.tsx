@@ -5,11 +5,18 @@ import { Canvas } from "@react-three/fiber/native";
 import { Suspense } from "react";
 import { View } from "react-native";
 import { CameraRig } from "../components/CameraRig";
+import { ConstellationMenu } from "../components/ConstellationMenu";
 import { Earth } from "../components/Earth";
 import { FocusedSatellite } from "../components/FocusedSatellite";
+import { GlobeHeader } from "../components/GlobeHeader";
+import { MenuButton } from "../components/MenuButton";
+import { Moon } from "../components/Moon";
 import { OrbitPath } from "../components/OrbitPath";
 import { Satellite } from "../components/Satellite";
 import { SatelliteDetailsSheet } from "../components/SatelliteDetailsSheet";
+import { ShootingStar } from "../components/ShootingStar";
+import { SkyDome } from "../components/SkyDome";
+import { CAMERA_FOV, START_DISTANCE } from "../components/cameraSettings";
 import { useEarthViewModel } from "../viewmodels/useEarthViewModel";
 
 export default function EarthScreen() {
@@ -19,7 +26,12 @@ export default function EarthScreen() {
     <View className="flex-1 bg-space">
       <Canvas
         flat
-        camera={{ position: [0, 0, 3.5], fov: 45, near: 0.01, far: 100 }}
+        camera={{
+          position: [0, 0, START_DISTANCE],
+          fov: CAMERA_FOV,
+          near: 0.01,
+          far: 100,
+        }}
         onPointerMissed={vm.clearSelection}
         onCreated={(state) => {
           quietPixelStorei(state);
@@ -27,10 +39,15 @@ export default function EarthScreen() {
         }}
       >
         <color attach="background" args={[colors.space]} />
+        <SkyDome />
+        <ShootingStar firstDelay={2} />
+        <ShootingStar firstDelay={7} />
+        <Moon getSunDirection={vm.getSunDirection} />
         <OrbitControls makeDefault enablePan={false} />
         <CameraRig
           selectedId={vm.selectedId}
           getSatellitePosition={vm.getSatellitePosition}
+          menuOpen={vm.menuOpen}
         />
         <Suspense fallback={null}>
           <Earth
@@ -64,6 +81,8 @@ export default function EarthScreen() {
           </Suspense>
         )}
       </Canvas>
+      <ConstellationMenu open={vm.menuOpen} />
+      <GlobeHeader menuOpen={vm.menuOpen} trackedCount={vm.satellites.length} />
       {vm.details && vm.selected && (
         <SatelliteDetailsSheet
           details={vm.details}
@@ -71,6 +90,11 @@ export default function EarthScreen() {
           onClose={vm.clearSelection}
         />
       )}
+      <MenuButton
+        open={vm.menuOpen}
+        hidden={vm.selected !== null}
+        onPress={vm.toggleMenu}
+      />
     </View>
   );
 }

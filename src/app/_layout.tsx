@@ -5,7 +5,6 @@ import { Stack } from "expo-router";
 import { View } from "react-native";
 import "../../global.css";
 
-import { PlanetMenu } from "@/components/navigation/PlanetMenu";
 import colors from "@/theme/colors";
 import { JetBrainsMono_500Medium } from "@expo-google-fonts/jetbrains-mono";
 import { SpaceGrotesk_600SemiBold } from "@expo-google-fonts/space-grotesk";
@@ -27,14 +26,13 @@ export default function RootLayout() {
 
   if (!ready) return null;
   return (
-    <View style={{ flex: 1, backgroundColor: colors.space }}>
+    <View className="flex-1 bg-space">
       <Stack
         screenOptions={{
           headerShown: false,
           contentStyle: { backgroundColor: colors.space },
         }}
       />
-      <PlanetMenu />
     </View>
   );
 }
