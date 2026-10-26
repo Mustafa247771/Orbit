@@ -40,7 +40,6 @@ type MenuStar = {
 // prettier-ignore
 const STARS: MenuStar[] = [
   { label: "Profile", star: "Polaris", href: "/profile", x: 0.06, y: 0.16, side: "above" },
-  { label: "Satellite", star: "Dubhe", href: "/satellite/25544", x: 0.34, y: 0.08, side: "above" },
   { label: "Passes", star: "Merak", href: "/passes/25544", x: 0.6, y: 0.02, side: "right" },
   { label: "Sky Finder", star: "Phecda", href: "/sky-finder/25544", x: 0.64, y: 0.19, side: "right" },
   { label: "Log sighting", star: "Megrez", href: "/sightings/new", x: 0.38, y: 0.24, side: "left" },
@@ -55,7 +54,7 @@ const STARS: MenuStar[] = [
 // prettier-ignore
 const LINES = [
   [0, 1], [1, 2], [2, 3], [3, 4], [4, 1],
-  [4, 5], [5, 6], [6, 7], [7, 8], [8, 9],
+  [4, 5], [5, 6], [6, 7], [7, 8],
 ];
 
 const SIDE_MARGIN = 24;
@@ -204,7 +203,7 @@ type ConstellationMenuProps = {
   open: boolean;
 };
 
-/** The menu: ten stars that sit off to the right of the globe until the camera turns to them. */
+/** The menu: nine stars that sit off to the right of the globe until the camera turns to them. */
 export function ConstellationMenu({ open }: ConstellationMenuProps) {
   const insets = useSafeAreaInsets();
   const { width, height } = useWindowDimensions();
