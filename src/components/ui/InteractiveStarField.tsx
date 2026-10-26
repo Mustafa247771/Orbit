@@ -12,9 +12,10 @@ export type StarPointer = {
 
 type InteractiveStarFieldProps = {
   pointer: MutableRefObject<StarPointer>;
+  starCount?: number;
 };
 
-const STAR_COUNT = 1650;
+const STAR_COUNT = 240;
 
 const vertexShader = /* glsl */ `
   attribute float aSize;
@@ -73,22 +74,22 @@ function seededValue(index: number, salt: number) {
   return value - Math.floor(value);
 }
 
-function Stars({ pointer }: InteractiveStarFieldProps) {
+function Stars({ pointer, starCount = STAR_COUNT }: InteractiveStarFieldProps) {
   const points = useRef<Points>(null);
   const material = useRef<ShaderMaterial>(null);
   const { viewport } = useThree();
 
   const stars = useMemo(() => {
-    const positions = new Float32Array(STAR_COUNT * 3);
-    const colors = new Float32Array(STAR_COUNT * 3);
-    const bases = new Float32Array(STAR_COUNT * 2);
-    const phases = new Float32Array(STAR_COUNT);
-    const sizes = new Float32Array(STAR_COUNT);
-    const glints = new Float32Array(STAR_COUNT);
-    const influences = new Float32Array(STAR_COUNT);
-    const speeds = new Float32Array(STAR_COUNT);
+    const positions = new Float32Array(starCount * 3);
+    const colors = new Float32Array(starCount * 3);
+    const bases = new Float32Array(starCount * 2);
+    const phases = new Float32Array(starCount);
+    const sizes = new Float32Array(starCount);
+    const glints = new Float32Array(starCount);
+    const influences = new Float32Array(starCount);
+    const speeds = new Float32Array(starCount);
 
-    for (let index = 0; index < STAR_COUNT; index += 1) {
+    for (let index = 0; index < starCount; index += 1) {
       const positionOffset = index * 3;
       const baseOffset = index * 2;
       const isGlint = seededValue(index, 5) > 0.9;
@@ -118,7 +119,7 @@ function Stars({ pointer }: InteractiveStarFieldProps) {
       sizes,
       speeds,
     };
-  }, [viewport.height, viewport.width]);
+  }, [starCount, viewport.height, viewport.width]);
 
   const uniforms = useMemo(() => ({ uTime: { value: 0 } }), []);
 
@@ -137,7 +138,7 @@ function Stars({ pointer }: InteractiveStarFieldProps) {
     const easing = Math.min(1, delta * 9);
     material.current.uniforms.uTime.value = elapsed;
 
-    for (let index = 0; index < STAR_COUNT; index += 1) {
+    for (let index = 0; index < starCount; index += 1) {
       const positionOffset = index * 3;
       const baseOffset = index * 2;
       const baseX = stars.bases[baseOffset] * viewport.width;
@@ -196,7 +197,10 @@ function Stars({ pointer }: InteractiveStarFieldProps) {
   );
 }
 
-export function InteractiveStarField({ pointer }: InteractiveStarFieldProps) {
+export function InteractiveStarField({
+  pointer,
+  starCount,
+}: InteractiveStarFieldProps) {
   return (
     <Canvas
       camera={{ far: 20, fov: 45, near: 0.01, position: [0, 0, 5] }}
@@ -206,7 +210,7 @@ export function InteractiveStarField({ pointer }: InteractiveStarFieldProps) {
         state.gl.setClearColor("#000000", 1);
       }}
     >
-      <Stars pointer={pointer} />
+      <Stars pointer={pointer} starCount={starCount} />
     </Canvas>
   );
 }
