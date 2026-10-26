@@ -14,7 +14,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 import {
   InteractiveStarField,
-  StarPointer,
+  type StarPointer,
 } from "@/components/ui/InteractiveStarField";
 
 const LOCATIONS = ["Cairo, Egypt", "Alexandria, Egypt", "New Cairo, Egypt"];
