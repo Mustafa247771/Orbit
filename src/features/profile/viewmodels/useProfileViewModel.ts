@@ -1,10 +1,19 @@
+import Constants from "expo-constants";
 import { useCallback, useMemo, useState } from "react";
 
 import {
-    DEFAULT_SETTINGS,
-    SAMPLE_PROFILE,
-    type ProfileSettings,
+  DEFAULT_SETTINGS,
+  SAMPLE_PROFILE,
+  type ProfileSettings,
+  type SavedLocation,
 } from "../model/Profile";
+
+export type LocationView = SavedLocation & { coordinates: string };
+
+export type UpdateSetting = <K extends keyof ProfileSettings>(
+  key: K,
+  value: ProfileSettings[K],
+) => void;
 
 const LEAD_STEP_MINUTES = 5;
 const LEAD_RANGE = { min: 5, max: 60 };
@@ -71,5 +80,6 @@ export function useProfileViewModel() {
     settings,
     update,
     changeLeadTime,
+    version: Constants.expoConfig?.version ?? "",
   };
 }

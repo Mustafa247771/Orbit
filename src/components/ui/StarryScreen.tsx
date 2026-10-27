@@ -76,6 +76,7 @@ export function StarryScreen({
         scrollEventThrottle={16}
         refreshControl={refreshControl}
         showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
         contentContainerStyle={{
           paddingTop: edgeToEdge ? 0 : insets.top,
           paddingBottom: insets.bottom + 120,

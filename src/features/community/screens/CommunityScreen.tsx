@@ -1,13 +1,21 @@
-import { Pressable, Text, View } from "react-native";
+import { View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import { Icon } from "@/components/ui/Icon";
+import { Button } from "@/components/ui/Button";
+import { ScreenHeader } from "@/components/ui/ScreenHeader";
+import { SegmentedControl } from "@/components/ui/SegmentedControl";
 import { StarryScreen } from "@/components/ui/StarryScreen";
-import colors from "@/theme/colors";
 import { CommentsSheet } from "../components/CommentsSheet";
-import { CommunityHeader } from "../components/CommunityHeader";
+import { CommunityEmblem } from "../components/CommunityEmblem";
+import { ObserverConstellation } from "../components/ObserverConstellation";
 import { PostCard } from "../components/PostCard";
-import { useCommunityViewModel } from "../viewmodels/useCommunityViewModel";
+import { SightingPrompt } from "../components/SightingPrompt";
+import {
+  SCOPES,
+  useCommunityViewModel,
+} from "../viewmodels/useCommunityViewModel";
+
+const noop = () => {};
 
 export default function CommunityScreen() {
   const vm = useCommunityViewModel();
@@ -20,27 +28,40 @@ export default function CommunityScreen() {
           pointerEvents="box-none"
           className="absolute bottom-0 right-5 pb-6"
         >
-          <Pressable
+          <Button
+            label="Log sighting"
+            icon="camera"
+            size="lg"
             onPress={vm.logSighting}
-            accessibilityRole="button"
-            className="h-14 flex-row items-center gap-2.5 rounded-full bg-accent px-5 active:opacity-80"
-          >
-            <Icon name="camera" color={colors.space} />
-            <Text className="text-[15px] font-semibold text-space">
-              Log sighting
-            </Text>
-          </Pressable>
+          />
         </SafeAreaView>
       }
     >
-      <CommunityHeader
+      <ScreenHeader
+        tone="violet"
+        eyebrow="The shared sky"
+        title="Community."
+        subtitle={`${vm.clearSkies} observers under clear skies`}
+        trailing={<CommunityEmblem />}
+        action={{ icon: "search", label: "Search observers", onPress: noop }}
+      />
+
+      <ObserverConstellation
         observers={vm.observers}
         moreObservers={vm.moreObservers}
-        clearSkies={vm.clearSkies}
-        scope={vm.scope}
-        onScopeChange={vm.setScope}
-        onLogSighting={vm.logSighting}
       />
+
+      <View className="mx-5 mt-5">
+        <SegmentedControl
+          label="Feed"
+          options={SCOPES}
+          value={vm.scope}
+          onChange={vm.setScope}
+          tone="violet"
+        />
+      </View>
+
+      <SightingPrompt initials={vm.myInitials} onPress={vm.logSighting} />
 
       <View className="mx-5 mt-6 gap-4">
         {vm.feed.map((post) => (

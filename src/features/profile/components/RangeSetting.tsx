@@ -2,6 +2,7 @@ import Slider from "@react-native-community/slider";
 import { Text, View } from "react-native";
 
 import colors from "@/theme/colors";
+import { Label } from "@/components/ui/Label";
 
 type RangeSettingProps = {
   label: string;
@@ -48,12 +49,8 @@ export function RangeSetting({
         thumbTintColor={colors.accent}
       />
       <View className="flex-row justify-between">
-        <Text className="font-mono text-[11px] uppercase tracking-[1.5px] text-muted">
-          {minLabel}
-        </Text>
-        <Text className="font-mono text-[11px] uppercase tracking-[1.5px] text-muted">
-          {maxLabel}
-        </Text>
+        <Label>{minLabel}</Label>
+        <Label>{maxLabel}</Label>
       </View>
     </View>
   );

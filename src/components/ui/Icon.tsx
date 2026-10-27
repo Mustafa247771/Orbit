@@ -39,6 +39,9 @@ const ICONS = {
   edit: { ios: "pencil", android: "edit" },
   search: { ios: "magnifyingglass", android: "search" },
   share: { ios: "square.and.arrow.up", android: "share" },
+  refresh: { ios: "arrow.clockwise", android: "refresh" },
+  photo: { ios: "photo", android: "image" },
+  location: { ios: "location", android: "location_on" },
 } satisfies Record<string, SymbolViewProps["name"]>;
 
 export type IconName = keyof typeof ICONS;

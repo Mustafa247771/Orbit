@@ -3,6 +3,7 @@ import { Pressable, Text, View } from "react-native";
 
 import { Card } from "@/components/ui/Card";
 import { SectionLabel } from "@/components/ui/SectionLabel";
+import { Label } from "@/components/ui/Label";
 import type { DailyQuiz, PastQuiz } from "../model/Achievement";
 
 type QuizPanelProps = {
@@ -15,9 +16,7 @@ export function QuizPanel({ daily, past, onStart }: QuizPanelProps) {
   return (
     <View className="mx-5 mt-6 gap-8">
       <View className="gap-2.5 rounded-[28px] border border-gold/40 bg-surface/80 p-5">
-        <Text className="font-mono text-[11px] uppercase tracking-[2px] text-gold">
-          Daily orbit quiz
-        </Text>
+        <Label tone="gold">Daily orbit quiz</Label>
         <Text className="font-display text-2xl text-ink">
           {daily.questions} questions · +{daily.xp} XP
         </Text>
@@ -48,9 +47,7 @@ export function QuizPanel({ daily, past, onStart }: QuizPanelProps) {
                 <Text className="text-[15px] font-semibold text-ink">
                   {quiz.title}
                 </Text>
-                <Text className="font-mono text-[11px] uppercase tracking-[1.5px] text-muted">
-                  {quiz.date}
-                </Text>
+                <Label>{quiz.date}</Label>
               </View>
               <Text className="font-mono text-xs text-ink/80">
                 {quiz.score}/{quiz.outOf}

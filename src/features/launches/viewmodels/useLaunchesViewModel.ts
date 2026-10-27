@@ -3,17 +3,41 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import type { Launch } from "@/features/launches/model/Launch";
 import { launchService } from "@/features/launches/model/LaunchService";
 
-export function launchCountdown(net: string, now: number) {
-  const remaining = Math.max(0, new Date(net).getTime() - now);
-  const totalSeconds = Math.floor(remaining / 1000);
-  const days = Math.floor(totalSeconds / 86400);
-  const hours = Math.floor((totalSeconds % 86400) / 3600);
-  const minutes = Math.floor((totalSeconds % 3600) / 60);
-  const seconds = totalSeconds % 60;
-  return { days, hours, minutes, seconds };
+export type LaunchView = Launch & {
+  month: string;
+  day: string;
+  time: string;
+  target: string;
+  secondsLeft: number;
+  tMinus: string;
+};
+
+const pad = (value: number) => String(value).padStart(2, "0");
+
+function toView(launch: Launch, now: number): LaunchView {
+  const date = new Date(launch.net);
+  const secondsLeft = Math.max(0, Math.floor((date.getTime() - now) / 1000));
+  const days = Math.floor(secondsLeft / 86400);
+  const hours = Math.floor((secondsLeft % 86400) / 3600);
+  const minutes = Math.floor((secondsLeft % 3600) / 60);
+
+  return {
+    ...launch,
+    month: date.toLocaleDateString([], { month: "short" }),
+    day: String(date.getDate()),
+    time: date.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }),
+    target: date.toLocaleString([], {
+      day: "numeric",
+      month: "short",
+      hour: "numeric",
+      minute: "2-digit",
+    }),
+    secondsLeft,
+    tMinus: `T− ${days}d ${pad(hours)}h ${pad(minutes)}m`,
+  };
 }
 
-export function useLaunchCalendarViewModel() {
+export function useLaunchesViewModel() {
   const [launches, setLaunches] = useState<Launch[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -53,17 +77,21 @@ export function useLaunchCalendarViewModel() {
     };
   }, [load]);
 
+  const views = useMemo(
+    () => launches.map((launch) => toView(launch, now)),
+    [launches, now],
+  );
+
   return useMemo(
     () => ({
       error,
-      featuredLaunch: launches[0] ?? null,
-      launches,
+      featured: views[0] ?? null,
+      upcoming: views.slice(1),
+      live: source === "live",
       loading,
-      now,
       refresh: () => load(true),
       refreshing,
-      source,
     }),
-    [error, launches, loading, load, now, refreshing, source],
+    [error, views, source, loading, load, refreshing],
   );
 }

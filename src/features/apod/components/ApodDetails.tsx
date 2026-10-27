@@ -2,6 +2,8 @@ import { Image } from "expo-image";
 import { Pressable, Text, View } from "react-native";
 
 import { Icon } from "@/components/ui/Icon";
+import { Footnote } from "@/components/ui/Footnote";
+import { Label } from "@/components/ui/Label";
 import colors from "@/theme/colors";
 import type { SpacePicture } from "../model/SpacePicture";
 
@@ -48,10 +50,7 @@ export function ApodDetails({ picture, archive }: ApodDetailsProps) {
   return (
     <>
       <View className="mx-6 mt-8 border-y border-edge-dim px-3 py-7">
-        <View className="flex-row items-center gap-2">
-          <Text className="text-[13px] text-haze">✦</Text>
-          <Text className="text-[11px] text-haze">Inside the image</Text>
-        </View>
+        <Label>Inside the image</Label>
 
         <Text
           accessibilityRole="header"
@@ -69,7 +68,7 @@ export function ApodDetails({ picture, archive }: ApodDetailsProps) {
           className="mt-3 min-h-[44px] flex-row items-center gap-3"
         >
           <Text className="text-[12px] text-cyan">Read the full story</Text>
-          <Text className="text-[19px] text-cyan">→</Text>
+          <Icon name="open" size={16} color={colors.cyan} />
         </Pressable>
 
         <View className="mt-4 flex-row justify-between">
@@ -95,7 +94,7 @@ export function ApodDetails({ picture, archive }: ApodDetailsProps) {
             accessibilityLabel="View archive"
             className="h-[44px] w-[44px] items-center justify-center rounded-full border border-edge"
           >
-            <Text className="text-[22px] text-pale">→</Text>
+            <Icon name="chevron" size={18} color={colors.pale} />
           </Pressable>
         </View>
 
@@ -120,11 +119,7 @@ export function ApodDetails({ picture, archive }: ApodDetailsProps) {
           <Icon name="chevron" size={17} color={colors.mist} />
         </View>
 
-        <View className="mt-7 flex-row items-center justify-center gap-3">
-          <Text className="text-[9px] text-dusk">NASA imagery</Text>
-          <Text className="text-[10px] text-dusk">✦</Text>
-          <Text className="text-[9px] text-dusk">Explored with Orbit</Text>
-        </View>
+        <Footnote>NASA imagery · Explored with Orbit</Footnote>
       </View>
     </>
   );

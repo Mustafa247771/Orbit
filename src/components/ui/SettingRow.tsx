@@ -1,6 +1,8 @@
 import type { ReactNode } from "react";
 import { Text, View } from "react-native";
 
+import { Label } from "./Label";
+
 type SettingRowProps = {
   label: string;
   hint?: string;
@@ -9,6 +11,7 @@ type SettingRowProps = {
   children?: ReactNode;
 };
 
+/** One row in a settings card: label, optional hint, and a control on the right. */
 export function SettingRow({
   label,
   hint,
@@ -22,16 +25,9 @@ export function SettingRow({
     >
       <View className="flex-1 gap-1">
         <Text className="text-[15px] font-semibold text-ink">{label}</Text>
-        {hint ? (
-          <Text
-            className={
-              monoHint
-                ? "font-mono text-[11px] uppercase tracking-[1.5px] text-muted"
-                : "text-[13px] leading-[18px] text-muted"
-            }
-          >
-            {hint}
-          </Text>
+        {hint && monoHint ? <Label>{hint}</Label> : null}
+        {hint && !monoHint ? (
+          <Text className="text-[13px] leading-[18px] text-muted">{hint}</Text>
         ) : null}
       </View>
       {children}

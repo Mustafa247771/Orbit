@@ -162,5 +162,6 @@ export function useCommunityViewModel() {
     openComments: setCommentsFor,
     closeComments: () => setCommentsFor(null),
     addComment,
+    myInitials: YOU.initials,
   };
 }

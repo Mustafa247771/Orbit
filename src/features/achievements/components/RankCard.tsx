@@ -3,6 +3,7 @@ import { Text, View } from "react-native";
 import { Card } from "@/components/ui/Card";
 import { ProgressRing } from "@/components/ui/ProgressRing";
 import { Stat } from "@/components/ui/Stat";
+import { Label } from "@/components/ui/Label";
 import colors from "@/theme/colors";
 import type { Rank } from "../model/Achievement";
 
@@ -24,23 +25,17 @@ export function RankCard({ rank, progress, stats }: RankCardProps) {
           progress={progress}
           color={colors.gold}
         >
-          <Text className="font-mono text-[11px] uppercase tracking-[2px] text-gold">
-            Level
-          </Text>
+          <Label tone="gold">Level</Label>
           <Text className="font-display text-[38px] leading-[40px] text-ink">
             {rank.level}
           </Text>
         </ProgressRing>
         <View className="flex-1 gap-1.5">
-          <Text className="font-mono text-[11px] uppercase tracking-[2px] text-gold">
-            Current rank
-          </Text>
+          <Label tone="gold">Current rank</Label>
           <Text className="font-display text-[28px] leading-[30px] text-ink">
             {rank.title}
           </Text>
-          <Text className="font-mono text-[11px] uppercase tracking-[1.5px] text-muted">
-            {grouped(rank.xp)} / {grouped(rank.nextXp)} XP
-          </Text>
+          <Label>{grouped(rank.xp)} / {grouped(rank.nextXp)} XP</Label>
           <Text className="text-[13px] leading-[18px] text-muted">
             {grouped(rank.nextXp - rank.xp)} XP to {rank.nextTitle}
           </Text>

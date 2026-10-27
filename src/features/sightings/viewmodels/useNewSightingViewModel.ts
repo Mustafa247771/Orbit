@@ -1,6 +1,7 @@
 import * as ImagePicker from "expo-image-picker";
 import * as Location from "expo-location";
 import { useCallback, useMemo, useState } from "react";
+import { Alert } from "react-native";
 
 import { sightingRepository } from "@/features/sightings/model/LocalSightingRepository";
 import type {
@@ -156,6 +157,12 @@ export function useNewSightingViewModel() {
       setVisibility("private");
       setObservedAt(new Date());
       setError(null);
+      Alert.alert(
+        "Sighting saved",
+        saved.syncStatus === "pending-upload"
+          ? "Saved safely on this device and queued for community upload."
+          : "Saved safely in your private observation journal.",
+      );
       return saved;
     } catch (caught) {
       setError(readableError(caught));
@@ -166,7 +173,11 @@ export function useNewSightingViewModel() {
   }, [caption, location, observedAt, photoUri, visibility]);
 
   return {
-    busyAction,
+    busy: busyAction !== null,
+    takingPhoto: busyAction === "camera",
+    choosingPhoto: busyAction === "library",
+    locating: busyAction === "location",
+    saving: busyAction === "save",
     caption,
     choosePhoto,
     error,

@@ -5,6 +5,7 @@ const TONES = {
   accent: "border-accent/50 bg-accent/15",
   cyan: "border-cyan/50 bg-cyan/15",
   gold: "border-gold/50 bg-gold/15",
+  violet: "border-violet/50 bg-violet/15",
 };
 
 type Option<T extends string> = {
