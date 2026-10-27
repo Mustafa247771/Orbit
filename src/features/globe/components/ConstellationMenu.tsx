@@ -35,8 +35,8 @@ type MenuStar = {
   side: LabelSide;
 };
 
-// The Big Dipper with Polaris (found from the two "pointer" stars Merak and Dubhe),
-// then "arc to Arcturus, spike to Spica" off the end of the handle.
+// The Big Dipper with Polaris, then "arc to Arcturus, spike to Spica" off the end of
+// the handle. Dubhe is left out, so Polaris joins Merak straight along the pointer line.
 // prettier-ignore
 const STARS: MenuStar[] = [
   { label: "Profile", star: "Polaris", href: "/profile", x: 0.06, y: 0.16, side: "above" },
@@ -50,11 +50,11 @@ const STARS: MenuStar[] = [
   { label: "Achievements", star: "Spica", href: "/achievements", x: 0.48, y: 1, side: "right" },
 ];
 
-// Star index pairs, in the order the line draws them. [4, 1] closes the Dipper's bowl.
+// Star index pairs, in the order the line draws them. [3, 1] closes the Dipper's bowl.
 // prettier-ignore
 const LINES = [
-  [0, 1], [1, 2], [2, 3], [3, 4], [4, 1],
-  [4, 5], [5, 6], [6, 7], [7, 8],
+  [0, 1], [1, 2], [2, 3], [3, 1],
+  [3, 4], [4, 5], [5, 6], [6, 7], [7, 8],
 ];
 
 const SIDE_MARGIN = 24;

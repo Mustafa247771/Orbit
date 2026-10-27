@@ -8,10 +8,10 @@ import { sightingRepository } from "@/features/sightings/model/LocalSightingRepo
 import type { Sighting } from "@/features/sightings/model/Sighting";
 import type { Comment, Post } from "../model/Post";
 import {
-    MORE_OBSERVERS,
-    OBSERVERS,
-    OBSERVERS_UNDER_CLEAR_SKIES,
-    samplePosts,
+  MORE_OBSERVERS,
+  OBSERVERS,
+  OBSERVERS_UNDER_CLEAR_SKIES,
+  samplePosts,
 } from "../model/samplePosts";
 
 export const SCOPES = [

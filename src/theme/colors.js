@@ -9,7 +9,7 @@ module.exports = {
   cyan: "#78E6FF",
   gold: "#FFD370",
 
-  // Mission screens: launches, passes, satellite details, sightings, sky finder.
+  // Mission screens: launches, passes, sightings, sky finder.
   // Text, brightest first.
   frost: "#F1F5FF",
   ice: "#DDF8FF",

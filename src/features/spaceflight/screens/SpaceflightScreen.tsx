@@ -31,8 +31,7 @@ export default function SpaceflightScreen() {
       }
     >
       <ScreenHeader
-        eyebrow="Incoming transmissions"
-        title="Spaceflight news"
+        starClassName="text-cyan"
         action={{
           icon: "bookmark",
           label: "Saved articles",

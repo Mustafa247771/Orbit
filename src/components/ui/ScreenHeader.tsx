@@ -1,8 +1,7 @@
 import { router } from "expo-router";
-import { Text, View } from "react-native";
+import { Pressable, Text, View } from "react-native";
 
-import type { IconName } from "./Icon";
-import { IconButton } from "./IconButton";
+import { Icon, type IconName } from "./Icon";
 
 type HeaderAction = {
   icon: IconName;
@@ -11,10 +10,12 @@ type HeaderAction = {
 };
 
 type ScreenHeaderProps = {
-  eyebrow: string;
-  title: string;
+  // Accepted so existing screen usages keep working.
+  eyebrow?: string;
+  title?: string;
   action?: HeaderAction;
   floating?: boolean;
+  starClassName?: string;
 };
 
 function goBack() {
@@ -23,27 +24,52 @@ function goBack() {
 }
 
 export function ScreenHeader({
-  eyebrow,
-  title,
   action,
   floating = false,
+  starClassName = "text-mint",
 }: ScreenHeaderProps) {
   return (
-    <View className="flex-row items-center justify-between px-5 pt-2">
-      <IconButton icon="back" label="Go back" onPress={goBack} />
+    <View className="relative h-14 flex-row items-center justify-between px-3">
       <View
-        className={
-          floating
-            ? "items-center rounded-full bg-space/70 px-4 py-1.5"
-            : "items-center"
-        }
+        pointerEvents="none"
+        className="absolute inset-0 items-center justify-center"
       >
-        <Text className="font-mono text-[11px] uppercase tracking-[2px] text-muted">
-          {eyebrow}
-        </Text>
-        <Text className="mt-1 text-base font-semibold text-ink">{title}</Text>
+        <View
+          accessible
+          accessibilityRole="header"
+          accessibilityLabel="Orbit"
+          className={`flex-row items-start ${
+            floating ? "rounded-full bg-space/70 px-4 py-1.5" : ""
+          }`}
+        >
+          <Text className="font-display text-[23px] tracking-[-1px] text-ink">
+            orbit
+          </Text>
+          <Text className={`ml-0.5 text-[12px] ${starClassName}`}>✦</Text>
+        </View>
       </View>
-      {action ? <IconButton {...action} /> : <View className="h-11 w-11" />}
+
+      <Pressable
+        onPress={goBack}
+        accessibilityRole="button"
+        accessibilityLabel="Back to globe"
+        className="h-11 w-11 items-center justify-center active:opacity-60"
+      >
+        <Icon name="back" size={20} />
+      </Pressable>
+
+      {action ? (
+        <Pressable
+          onPress={action.onPress}
+          accessibilityRole="button"
+          accessibilityLabel={action.label}
+          className="h-11 w-11 items-center justify-center active:opacity-60"
+        >
+          <Icon name={action.icon} size={20} />
+        </Pressable>
+      ) : (
+        <View className="h-11 w-11" />
+      )}
     </View>
   );
 }

@@ -49,8 +49,7 @@ export default function ProfileScreen() {
   return (
     <StarryScreen>
       <ScreenHeader
-        eyebrow="Profile"
-        title="Mission control"
+        starClassName="text-mint"
         action={{ icon: "edit", label: "Edit profile", onPress: noop }}
       />
 
