@@ -4,6 +4,7 @@ import Svg, { Line } from "react-native-svg";
 
 import { Icon } from "@/components/ui/Icon";
 import { ProgressRing } from "@/components/ui/ProgressRing";
+import { Label } from "@/components/ui/Label";
 import colors from "@/theme/colors";
 import type { BadgeView } from "../viewmodels/useAchievementsViewModel";
 
@@ -96,9 +97,7 @@ export function ConstellationMap({
   return (
     <View className="mx-5 mt-4 overflow-hidden rounded-[28px] border border-line bg-space/70">
       <View className="flex-row items-center justify-between px-5 pt-4">
-        <Text className="font-mono text-[11px] uppercase tracking-[1.5px] text-gold">
-          {earnedCount} of {badges.length} stars lit
-        </Text>
+        <Label tone="gold">{earnedCount} of {badges.length} stars lit</Label>
         <Text className="text-xs text-muted">Tap a star</Text>
       </View>
 

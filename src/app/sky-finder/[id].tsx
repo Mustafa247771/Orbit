@@ -1,1 +1,1 @@
-export { default } from "@/features/sky-guide/screens/SkyFinderScreen";
+export { default } from "@/features/sky-finder/screens/SkyFinderScreen";

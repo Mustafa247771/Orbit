@@ -3,6 +3,7 @@ import { Image } from "expo-image";
 import { Pressable, Text, View } from "react-native";
 
 import { Icon } from "@/components/ui/Icon";
+import { Label } from "@/components/ui/Label";
 import colors from "@/theme/colors";
 import type { ArticleView } from "../viewmodels/useSpaceflightViewModel";
 
@@ -42,12 +43,7 @@ export function ArticleRow({
           ) : null}
         </View>
         <View className="flex-1 gap-1.5">
-          <Text
-            numberOfLines={1}
-            className="font-mono text-[11px] uppercase tracking-[1.5px] text-muted"
-          >
-            {article.meta}
-          </Text>
+          <Label numberOfLines={1}>{article.meta}</Label>
           <Text
             numberOfLines={3}
             className="text-[15px] font-semibold leading-[21px] text-ink"

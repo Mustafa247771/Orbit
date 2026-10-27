@@ -1,9 +1,10 @@
-import { Pressable, Text, View } from "react-native";
+import { Text, View } from "react-native";
 import Animated, { FadeInDown, FadeOutDown } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { ScrambleText } from "@/components/ui/ScrambleText";
 import { Stat } from "@/components/ui/Stat";
+import { IconButton } from "@/components/ui/IconButton";
 
 import type {
   SatelliteDetailsView,
@@ -59,15 +60,7 @@ export function SatelliteDetailsSheet({
                 NORAD {details.noradId} · {FAMILY_LABELS[family]}
               </Text>
             </View>
-            <Pressable
-              onPress={onClose}
-              hitSlop={12}
-              accessibilityRole="button"
-              accessibilityLabel="Close details"
-              className="h-10 w-10 items-center justify-center rounded-full border border-line active:opacity-60"
-            >
-              <Text className="text-base text-ink">✕</Text>
-            </Pressable>
+            <IconButton icon="close" label="Close details" onPress={onClose} />
           </View>
 
           <View className="my-4 h-px bg-line" />

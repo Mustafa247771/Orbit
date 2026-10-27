@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Text, View } from "react-native";
 
+import { Label } from "@/components/ui/Label";
 import type { PassTraceData } from "../model/Post";
 
 const BASELINE = 76; // keep in sync with top-[76px] and top-[80px] below
@@ -29,12 +30,8 @@ export function PassTrace({ maxElevation, rises, sets }: PassTraceData) {
       className="rounded-2xl border border-line bg-space/60 px-3.5 pb-2 pt-3"
     >
       <View className="flex-row justify-between">
-        <Text className="font-mono text-[11px] uppercase tracking-[1.5px] text-muted">
-          Pass trace
-        </Text>
-        <Text className="font-mono text-[11px] uppercase tracking-[1.5px] text-cyan">
-          Max {maxElevation}°
-        </Text>
+        <Label>Pass trace</Label>
+        <Label tone="cyan">Max {maxElevation}°</Label>
       </View>
       <View
         className="h-[96px]"

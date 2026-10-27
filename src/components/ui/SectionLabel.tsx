@@ -1,4 +1,5 @@
 import { Pressable, Text, View } from "react-native";
+import { Label } from "./Label";
 
 type SectionAction = {
   label: string;
@@ -13,12 +14,7 @@ type SectionLabelProps = {
 export function SectionLabel({ title, action }: SectionLabelProps) {
   return (
     <View className="mb-3 flex-row items-center justify-between">
-      <Text
-        accessibilityRole="header"
-        className="font-mono text-[11px] uppercase tracking-[2px] text-muted"
-      >
-        {title}
-      </Text>
+      <Label accessibilityRole="header">{title}</Label>
       {action && (
         <Pressable
           onPress={action.onPress}

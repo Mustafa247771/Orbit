@@ -1,18 +1,24 @@
 import { Text, View } from "react-native";
 
+import { Label } from "./Label";
+
 type StatProps = {
   label: string;
   value: string;
+  /** Centre the label and value, e.g. inside a StatRow. */
+  center?: boolean;
 };
 
-export function Stat({ label, value }: StatProps) {
+export function Stat({ label, value, center = false }: StatProps) {
   return (
-    <View className="py-2" accessible accessibilityLabel={`${label}: ${value}`}>
-      <Text className="text-[10px] uppercase tracking-[3px] text-muted">
-        {label}
-      </Text>
+    <View
+      className={`gap-1 py-2 ${center ? "items-center" : ""}`}
+      accessible
+      accessibilityLabel={`${label}: ${value}`}
+    >
+      <Label>{label}</Label>
       <Text
-        className="mt-1 text-lg text-ink"
+        className="text-lg text-ink"
         style={{ fontVariant: ["tabular-nums"] }}
       >
         {value}

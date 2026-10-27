@@ -13,6 +13,7 @@ import { Avatar } from "@/components/ui/Avatar";
 import { Card } from "@/components/ui/Card";
 import { Icon } from "@/components/ui/Icon";
 import { Tag } from "@/components/ui/Tag";
+import { Label } from "@/components/ui/Label";
 import colors from "@/theme/colors";
 import type { PostView } from "../viewmodels/useCommunityViewModel";
 import { PassTrace } from "./PassTrace";
@@ -81,12 +82,7 @@ export function PostCard({
           <Text className="text-[15px] font-semibold text-ink">
             {post.author.name}
           </Text>
-          <Text
-            numberOfLines={1}
-            className="font-mono text-[11px] uppercase tracking-[1.5px] text-muted"
-          >
-            {post.meta}
-          </Text>
+          <Label numberOfLines={1}>{post.meta}</Label>
         </View>
         <Tag
           label={post.author.rank}
@@ -129,14 +125,10 @@ export function PostCard({
           {post.verified ? (
             <View className="flex-row items-center gap-1">
               <Icon name="check" size={14} color={colors.accent} />
-              <Text className="font-mono text-[11px] uppercase tracking-[1.5px] text-accent">
-                Pass matched
-              </Text>
+              <Label tone="accent">Pass matched</Label>
             </View>
           ) : null}
-          <Text className="font-mono text-[11px] uppercase tracking-[1.5px] text-muted">
-            {post.details}
-          </Text>
+          <Label>{post.details}</Label>
         </View>
       </View>
 

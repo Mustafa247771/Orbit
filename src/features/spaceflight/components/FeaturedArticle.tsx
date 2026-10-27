@@ -3,6 +3,7 @@ import { Pressable, Text, View } from "react-native";
 
 import { Icon } from "@/components/ui/Icon";
 import { Tag } from "@/components/ui/Tag";
+import { Label } from "@/components/ui/Label";
 import colors from "@/theme/colors";
 import type { ArticleView } from "../viewmodels/useSpaceflightViewModel";
 
@@ -33,9 +34,7 @@ export function FeaturedArticle({ article, onOpen }: FeaturedArticleProps) {
         </View>
       </View>
       <View className="gap-2.5 p-[18px]">
-        <Text className="font-mono text-[11px] uppercase tracking-[1.5px] text-muted">
-          {article.meta}
-        </Text>
+        <Label>{article.meta}</Label>
         <Text
           numberOfLines={3}
           className="font-display text-[22px] leading-[27px] text-ink"
@@ -46,9 +45,7 @@ export function FeaturedArticle({ article, onOpen }: FeaturedArticleProps) {
           {article.summary}
         </Text>
         <View className="mt-1 flex-row items-center justify-between">
-          <Text className="font-mono text-[11px] uppercase tracking-[1.5px] text-muted">
-            Read on {article.site}
-          </Text>
+          <Label>Read on {article.site}</Label>
           <View className="h-11 w-11 items-center justify-center rounded-full bg-cyan">
             <Icon name="open" color={colors.space} />
           </View>

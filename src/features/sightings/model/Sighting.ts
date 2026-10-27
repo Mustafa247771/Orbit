@@ -1,5 +1,10 @@
 export type SightingVisibility = "private" | "community";
 
+export const VISIBILITY_OPTIONS = [
+  { value: "private", label: "Private" },
+  { value: "community", label: "Community" },
+] as const;
+
 export type SightingLocation = {
   cityLabel: string;
   latitude: number;
@@ -18,6 +23,9 @@ export type Sighting = {
   syncStatus: "local" | "pending-upload";
 };
 
-export type NewSightingDraft = Omit<Sighting, "id" | "photoUri" | "syncStatus"> & {
+export type NewSightingDraft = Omit<
+  Sighting,
+  "id" | "photoUri" | "syncStatus"
+> & {
   sourcePhotoUri: string;
 };

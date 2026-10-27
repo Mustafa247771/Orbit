@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Share } from "react-native";
 
 import { nasaImageService } from "../model/NasaImageService";
 import type { SpacePicture } from "../model/SpacePicture";
@@ -15,6 +14,16 @@ const DAILY_TOPICS = [
 ];
 const ARCHIVE_SIZE = 8;
 const DAY_MS = 86_400_000;
+// The strip shows six days with today fourth, so two upcoming days sit after it.
+const STRIP_DAYS = 6;
+const TODAY_INDEX = 3;
+
+export type StripDay = {
+  key: string;
+  day: number;
+  today: boolean;
+  future: boolean;
+};
 
 function dayOfYear(date: Date) {
   const startOfYear = new Date(date.getFullYear(), 0, 0);
@@ -28,9 +37,6 @@ export function useApodViewModel() {
   const [pictures, setPictures] = useState<SpacePicture[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [saved, setSaved] = useState<readonly SpacePicture[]>([]);
-  const [fullView, setFullView] = useState(false);
 
   const load = useCallback(
     () =>
@@ -62,65 +68,37 @@ export function useApodViewModel() {
     load();
   }, [load]);
 
-  const picture =
-    pictures.find((item) => item.id === selectedId) ?? pictures[0] ?? null;
-  const isPictureOfTheDay = picture !== null && picture === pictures[0];
-  const isSaved =
-    picture !== null && saved.some((item) => item.id === picture.id);
-
   const archive = useMemo(
-    () => pictures.filter((item) => item !== picture).slice(0, ARCHIVE_SIZE),
-    [pictures, picture],
+    () => pictures.slice(1, ARCHIVE_SIZE + 1),
+    [pictures],
   );
 
-  const dateLabel = useMemo(
+  const days = useMemo<StripDay[]>(
     () =>
-      today.toLocaleDateString([], {
-        weekday: "short",
-        day: "numeric",
-        month: "short",
-        year: "numeric",
+      Array.from({ length: STRIP_DAYS }, (_, index) => {
+        const date = new Date(
+          today.getFullYear(),
+          today.getMonth(),
+          today.getDate() + index - TODAY_INDEX,
+        );
+        return {
+          key: date.toDateString(),
+          day: date.getDate(),
+          today: index === TODAY_INDEX,
+          future: index > TODAY_INDEX,
+        };
       }),
     [today],
   );
-
-  const save = useCallback((item: SpacePicture) => {
-    setSaved((current) =>
-      current.some((entry) => entry.id === item.id)
-        ? current
-        : [item, ...current],
-    );
-  }, []);
-
-  const toggleSave = useCallback((item: SpacePicture) => {
-    setSaved((current) =>
-      current.some((entry) => entry.id === item.id)
-        ? current.filter((entry) => entry.id !== item.id)
-        : [item, ...current],
-    );
-  }, []);
-
-  const share = useCallback((item: SpacePicture) => {
-    Share.share({ message: `${item.title} · ${item.imageUrl}` });
-  }, []);
 
   return {
     loading,
     error,
     retry,
-    topic,
-    dateLabel,
-    picture,
-    isPictureOfTheDay,
-    isSaved,
+    picture: pictures[0] ?? null,
     archive,
-    select: setSelectedId,
-    saved,
-    save,
-    toggleSave,
-    share,
-    fullView,
-    openFullView: () => setFullView(true),
-    closeFullView: () => setFullView(false),
+    days,
+    month: today.toLocaleDateString([], { month: "long" }),
+    year: String(today.getFullYear()),
   };
 }

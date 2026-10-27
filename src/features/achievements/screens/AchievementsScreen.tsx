@@ -2,7 +2,6 @@ import { View } from "react-native";
 import Animated, { FadeIn } from "react-native-reanimated";
 
 import { ScreenHeader } from "@/components/ui/ScreenHeader";
-import { ScreenTitle } from "@/components/ui/ScreenTitle";
 import { SegmentedControl } from "@/components/ui/SegmentedControl";
 import { StarryScreen } from "@/components/ui/StarryScreen";
 import { BadgeSheet } from "../components/BadgeSheet";
@@ -22,15 +21,15 @@ export default function AchievementsScreen() {
   return (
     <StarryScreen>
       <ScreenHeader
-        eyebrow="Achievements"
-        title="Your constellation"
+        tone="gold"
+        eyebrow="Your constellation"
+        title={"Light up\nyour sky"}
         action={{
           icon: "share",
           label: "Share progress",
           onPress: vm.shareProgress,
         }}
       />
-      <ScreenTitle>{"Light up\nyour sky."}</ScreenTitle>
 
       <RankCard rank={vm.rank} progress={vm.rankProgress} stats={vm.stats} />
 

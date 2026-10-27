@@ -5,6 +5,8 @@ import Animated, {
   useReducedMotion,
 } from "react-native-reanimated";
 
+import { Label } from "@/components/ui/Label";
+
 type NewsTickerProps = {
   headline: string;
   tick: number;
@@ -17,9 +19,7 @@ export function NewsTicker({ headline, tick }: NewsTickerProps) {
     <View className="mx-5 mt-5 h-11 flex-row items-center overflow-hidden rounded-2xl border border-line bg-surface/80">
       <View className="h-full flex-row items-center gap-2 border-r border-line px-3">
         <View className="h-2 w-2 rounded-full bg-accent" />
-        <Text className="font-mono text-[11px] uppercase tracking-[1.5px] text-accent">
-          Latest
-        </Text>
+        <Label tone="accent">Latest</Label>
       </View>
       <View className="h-full flex-1 justify-center">
         <Animated.View
