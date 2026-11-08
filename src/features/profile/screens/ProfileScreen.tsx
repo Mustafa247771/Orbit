@@ -43,7 +43,15 @@ export default function ProfileScreen() {
       />
       <NotificationsSection settings={vm.settings} onUpdate={vm.update} />
       <AppSection settings={vm.settings} onUpdate={vm.update} />
-      <AccountActions version={vm.version} onSignOut={noop} onDelete={noop} />
+      <AccountActions
+        version={vm.version}
+        onSignOut={() => {
+          void vm.signOut();
+        }}
+        onDelete={noop}
+        signingOut={vm.signingOut}
+        error={vm.accountError}
+      />
     </StarryScreen>
   );
 }

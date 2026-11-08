@@ -1,9 +1,15 @@
-import { propagate, twoline2satrec, type SatRec } from "satellite.js";
+import {
+  json2satrec,
+  propagate,
+  twoline2satrec,
+  type SatRec,
+} from "satellite.js";
 
 import {
   satelliteFamily,
   type SatelliteFamily,
 } from "@/core/satellites/family";
+import type { SatelliteElements } from "@/core/satellites/SatelliteData";
 import type { SatelliteTle } from "@/core/satellites/types";
 import type { Vec3 } from "./types";
 
@@ -25,6 +31,18 @@ export function toTrackedSatellite(tle: SatelliteTle): TrackedSatellite {
     satrec: twoline2satrec(tle.line1, tle.line2),
     family: satelliteFamily(tle.name),
     periodMinutes: 1440 / revolutionsPerDay,
+  };
+}
+
+export function fromSatelliteElements(
+  elements: SatelliteElements,
+): TrackedSatellite {
+  return {
+    id: Number(elements.NORAD_CAT_ID),
+    name: elements.OBJECT_NAME,
+    family: satelliteFamily(elements.OBJECT_NAME),
+    satrec: json2satrec(elements),
+    periodMinutes: 1440 / Number(elements.MEAN_MOTION),
   };
 }
 

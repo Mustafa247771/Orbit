@@ -1,3 +1,4 @@
+import { useLogoutViewModel } from "@/features/auth/viewmodels/useLogoutViewModel";
 import Constants from "expo-constants";
 import { useCallback, useMemo, useState } from "react";
 
@@ -22,6 +23,7 @@ const degrees = (value: number, positive: string, negative: string) =>
   `${Math.abs(value).toFixed(2)}° ${value >= 0 ? positive : negative}`;
 
 export function useProfileViewModel() {
+  const account = useLogoutViewModel();
   const profile = SAMPLE_PROFILE;
   const [settings, setSettings] = useState(DEFAULT_SETTINGS);
 
@@ -75,6 +77,9 @@ export function useProfileViewModel() {
   return {
     profile,
     initials,
+    signOut: account.logout,
+    signingOut: account.busy,
+    accountError: account.error,
     stats,
     locations,
     settings,

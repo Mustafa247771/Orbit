@@ -2,9 +2,10 @@ import { Text, View } from "react-native";
 import Animated, { FadeInDown, FadeOutDown } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import { Button } from "@/components/ui/Button";
+import { IconButton } from "@/components/ui/IconButton";
 import { ScrambleText } from "@/components/ui/ScrambleText";
 import { Stat } from "@/components/ui/Stat";
-import { IconButton } from "@/components/ui/IconButton";
 
 import type {
   SatelliteDetailsView,
@@ -21,12 +22,22 @@ type SatelliteDetailsSheetProps = {
   details: SatelliteDetailsView;
   family: SatelliteFamily;
   onClose: () => void;
+  objectLabel?: string;
+  tracked: boolean;
+  saving: boolean;
+  trackingError: string | null;
+  onToggleTracking: () => void;
 };
 
 export function SatelliteDetailsSheet({
   details,
   family,
   onClose,
+  objectLabel,
+  tracked,
+  saving,
+  trackingError,
+  onToggleTracking,
 }: SatelliteDetailsSheetProps) {
   const stats = [
     { label: "Altitude", value: details.altitude },
@@ -52,14 +63,17 @@ export function SatelliteDetailsSheet({
                   Locked on
                 </Text>
               </View>
+
               <ScrambleText
                 text={details.name.toUpperCase()}
                 className="mt-2 text-2xl font-light tracking-[4px] text-ink"
               />
+
               <Text className="mt-1 text-xs uppercase tracking-[2px] text-muted">
-                NORAD {details.noradId} · {FAMILY_LABELS[family]}
+                NORAD {details.noradId} · {objectLabel ?? FAMILY_LABELS[family]}
               </Text>
             </View>
+
             <IconButton icon="close" label="Close details" onPress={onClose} />
           </View>
 
@@ -76,6 +90,24 @@ export function SatelliteDetailsSheet({
               </Animated.View>
             ))}
           </View>
+
+          <Button
+            label={tracked ? "Remove from tracked" : "Add to tracked"}
+            icon={tracked ? "bookmarkFilled" : "bookmark"}
+            variant="outline"
+            loading={saving}
+            onPress={onToggleTracking}
+            className="mt-4"
+          />
+
+          {trackingError && (
+            <Text
+              accessibilityRole="alert"
+              className="mt-2 text-xs text-danger"
+            >
+              {trackingError}
+            </Text>
+          )}
         </View>
       </SafeAreaView>
     </Animated.View>
