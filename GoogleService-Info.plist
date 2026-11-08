@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>766869698077-5b8gbhsdvrodreusbqjs5ef4o9p0foun.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.766869698077-5b8gbhsdvrodreusbqjs5ef4o9p0foun</string>
+	<key>ANDROID_CLIENT_ID</key>
+	<string>766869698077-us61fbhb3o2cd37prtdnvoa3pkjsokbh.apps.googleusercontent.com</string>
+	<key>API_KEY</key>
+	<string>AIzaSyBYMlUSFDN2rz3UUPFKyyNgKxGYwvRWM5A</string>
+	<key>GCM_SENDER_ID</key>
+	<string>766869698077</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.orbit.app</string>
+	<key>PROJECT_ID</key>
+	<string>orbit-bf5dc</string>
+	<key>STORAGE_BUCKET</key>
+	<string>orbit-bf5dc.firebasestorage.app</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:766869698077:ios:3fbe771adaab368a0038f4</string>
+</dict>
+</plist>

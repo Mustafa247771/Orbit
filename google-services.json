@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "766869698077",
+    "project_id": "orbit-bf5dc",
+    "storage_bucket": "orbit-bf5dc.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:766869698077:android:4c735983c9e77b940038f4",
+        "android_client_info": {
+          "package_name": "com.orbit.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "766869698077-us61fbhb3o2cd37prtdnvoa3pkjsokbh.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.orbit.app",
+            "certificate_hash": "b9d492a62143fffb7195100f33179b1754c2551a"
+          }
+        },
+        {
+          "client_id": "766869698077-fiduap7hs0og0nqc0hmv3re5rlpgvkat.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD1sIb27Y5Y_xVu3b-NktC5Nc6ZuoGhgGQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "766869698077-fiduap7hs0og0nqc0hmv3re5rlpgvkat.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -4,6 +4,8 @@ import { OrbitControls } from "@react-three/drei/native";
 import { Canvas } from "@react-three/fiber/native";
 import { Suspense } from "react";
 import { View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { Button } from "@/components/ui/Button";
 import { CameraRig } from "../components/CameraRig";
 import { CAMERA_FOV, START_DISTANCE } from "../components/cameraSettings";
 import { ConstellationMenu } from "../components/ConstellationMenu";
@@ -13,7 +15,8 @@ import { GlobeHeader } from "../components/GlobeHeader";
 import { MenuButton } from "../components/MenuButton";
 import { Moon } from "../components/Moon";
 import { OrbitPath } from "../components/OrbitPath";
-import { Satellite } from "../components/Satellite";
+import { SatelliteBrowser } from "../components/SatelliteBrowser";
+import { SatelliteCloud } from "../components/SatelliteCloud";
 import { SatelliteDetailsSheet } from "../components/SatelliteDetailsSheet";
 import { ShootingStar } from "../components/ShootingStar";
 import { SkyDome } from "../components/SkyDome";
@@ -37,42 +40,49 @@ export default function EarthScreen() {
         onCreated={(state) => {
           quietPixelStorei(state);
           fixMultiTouch(state);
+          state.raycaster.params.Points.threshold = 0.04;
         }}
       >
         <color attach="background" args={[colors.space]} />
+
         <SkyDome />
         <ShootingStar firstDelay={2} />
         <ShootingStar firstDelay={7} />
+
         <Moon getSunDirection={vm.getSunDirection} />
+
         <OrbitControls makeDefault enablePan={false} />
+
         <CameraRig
           selectedId={vm.selectedId}
           getSatellitePosition={vm.getSatellitePosition}
           menuOpen={vm.menuOpen}
         />
+
         <Suspense fallback={null}>
           <SolarSystem getDate={vm.getDate} />
         </Suspense>
+
         <Suspense fallback={null}>
           <Earth
             getSunDirection={vm.getSunDirection}
             getEarthRotation={vm.getEarthRotation}
           />
-          {vm.satellites.map((satellite) => (
-            <group key={satellite.id}>
-              <OrbitPath points={vm.orbitPaths[satellite.id] ?? []} />
-              <Satellite
-                id={satellite.id}
-                family={satellite.family}
-                selected={satellite.id === vm.selectedId}
-                getPosition={vm.getSatellitePosition}
-                onSelect={vm.selectSatellite}
-              />
-            </group>
+
+          {Object.entries(vm.orbitPaths).map(([id, points]) => (
+            <OrbitPath key={id} points={points} />
           ))}
+
+          <SatelliteCloud
+            satellites={vm.satellites}
+            hiddenId={vm.selected?.kind === "payload" ? vm.selectedId : null}
+            getDate={vm.getDate}
+            getState={vm.getSatelliteState}
+            onSelect={vm.selectSatellite}
+          />
         </Suspense>
 
-        {vm.selected && (
+        {vm.selected?.kind === "payload" && (
           <Suspense fallback={null}>
             <FocusedSatellite
               key={vm.selected.id}
@@ -85,20 +95,58 @@ export default function EarthScreen() {
           </Suspense>
         )}
       </Canvas>
-      <ConstellationMenu open={vm.menuOpen} />
-      <GlobeHeader menuOpen={vm.menuOpen} trackedCount={vm.satellites.length} />
+
+      {vm.canAccessMenu && <ConstellationMenu open={vm.menuOpen} />}
+
+      <GlobeHeader
+        menuOpen={vm.menuOpen}
+        trackedCount={vm.trackedIds.size}
+        objectCount={vm.satellites.length}
+        satelliteStatus={vm.satelliteStatus}
+        satelliteError={vm.satelliteError}
+        refreshing={vm.refreshing}
+        onRetry={vm.retrySatellites}
+      >
+        {!vm.selected && <SatelliteBrowser vm={vm} />}
+      </GlobeHeader>
+
       {vm.details && vm.selected && (
         <SatelliteDetailsSheet
           details={vm.details}
           family={vm.selected.family}
           onClose={vm.clearSelection}
+          objectLabel={vm.selectedObjectLabel}
+          tracked={vm.selectedTracked}
+          saving={vm.savingTracking}
+          trackingError={vm.preferenceError}
+          onToggleTracking={() => {
+            if (vm.selected) void vm.toggleTracked(vm.selected.id);
+          }}
         />
       )}
-      <MenuButton
-        open={vm.menuOpen}
-        hidden={vm.selected !== null}
-        onPress={vm.toggleMenu}
-      />
+
+      {vm.canAccessMenu ? (
+        <MenuButton
+          open={vm.menuOpen}
+          hidden={vm.selected !== null}
+          onPress={vm.toggleMenu}
+        />
+      ) : vm.selected === null ? (
+        <SafeAreaView
+          edges={["bottom"]}
+          pointerEvents="box-none"
+          className="absolute inset-x-0 bottom-0 items-center"
+        >
+          <Button
+            label="Log in"
+            icon="lock"
+            variant="outline"
+            tone="cyan"
+            onPress={vm.openLogin}
+            className="mb-4"
+          />
+        </SafeAreaView>
+      ) : null}
     </View>
   );
 }

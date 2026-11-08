@@ -1,1 +1,1 @@
-export { default } from "@/features/globe/screens/EarthScreen";
+export { default } from "@/features/auth/screens/WelcomeScreen";
