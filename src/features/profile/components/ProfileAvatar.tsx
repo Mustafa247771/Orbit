@@ -1,6 +1,8 @@
+import { Image } from "expo-image";
+import colors from "@/theme/colors";
 import { IconButton } from "@/components/ui/IconButton";
 import { useCallback, useEffect, useState } from "react";
-import { Text, View } from "react-native";
+import { ActivityIndicator, Text, View } from "react-native";
 import Animated, {
   cancelAnimation,
   Easing,
@@ -24,12 +26,16 @@ const tilt = (ORBIT_TILT_DEG * Math.PI) / 180;
 type ProfileAvatarProps = {
   initials: string;
   still: boolean;
+  photoUri?: string | null;
+  photoBusy?: boolean;
   onChangePhoto: () => void;
 };
 
 export function ProfileAvatar({
   initials,
   still,
+  photoUri = null,
+  photoBusy = false,
   onChangePhoto,
 }: ProfileAvatarProps) {
   const reduceMotion = useReducedMotion();
@@ -80,26 +86,40 @@ export function ProfileAvatar({
       <View
         accessibilityRole="image"
         accessibilityLabel="Profile avatar"
-        className="h-[108px] w-[108px] items-center justify-center rounded-full border-2 border-line bg-surface"
+        className="h-[108px] w-[108px] items-center justify-center overflow-hidden rounded-full border-2 border-line bg-surface"
       >
-        {helmetReady ? null : (
+        {photoUri ? (
+          <Image
+            source={{ uri: photoUri }}
+            contentFit="cover"
+            className="h-full w-full rounded-full"
+          />
+        ) : helmetReady ? null : (
           <Text className="font-display text-4xl text-ink">{initials}</Text>
         )}
       </View>
-      <View pointerEvents="none" className="absolute">
-        <HelmetAvatar size={HELMET} still={!moving} onReady={showHelmet} />
-      </View>
+      {photoUri ? null : (
+        <View pointerEvents="none" className="absolute">
+          <HelmetAvatar size={HELMET} still={!moving} onReady={showHelmet} />
+        </View>
+      )}
       <Animated.View
         pointerEvents="none"
         className="absolute h-2 w-2 rounded-full bg-accent"
         style={satellite}
       />
       <View className="absolute bottom-0 right-7">
-        <IconButton
-          icon="camera"
-          label="Change photo"
-          onPress={onChangePhoto}
-        />
+        {photoBusy ? (
+          <View className="h-11 w-11 items-center justify-center rounded-full border border-line bg-surface/80">
+            <ActivityIndicator color={colors.accent} />
+          </View>
+        ) : (
+          <IconButton
+            icon="camera"
+            label="Change photo"
+            onPress={onChangePhoto}
+          />
+        )}
       </View>
     </View>
   );

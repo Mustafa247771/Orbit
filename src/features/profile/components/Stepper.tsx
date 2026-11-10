@@ -1,6 +1,7 @@
-import { Text, View } from "react-native";
+import { View } from "react-native";
 
 import { IconButton } from "@/components/ui/IconButton";
+import { Label } from "@/components/ui/Label";
 
 type StepperProps = {
   label: string;
@@ -18,9 +19,9 @@ export function Stepper({
   return (
     <View className="flex-row items-center">
       <IconButton icon="remove" label={`Less ${label}`} onPress={onDecrease} />
-      <Text className="w-16 text-center font-mono text-[13px] text-accent">
-        {value}
-      </Text>
+      <View className="w-16 items-center">
+        <Label tone="accent">{value}</Label>
+      </View>
       <IconButton icon="add" label={`More ${label}`} onPress={onIncrease} />
     </View>
   );

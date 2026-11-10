@@ -3,11 +3,12 @@ import type { DimensionValue } from "react-native";
 import Animated, {
   cancelAnimation,
   useAnimatedStyle,
-  useReducedMotion,
   useSharedValue,
   withRepeat,
   withTiming,
 } from "react-native-reanimated";
+
+import { useReduceMotion } from "@/core/preferences";
 
 const PULSE_MS = 800;
 
@@ -23,7 +24,7 @@ export function Skeleton({
   height,
   radius = 8,
 }: SkeletonProps) {
-  const reduceMotion = useReducedMotion();
+  const reduceMotion = useReduceMotion();
   const opacity = useSharedValue(0.5);
 
   useEffect(() => {

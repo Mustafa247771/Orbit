@@ -1,4 +1,4 @@
-import * as Haptics from "expo-haptics";
+import { tapHaptic } from "@/core/preferences";
 import { Pressable, Text, View } from "react-native";
 
 import { Card } from "@/components/ui/Card";
@@ -23,7 +23,7 @@ export function QuizPanel({ daily, past, onStart }: QuizPanelProps) {
         <Text className="text-sm leading-5 text-muted">{daily.note}</Text>
         <Pressable
           onPress={() => {
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+            tapHaptic();
             onStart();
           }}
           accessibilityRole="button"

@@ -55,12 +55,13 @@
       [
         "expo-location",
         {
-          "locationWhenInUsePermission": "Allow Orbit to attach your observing location to a sighting."
+          "locationWhenInUsePermission": "Allow Orbit to attach your observing location to a sighting and save your observing locations."
         }
       ],
       "expo-status-bar",
       "expo-web-browser",
       "expo-dev-client",
+      "expo-notifications",
       "react-native-nitro-google-signin"
     ],
     "experiments": {

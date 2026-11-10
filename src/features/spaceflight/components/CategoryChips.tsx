@@ -1,4 +1,4 @@
-import * as Haptics from "expo-haptics";
+import { selectionHaptic } from "@/core/preferences";
 import { Pressable, ScrollView, Text } from "react-native";
 
 type Category<T extends string> = {
@@ -19,7 +19,7 @@ export function CategoryChips<T extends string>({
 }: CategoryChipsProps<T>) {
   const choose = (id: T) => {
     if (id === value) return;
-    Haptics.selectionAsync();
+    selectionHaptic();
     onChange(id);
   };
 

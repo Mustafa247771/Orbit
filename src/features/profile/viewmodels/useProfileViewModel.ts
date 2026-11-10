@@ -1,89 +1,108 @@
-import { useLogoutViewModel } from "@/features/auth/viewmodels/useLogoutViewModel";
 import Constants from "expo-constants";
+import { useFocusEffect } from "expo-router";
 import { useCallback, useMemo, useState } from "react";
 
-import {
-  DEFAULT_SETTINGS,
-  SAMPLE_PROFILE,
-  type ProfileSettings,
-  type SavedLocation,
-} from "../model/Profile";
+import { BADGES, RANK } from "@/features/achievements/model/sampleAchievements";
+import { useAuthSession } from "@/features/auth/viewmodels/AuthProvider";
+import { useLogoutViewModel } from "@/features/auth/viewmodels/useLogoutViewModel";
+import { sightingRepository } from "@/features/sightings/model/LocalSightingRepository";
+import { DEFAULT_ACCOUNT_SETTINGS, LEAD_TIME_OPTIONS } from "../model/Profile";
+import { handleOf, initialsOf, nameOf } from "../model/profileNames";
+import { useAccountProfile, useDeviceSettings } from "./ProfileProvider";
+import { useAvatarViewModel } from "./useAvatarViewModel";
+import { useDeleteAccountViewModel } from "./useDeleteAccountViewModel";
+import { useEditProfileViewModel } from "./useEditProfileViewModel";
+import { useLocationsViewModel } from "./useLocationsViewModel";
+import { useManageLocations } from "./useManageLocations";
+import { useNotificationSettings } from "./useNotificationSettings";
 
-export type LocationView = SavedLocation & { coordinates: string };
+const BADGES_EARNED = BADGES.filter((badge) => badge.earnedAt !== null).length;
 
-export type UpdateSetting = <K extends keyof ProfileSettings>(
-  key: K,
-  value: ProfileSettings[K],
-) => void;
+function memberSince(createdAt: string | null): string | null {
+  if (!createdAt) return null;
 
-const LEAD_STEP_MINUTES = 5;
-const LEAD_RANGE = { min: 5, max: 60 };
-
-const degrees = (value: number, positive: string, negative: string) =>
-  `${Math.abs(value).toFixed(2)}° ${value >= 0 ? positive : negative}`;
+  return new Date(createdAt).toLocaleDateString([], {
+    month: "short",
+    year: "numeric",
+  });
+}
 
 export function useProfileViewModel() {
-  const account = useLogoutViewModel();
-  const profile = SAMPLE_PROFILE;
-  const [settings, setSettings] = useState(DEFAULT_SETTINGS);
+  const logout = useLogoutViewModel();
+  const { user } = useAuthSession();
+  const account = useAccountProfile();
+  const device = useDeviceSettings();
+  const edit = useEditProfileViewModel();
+  const avatar = useAvatarViewModel();
+  const locationManager = useLocationsViewModel();
+  const manageLocations = useManageLocations();
+  const deleteAccount = useDeleteAccountViewModel();
+  const notifications = useNotificationSettings();
+  const [sightingCount, setSightingCount] = useState(0);
 
-  const initials = useMemo(
-    () =>
-      profile.name
-        .split(" ")
-        .map((part) => part[0])
-        .join(""),
-    [profile.name],
+  useFocusEffect(
+    useCallback(() => {
+      sightingRepository
+        .list()
+        .then((sightings) => setSightingCount(sightings.length))
+        .catch(() => setSightingCount(0));
+    }, []),
   );
+
+  const name = user ? nameOf(user) : "Observer";
+  const settings = account.profile?.settings ?? DEFAULT_ACCOUNT_SETTINGS;
+  const defaultCity = account.defaultLocation?.name ?? null;
+
+  const hero = {
+    name,
+    handle: user ? handleOf(user) : "observer",
+    initials: initialsOf(name),
+    rank: `${RANK.title} · Lv ${RANK.level}`,
+    city: defaultCity,
+    since: memberSince(user?.createdAt ?? null),
+  };
 
   const stats = useMemo(
     () => [
-      { label: "Sightings", value: String(profile.sightings) },
-      { label: "Badges", value: String(profile.badges) },
-      { label: "Followers", value: String(profile.followers) },
+      { label: "Sightings", value: String(sightingCount) },
+      { label: "Badges", value: String(BADGES_EARNED) },
     ],
-    [profile],
+    [sightingCount],
   );
 
-  const locations = useMemo(
-    () =>
-      profile.locations.map((location) => ({
-        ...location,
-        coordinates: `${degrees(location.latitude, "N", "S")} · ${degrees(location.longitude, "E", "W")}`,
-      })),
-    [profile.locations],
-  );
-
-  const update = useCallback(
-    <K extends keyof ProfileSettings>(key: K, value: ProfileSettings[K]) => {
-      setSettings((current) => ({ ...current, [key]: value }));
+  const changeLeadTime = useCallback(
+    (direction: 1 | -1) => {
+      const index = LEAD_TIME_OPTIONS.findIndex(
+        (value) => value === settings.leadMinutes,
+      );
+      const next = Math.max(
+        0,
+        Math.min(LEAD_TIME_OPTIONS.length - 1, index + direction),
+      );
+      account.updateSettings({
+        leadMinutes: LEAD_TIME_OPTIONS[next],
+      });
     },
-    [],
+    [account, settings.leadMinutes],
   );
-
-  const changeLeadTime = useCallback((direction: 1 | -1) => {
-    setSettings((current) => ({
-      ...current,
-      alertLeadMinutes: Math.min(
-        LEAD_RANGE.max,
-        Math.max(
-          LEAD_RANGE.min,
-          current.alertLeadMinutes + direction * LEAD_STEP_MINUTES,
-        ),
-      ),
-    }));
-  }, []);
 
   return {
-    profile,
-    initials,
-    signOut: account.logout,
-    signingOut: account.busy,
-    accountError: account.error,
+    hero,
+    signOut: logout.logout,
+    signingOut: logout.busy,
+    accountError: logout.error,
+    loading: account.loading,
+    storageError: account.error,
     stats,
-    locations,
+    edit,
+    avatar,
+    locationManager,
+    manageLocations,
+    deleteAccount,
+    notifications,
     settings,
-    update,
+    deviceSettings: device.settings,
+    updateDevice: device.update,
     changeLeadTime,
     version: Constants.expoConfig?.version ?? "",
   };

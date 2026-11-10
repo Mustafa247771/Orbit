@@ -1,10 +1,10 @@
-import * as Haptics from "expo-haptics";
 import { Pressable } from "react-native";
 import Animated, {
   useAnimatedStyle,
   withTiming,
 } from "react-native-reanimated";
 
+import { selectionHaptic, useReduceMotion } from "@/core/preferences";
 import colors from "@/theme/colors";
 
 const TRAVEL = 20;
@@ -17,19 +17,19 @@ type ToggleProps = {
 };
 
 export function Toggle({ label, value, onChange }: ToggleProps) {
+  const reduceMotion = useReduceMotion();
+  const duration = reduceMotion ? 0 : DURATION_MS;
   const knob = useAnimatedStyle(() => ({
     backgroundColor: withTiming(value ? colors.accent : colors.muted, {
-      duration: DURATION_MS,
+      duration,
     }),
-    transform: [
-      { translateX: withTiming(value ? TRAVEL : 0, { duration: DURATION_MS }) },
-    ],
+    transform: [{ translateX: withTiming(value ? TRAVEL : 0, { duration }) }],
   }));
 
   return (
     <Pressable
       onPress={() => {
-        Haptics.selectionAsync();
+        selectionHaptic();
         onChange(!value);
       }}
       hitSlop={8}
