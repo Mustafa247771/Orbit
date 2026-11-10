@@ -4,6 +4,7 @@ import { useMemo, useRef } from "react";
 import * as THREE from "three";
 
 import type { SatelliteFamily, Vec3 } from "../viewmodels/useEarthViewModel";
+import type { OrbitCatalogue } from "@/core/satellites/OrbitCatalogue";
 import { SATELLITE_MODELS } from "./satelliteModels";
 
 const MODEL_SIZE = 0.05;
@@ -16,16 +17,16 @@ const ahead = new THREE.Vector3();
 type FocusedSatelliteProps = {
   id: number;
   family: SatelliteFamily;
-  getPosition: (id: number) => Vec3 | null;
-  getVelocity: (id: number) => Vec3 | null;
+  orbitCatalogue: OrbitCatalogue;
+  getDate: () => Date;
   getSunDirection: () => Vec3;
 };
 
 export function FocusedSatellite({
   id,
   family,
-  getPosition,
-  getVelocity,
+  orbitCatalogue,
+  getDate,
   getSunDirection,
 }: FocusedSatelliteProps) {
   const file = SATELLITE_MODELS[family] as unknown as string;
@@ -40,14 +41,14 @@ export function FocusedSatellite({
     const light = sun.current;
     if (!object || !light) return;
 
-    const position = getPosition(id);
+    const position = orbitCatalogue.scenePosition(id, getDate());
     object.visible = position !== null;
     if (!position) return;
 
     object.position.set(position.x, position.y, position.z);
 
     object.up.set(position.x, position.y, position.z).normalize();
-    const velocity = getVelocity(id);
+    const velocity = orbitCatalogue.sceneVelocity(id, getDate());
     if (velocity) {
       ahead
         .set(velocity.x, velocity.y, velocity.z)

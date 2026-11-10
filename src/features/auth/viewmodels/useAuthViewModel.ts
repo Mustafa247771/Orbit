@@ -1,7 +1,7 @@
 import { router, useLocalSearchParams } from "expo-router";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
-import { authErrorMessage } from "../model/authErrors";
+import { authErrorMessage, errorCode } from "../model/authErrors";
 import {
   createAccount,
   logIn,
@@ -41,12 +41,8 @@ const RESET_NOTICE =
 export function useAuthViewModel() {
   const params = useLocalSearchParams<{ mode?: string | string[] }>();
   const session = useAuthSession();
-  const [mode, setMode] = useState<AuthMode>(() =>
-    params.mode === "signup"
-      ? "signup"
-      : params.mode === "reset"
-        ? "reset"
-        : "login",
+  const [mode, setMode] = useState<AuthMode>(
+    params.mode === "signup" || params.mode === "reset" ? params.mode : "login",
   );
   const [fields, setFields] = useState<AuthFields>({
     email: "",
@@ -56,28 +52,18 @@ export function useAuthViewModel() {
   const [errors, setErrors] = useState<AuthFieldErrors>({});
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
-  const [busy, setBusy] = useState(false);
-  const [googleBusy, setGoogleBusy] = useState(false);
+  const [busy, setBusy] = useState<"email" | "google" | null>(null);
   const [showPassword, setShowPassword] = useState(false);
-  const inFlight = useRef(false);
-  const active = useRef(true);
 
   useEffect(() => {
-    active.current = true;
-    return () => {
-      active.current = false;
-    };
-  }, []);
-
-  useEffect(() => {
-    if (session.ready && session.user) {
+    if (session.user) {
       router.dismissAll();
       router.replace("./earth");
     }
-  }, [session.ready, session.user]);
+  }, [session.user]);
 
   function setField(key: keyof AuthFields, value: string) {
-    if (inFlight.current) return;
+    if (busy) return;
     setFields((current) => ({ ...current, [key]: value }));
     setErrors((current) => ({ ...current, [key]: undefined }));
     setError(null);
@@ -85,7 +71,7 @@ export function useAuthViewModel() {
   }
 
   function changeMode(next: AuthMode) {
-    if (inFlight.current) return;
+    if (busy) return;
     setMode(next);
     setFields((current) => ({ ...current, password: "", confirmPassword: "" }));
     setErrors({});
@@ -95,20 +81,17 @@ export function useAuthViewModel() {
   }
 
   async function submit() {
-    if (inFlight.current || !session.ready || session.error) return;
+    if (busy) return;
     const fieldErrors = validateAuthForm(mode, fields);
     setErrors(fieldErrors);
     setError(null);
     setNotice(null);
     if (Object.keys(fieldErrors).length) return;
 
-    inFlight.current = true;
-    setBusy(true);
-
+    setBusy("email");
     try {
       if (mode === "signup") {
         const policyError = await newPasswordError(fields.password);
-        if (!active.current) return;
         if (policyError) {
           setErrors({ password: policyError });
           return;
@@ -118,56 +101,28 @@ export function useAuthViewModel() {
         await logIn(fields.email, fields.password);
       } else {
         await resetPassword(fields.email);
-      }
-
-      if (active.current) {
-        setFields((current) => ({
-          ...current,
-          password: "",
-          confirmPassword: "",
-        }));
-        if (mode === "reset") setNotice(RESET_NOTICE);
+        setNotice(RESET_NOTICE);
       }
     } catch (failure) {
-      if (active.current) {
-        const unknownEmail =
-          typeof failure === "object" &&
-          failure !== null &&
-          "code" in failure &&
-          failure.code === "auth/user-not-found";
-        if (mode === "reset" && unknownEmail) setNotice(RESET_NOTICE);
-        else setError(authErrorMessage(failure));
-      }
+      if (mode === "reset" && errorCode(failure) === "auth/user-not-found")
+        setNotice(RESET_NOTICE);
+      else setError(authErrorMessage(failure));
     } finally {
-      inFlight.current = false;
-      if (active.current) setBusy(false);
+      setBusy(null);
     }
   }
 
   async function continueWithGoogle() {
-    if (inFlight.current || !session.ready || session.error) return;
-    inFlight.current = true;
-    setBusy(true);
-    setGoogleBusy(true);
+    if (busy) return;
+    setBusy("google");
     setError(null);
     setNotice(null);
     try {
-      const user = await logInWithGoogle();
-      if (user && active.current) {
-        setFields((current) => ({
-          ...current,
-          password: "",
-          confirmPassword: "",
-        }));
-      }
+      await logInWithGoogle();
     } catch (failure) {
-      if (active.current) setError(authErrorMessage(failure));
+      setError(authErrorMessage(failure));
     } finally {
-      inFlight.current = false;
-      if (active.current) {
-        setBusy(false);
-        setGoogleBusy(false);
-      }
+      setBusy(null);
     }
   }
 
@@ -178,20 +133,16 @@ export function useAuthViewModel() {
     errors,
     error: error ?? session.error,
     notice,
-    busy,
-    googleBusy,
-    emailBusy: busy && !googleBusy,
-    continueWithGoogle,
-    ready: session.ready,
-    canSubmit: session.ready && !session.error && !busy,
-    setupError: session.error !== null,
+    busy: busy !== null,
+    emailBusy: busy === "email",
+    googleBusy: busy === "google",
+    canSubmit: busy === null && !session.error,
     showPassword,
     setField,
     changeMode,
     submit,
+    continueWithGoogle,
     togglePassword: () => setShowPassword((value) => !value),
-    retry: session.retry,
-    back: () => (router.canGoBack() ? router.back() : router.replace("./")),
     exploreGuest: () => router.replace("./earth"),
   };
 }

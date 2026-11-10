@@ -8,7 +8,11 @@ import {
   type ReactNode,
 } from "react";
 
-import { observeAuthState, type AuthUser } from "../model/AuthService";
+import {
+  currentAuthUser,
+  observeAuthState,
+  type AuthUser,
+} from "../model/AuthService";
 import { authErrorMessage } from "../model/authErrors";
 
 type AuthState = {
@@ -19,75 +23,46 @@ type AuthState = {
 
 type AuthContextValue = AuthState & {
   canAccessAccount: boolean;
-  retry: () => void;
-};
-
-const INITIAL_STATE: AuthState = {
-  user: null,
-  ready: false,
-  error: null,
+  /** Re-reads the Firebase user, e.g. after a name change. */
+  refreshUser: () => void;
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [state, setState] = useState<AuthState>(INITIAL_STATE);
-  const [attempt, setAttempt] = useState(0);
+  const [state, setState] = useState<AuthState>({
+    user: null,
+    ready: false,
+    error: null,
+  });
 
   useEffect(() => {
-    let active = true;
-    let unsubscribe: (() => void) | undefined;
+    const failed = (error: unknown) =>
+      setState({ user: null, ready: true, error: authErrorMessage(error) });
 
-    // Initialize after render, catching setup errors without breaking guest mode.
-    void Promise.resolve()
-      .then(() => {
-        if (!active) return;
+    // observeAuthState throws at once when the Firebase env vars are missing.
+    try {
+      return observeAuthState(
+        (user) => setState({ user, ready: true, error: null }),
+        failed,
+      );
+    } catch (error) {
+      failed(error);
+    }
+  }, []);
 
-        unsubscribe = observeAuthState(
-          (user) => {
-            if (active) {
-              setState({ user, ready: true, error: null });
-            }
-          },
-          (error) => {
-            if (active) {
-              setState({
-                user: null,
-                ready: true,
-                error: authErrorMessage(error),
-              });
-            }
-          },
-        );
-      })
-      .catch((error: unknown) => {
-        if (active) {
-          setState({
-            user: null,
-            ready: true,
-            error: authErrorMessage(error),
-          });
-        }
-      });
-
-    return () => {
-      active = false;
-      unsubscribe?.();
-    };
-  }, [attempt]);
-
-  const retry = useCallback(() => {
-    setState(INITIAL_STATE);
-    setAttempt((current) => current + 1);
+  const refreshUser = useCallback(() => {
+    try {
+      const user = currentAuthUser();
+      setState((current) => (user ? { ...current, user } : current));
+    } catch {
+      // Firebase is not configured, so there is no user to refresh.
+    }
   }, []);
 
   const value = useMemo(
-    () => ({
-      ...state,
-      retry,
-      canAccessAccount: state.ready && state.user !== null,
-    }),
-    [state, retry],
+    () => ({ ...state, canAccessAccount: state.user !== null, refreshUser }),
+    [state, refreshUser],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

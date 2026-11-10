@@ -1,4 +1,4 @@
-import * as Haptics from "expo-haptics";
+import { selectionHaptic } from "@/core/preferences";
 import { Pressable } from "react-native";
 import Animated, {
   useAnimatedStyle,
@@ -30,7 +30,7 @@ export function MenuButton({ open, hidden, onPress }: MenuButtonProps) {
       <Animated.View style={fade}>
         <Pressable
           onPress={() => {
-            Haptics.selectionAsync();
+            selectionHaptic();
             onPress();
           }}
           hitSlop={8}

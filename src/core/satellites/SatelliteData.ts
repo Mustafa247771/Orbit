@@ -1,16 +1,6 @@
-import { json2satrec, propagate, type OMMJsonObject } from "satellite.js";
+import { json2satrec, type OMMJsonObject } from "satellite.js";
 
 export type SatelliteElements = OMMJsonObject;
-
-export type CachedSatellite = {
-  elements: SatelliteElements;
-  fetchedAt: number;
-};
-
-export type SatelliteSnapshot = {
-  satellites: CachedSatellite[];
-  error: string | null;
-};
 
 const NUMBER_FIELDS = [
   "NORAD_CAT_ID",
@@ -33,92 +23,41 @@ export function isRecord(value: unknown): value is Record<string, unknown> {
 export function parseElements(value: unknown): SatelliteElements | null {
   if (!isRecord(value)) return null;
 
-  if (typeof value.OBJECT_NAME !== "string" || !value.OBJECT_NAME.trim())
-    return null;
+  const { OBJECT_NAME: name, EPOCH: epochText } = value;
 
-  if (
-    typeof value.EPOCH !== "string" ||
-    !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z?$/.test(value.EPOCH)
-  )
-    return null;
+  if (typeof name !== "string" || !name.trim()) return null;
+  if (typeof epochText !== "string") return null;
 
-  const epoch = new Date(
-    value.EPOCH.endsWith("Z") ? value.EPOCH : value.EPOCH + "Z",
-  );
+  const epoch = new Date(epochText.endsWith("Z") ? epochText : `${epochText}Z`);
 
-  if (!Number.isFinite(epoch.getTime())) return null;
+  if (Number.isNaN(epoch.getTime())) return null;
 
   const numbers = {} as Record<(typeof NUMBER_FIELDS)[number], number>;
 
   for (const key of NUMBER_FIELDS) {
     const raw = value[key];
-
-    if (typeof raw !== "number" && (typeof raw !== "string" || !raw.trim()))
-      return null;
-
-    const number = Number(raw);
+    const number =
+      typeof raw === "number" || (typeof raw === "string" && raw.trim())
+        ? Number(raw)
+        : NaN;
 
     if (!Number.isFinite(number)) return null;
 
     numbers[key] = number;
   }
 
-  if (
-    !Number.isSafeInteger(numbers.NORAD_CAT_ID) ||
-    numbers.NORAD_CAT_ID <= 0 ||
-    numbers.NORAD_CAT_ID > 999_999_999 ||
-    numbers.MEAN_MOTION <= 0 ||
-    numbers.ECCENTRICITY < 0 ||
-    numbers.ECCENTRICITY >= 1 ||
-    numbers.INCLINATION < 0 ||
-    numbers.INCLINATION > 180 ||
-    !Number.isInteger(numbers.ELEMENT_SET_NO) ||
-    numbers.ELEMENT_SET_NO < 0
-  )
-    return null;
-
-  for (const key of [
-    "RA_OF_ASC_NODE",
-    "ARG_OF_PERICENTER",
-    "MEAN_ANOMALY",
-  ] as const)
-    if (numbers[key] < 0 || numbers[key] >= 360) return null;
-
-  for (const [key, expected] of Object.entries({
-    CENTER_NAME: "EARTH",
-    REF_FRAME: "TEME",
-    TIME_SYSTEM: "UTC",
-    MEAN_ELEMENT_THEORY: "SGP4",
-  })) {
-    if (value[key] !== undefined && value[key] !== expected) return null;
-  }
-
-  if (value.EPHEMERIS_TYPE !== undefined && Number(value.EPHEMERIS_TYPE) !== 0)
+  if (!Number.isSafeInteger(numbers.NORAD_CAT_ID) || numbers.NORAD_CAT_ID <= 0)
     return null;
 
   const elements: SatelliteElements = {
     ...numbers,
-    OBJECT_NAME: value.OBJECT_NAME.trim(),
+    OBJECT_NAME: name.trim(),
     OBJECT_ID: typeof value.OBJECT_ID === "string" ? value.OBJECT_ID : "",
     EPOCH: epoch.toISOString(),
   };
 
   try {
-    const satrec = json2satrec(elements);
-    const state = propagate(satrec, epoch);
-
-    if (satrec.error !== 0 || !state || !state.position || !state.velocity)
-      return null;
-
-    if (
-      ![
-        ...Object.values(state.position),
-        ...Object.values(state.velocity),
-      ].every(Number.isFinite)
-    )
-      return null;
-
-    return elements;
+    return json2satrec(elements).error === 0 ? elements : null;
   } catch {
     return null;
   }

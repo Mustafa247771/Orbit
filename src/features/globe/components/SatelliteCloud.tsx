@@ -9,14 +9,14 @@ import colors from "@/theme/colors";
 import { CAMERA_FOV } from "./cameraSettings";
 import { SATELLITE_SPRITES } from "./satelliteModels";
 
-import type { ObjectKind } from "@/core/satellites/CatalogueRepository";
+import type { ObjectKind } from "@/core/satellites/catalogueTypes";
 import type { SceneState } from "@/core/satellites/OrbitCatalogue";
 
 const COLORS: Record<ObjectKind, string> = {
-  payload: "#7CFFB2",
-  rocket: "#FFD370",
-  debris: "#FB7185",
-  unknown: "#8A93B5",
+  payload: colors.accent,
+  rocket: colors.gold,
+  debris: colors.danger,
+  unknown: colors.muted,
 };
 
 type Item = {

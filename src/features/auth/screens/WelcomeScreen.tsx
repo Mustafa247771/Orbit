@@ -1,9 +1,9 @@
-import { LinearGradient } from "expo-linear-gradient";
 import { StatusBar } from "expo-status-bar";
-import { StyleSheet, Text, View } from "react-native";
+import { Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { Button } from "@/components/ui/Button";
+import { Label } from "@/components/ui/Label";
 import { OrbitalGateway } from "../components/OrbitalGateway";
 import { useWelcomeViewModel } from "../viewmodels/useWelcomeViewModel";
 
@@ -13,20 +13,13 @@ export default function WelcomeScreen() {
   return (
     <View className="flex-1 bg-space">
       <StatusBar style="light" />
-      <OrbitalGateway still={vm.paused} style={StyleSheet.absoluteFill} />
-      <LinearGradient
+      <OrbitalGateway still={vm.paused} className="absolute inset-0" />
+      <View
         pointerEvents="none"
-        colors={[
-          "rgba(5,6,15,0.2)",
-          "transparent",
-          "rgba(5,6,15,0.65)",
-          "#05060F",
-        ]}
-        locations={[0, 0.48, 0.72, 1]}
-        style={StyleSheet.absoluteFill}
+        className="absolute inset-x-0 bottom-0 h-1/2 bg-space/70"
       />
 
-      <SafeAreaView pointerEvents="box-none" style={StyleSheet.absoluteFill}>
+      <SafeAreaView pointerEvents="box-none" className="absolute inset-0">
         <View
           pointerEvents="box-none"
           className="flex-row items-center justify-between px-6 pt-2"
@@ -35,12 +28,9 @@ export default function WelcomeScreen() {
             <Text className="font-display text-[22px] tracking-[6px] text-ink">
               ORBIT
             </Text>
-            <Text
-              numberOfLines={1}
-              className="mt-1 font-mono text-[9px] tracking-[1.5px] text-cyan"
-            >
-              A LITTLE CLOSER TO INFINITY
-            </Text>
+            <Label tone="cyan" numberOfLines={1} className="mt-1">
+              A little closer to infinity
+            </Label>
           </View>
           <Button
             label={vm.still ? "Resume motion" : "Pause motion"}
@@ -68,14 +58,12 @@ export default function WelcomeScreen() {
             <Button
               label="Log in"
               size="lg"
-              loading={!vm.ready}
               onPress={() => vm.openAuth("login")}
             />
             <Button
               label="Create account"
               variant="outline"
               tone="cyan"
-              disabled={!vm.ready}
               onPress={() => vm.openAuth("signup")}
             />
             <Button

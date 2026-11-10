@@ -1,7 +1,10 @@
 import { useEffect, useState, type ReactNode } from "react";
-import { Pressable, Text, View } from "react-native";
+import { Text, View } from "react-native";
 import Animated, { FadeIn } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
+
+import { Button } from "@/components/ui/Button";
+import { FormMessage } from "@/components/ui/FormMessage";
 
 const utcClock = () => new Date().toISOString().slice(11, 16);
 
@@ -69,28 +72,16 @@ export function GlobeHeader({
 
           {!menuOpen && satelliteError && (
             <View className="mt-2 rounded-2xl border border-gold/30 bg-space/90 px-3 py-2">
-              <Text
-                accessibilityRole="alert"
-                className="text-xs leading-5 text-gold"
-              >
-                {satelliteError}
-                {trackedCount > 0 ? " Showing available orbital data." : ""}
-              </Text>
-
-              <Pressable
+              <FormMessage tone="gold" size="xs">
+                {`${satelliteError}${trackedCount > 0 ? " Showing available orbital data." : ""}`}
+              </FormMessage>
+              <Button
+                label="Try again"
+                variant="ghost"
+                tone="cyan"
+                loading={refreshing}
                 onPress={onRetry}
-                disabled={refreshing}
-                accessibilityRole="button"
-                accessibilityState={{
-                  disabled: refreshing,
-                  busy: refreshing,
-                }}
-                className="min-h-11 justify-center self-start active:opacity-60"
-              >
-                <Text className="text-sm font-semibold text-cyan">
-                  {refreshing ? "Updating…" : "Try again"}
-                </Text>
-              </Pressable>
+              />
             </View>
           )}
         </View>

@@ -5,7 +5,7 @@ import * as THREE from "three";
 import { HOME_DISTANCE } from "./cameraSettings";
 import { MENU_TURN, MENU_TURN_MS, turnEasing } from "./menuTurn";
 
-import type { Vec3 } from "../viewmodels/useEarthViewModel";
+import type { OrbitCatalogue } from "@/core/satellites/OrbitCatalogue";
 
 type OrbitControlsObject = ComponentRef<typeof OrbitControls>;
 
@@ -31,13 +31,15 @@ const lookRight = new THREE.Quaternion().setFromAxisAngle(
 
 type CameraRigProps = {
   selectedId: number | null;
-  getSatellitePosition: (id: number) => Vec3 | null;
+  orbitCatalogue: OrbitCatalogue;
+  getDate: () => Date;
   menuOpen: boolean;
 };
 
 export function CameraRig({
   selectedId,
-  getSatellitePosition,
+  orbitCatalogue,
+  getDate,
   menuOpen,
 }: CameraRigProps) {
   const flying = useRef(false);
@@ -104,7 +106,9 @@ export function CameraRig({
     if (menuOpen) return;
 
     const satellite =
-      selectedId === null ? null : getSatellitePosition(selectedId);
+      selectedId === null
+        ? null
+        : orbitCatalogue.scenePosition(selectedId, getDate());
     if (satellite) goal.set(satellite.x, satellite.y, satellite.z);
     else goal.set(0, 0, 0);
 

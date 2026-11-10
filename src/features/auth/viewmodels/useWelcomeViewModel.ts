@@ -16,15 +16,14 @@ export function useWelcomeViewModel() {
   );
 
   useEffect(() => {
-    if (focused && session.ready && session.user) {
+    if (focused && session.user) {
       router.replace("./earth");
     }
-  }, [focused, session.ready, session.user]);
+  }, [focused, session.user]);
 
   return {
     still,
     paused: still || !focused,
-    ready: session.ready,
     toggleMotion: () => setStill((value) => !value),
     openAuth: (mode: "login" | "signup") => {
       router.push({ pathname: "./login", params: { mode } });
