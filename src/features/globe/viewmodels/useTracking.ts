@@ -3,15 +3,23 @@ import {
   trackingRepository,
   type TrackingPreferences,
 } from "@/core/satellites/TrackingRepository";
+import { useAuthSession } from "@/features/auth/viewmodels/AuthProvider";
 import { useFocusEffect } from "expo-router";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { AppState } from "react-native";
 
+const SYNC_NOTICE =
+  "Saved on this phone — will sync to your account when you're online.";
+
 export function useTracking() {
+  const { user } = useAuthSession();
+  const uid = user?.uid ?? null;
+  const [loadedUid, setLoadedUid] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
   const [preferences, setPreferences] = useState<TrackingPreferences | null>(
     null,
   );
-  const loaded = preferences !== null;
+  const loaded = preferences !== null && loadedUid === uid;
   const preferencesRef = useRef<TrackingPreferences | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -29,10 +37,12 @@ export function useTracking() {
         running = true;
 
         try {
-          const stored = await trackingRepository.read();
+          const stored = await trackingRepository.read(uid);
           if (active) {
-            preferencesRef.current = stored;
-            setPreferences(stored);
+            preferencesRef.current = stored.preferences;
+            setPreferences(stored.preferences);
+            setLoadedUid(uid);
+            setNotice(stored.unsynced ? SYNC_NOTICE : null);
             setError(null);
           }
         } catch {
@@ -55,7 +65,7 @@ export function useTracking() {
         retryRef.current = null;
         subscription.remove();
       };
-    }, [loaded]),
+    }, [loaded, uid]),
   );
 
   const retry = useCallback(() => retryRef.current?.(), []);
@@ -70,9 +80,10 @@ export function useTracking() {
     setSaving(true);
 
     try {
-      await trackingRepository.write(next);
+      const written = await trackingRepository.write(uid, next);
       preferencesRef.current = next;
       setPreferences(next);
+      setNotice(written.unsynced ? SYNC_NOTICE : null);
       setError(null);
       return true;
     } catch {
@@ -82,7 +93,7 @@ export function useTracking() {
       savingRef.current = false;
       setSaving(false);
     }
-  }, []);
+  }, [uid]);
 
   const changeMode = useCallback(
     async (mode: CatalogueMode) => {
@@ -111,6 +122,7 @@ export function useTracking() {
     trackedIds,
     loaded,
     error,
+    notice,
     saving,
     retry,
     changeMode,

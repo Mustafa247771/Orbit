@@ -12,7 +12,7 @@ import {
 import { setDevicePreferences } from "@/core/preferences";
 import { useAuthSession } from "@/features/auth/viewmodels/AuthProvider";
 import { deviceSettingsRepository } from "../model/deviceSettingsRepository";
-import { profileRepository } from "../model/LocalProfileRepository";
+import { profileRepository } from "../model/CloudProfileRepository";
 import {
   DEFAULT_DEVICE_SETTINGS,
   EMPTY_ACCOUNT_PROFILE,
@@ -31,7 +31,10 @@ const LOAD_FAILED =
 type LoadedProfile = {
   uid: string;
   profile: AccountProfile;
+  // A real failure (load or save); shown as an error.
   error: string | null;
+  // The data is safe on the phone but not yet on the account; shown softly.
+  notice: string | null;
 };
 
 type DeviceSettingsValue = {
@@ -43,6 +46,7 @@ type AccountProfileValue = {
   profile: AccountProfile | null;
   loading: boolean;
   error: string | null;
+  notice: string | null;
   defaultLocation: SavedLocation | null;
   updateSettings: (patch: Partial<AccountSettings>) => void;
   setLocations: (next: SavedLocation[]) => Promise<boolean>;
@@ -59,7 +63,7 @@ const ProfileContext = createContext<ProfileContextValue | null>(null);
 
 type Queue = { current: Promise<void> };
 
-// Runs saves one after another, so the last change is the one left on disk.
+// Runs saves one after another, so the last change is the one saved.
 function enqueue<T>(queue: Queue, task: () => Promise<T>): Promise<T> {
   const next = queue.current.then(task);
   queue.current = next.then(
@@ -75,6 +79,14 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
   const [deviceSettings, setDeviceSettings] = useState(DEFAULT_DEVICE_SETTINGS);
   const [deviceError, setDeviceError] = useState<string | null>(null);
   const [loaded, setLoaded] = useState<LoadedProfile | null>(null);
+  const [seenUid, setSeenUid] = useState(uid);
+
+  // A new sign-in (even as the same account) starts without a profile, so
+  // nothing stale is shown while the real one loads.
+  if (seenUid !== uid) {
+    setSeenUid(uid);
+    setLoaded(null);
+  }
 
   const latestDevice = useRef(DEFAULT_DEVICE_SETTINGS);
   const deviceLoaded = useRef(false);
@@ -120,7 +132,6 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     latestProfile.current = null;
-    setLoaded(null);
     if (uid === null) return;
     let cancelled = false;
 
@@ -133,9 +144,10 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
     // Reading goes through the same queue as writes, so it never races one.
     void enqueue(accountQueue, async () => {
       try {
-        show({ uid, profile: await profileRepository.read(uid), error: null });
+        const { profile, notice } = await profileRepository.read(uid);
+        show({ uid, profile, error: null, notice });
       } catch {
-        show({ uid, profile: EMPTY_ACCOUNT_PROFILE, error: LOAD_FAILED });
+        show({ uid, profile: EMPTY_ACCOUNT_PROFILE, error: LOAD_FAILED, notice: null });
       }
     });
 
@@ -167,14 +179,25 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
         return Promise.resolve(false);
       }
 
-      const next = { uid: current.uid, profile: change(current.profile), error: null };
+      const next = {
+        uid: current.uid,
+        profile: change(current.profile),
+        error: null,
+        notice: current.notice,
+      };
       latestProfile.current = next;
       setLoaded(next);
 
       return enqueue(accountQueue, async () => {
         if (purged.current.has(next.uid)) return false;
         try {
-          await profileRepository.write(next.uid, next.profile);
+          const { notice } = await profileRepository.write(next.uid, next.profile);
+          const latest = latestProfile.current;
+          if (latest?.uid === next.uid && latest.notice !== notice) {
+            const settled = { ...latest, notice };
+            latestProfile.current = settled;
+            setLoaded(settled);
+          }
           return true;
         } catch {
           const latest = latestProfile.current;
@@ -222,7 +245,7 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
     [saveProfile],
   );
 
-  // Removes the saved file once pending writes are done, even after sign-out.
+  // Removes leftover phone files once pending writes are done, even after sign-out.
   const purge = useCallback(
     (uid: string) => {
       purged.current.add(uid);
@@ -241,6 +264,7 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
         profile,
         loading: uid !== null && profile === null,
         error: current?.error ?? deviceError,
+        notice: current?.notice ?? null,
         defaultLocation:
           profile?.locations.find((place) => place.isDefault) ?? null,
         updateSettings,
@@ -255,6 +279,7 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
       profile,
       uid,
       current?.error,
+      current?.notice,
       deviceError,
       updateSettings,
       setLocations,

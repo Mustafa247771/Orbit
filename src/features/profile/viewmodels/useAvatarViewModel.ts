@@ -3,7 +3,8 @@ import { useCallback, useRef, useState } from "react";
 import { Alert } from "react-native";
 
 import { useAuthSession } from "@/features/auth/viewmodels/AuthProvider";
-import { deleteAvatar, saveAvatar } from "../model/avatarStorage";
+import { photoUploadAvailable, uploadPhoto } from "@/core/media/PhotoUploader";
+import { deleteAvatar } from "../model/avatarStorage";
 import { useAccountProfile } from "./ProfileProvider";
 
 const PICKER_OPTIONS = {
@@ -17,6 +18,9 @@ const PICKER_OPTIONS = {
 const CAMERA_DENIED =
   "Camera access is off. Please allow it in your phone's Settings to take a profile photo.";
 const PHOTO_FAILED = "We could not update your photo. Please try again.";
+const UPLOAD_UNAVAILABLE =
+  "Profile photos are not set up in this build, so your current photo was kept.";
+const AVATAR_FOLDER = "orbit/avatars";
 
 export function useAvatarViewModel() {
   const { user } = useAuthSession();
@@ -56,9 +60,28 @@ export function useAvatarViewModel() {
           : await ImagePicker.launchImageLibraryAsync(PICKER_OPTIONS);
         if (result.canceled || !result.assets[0] || !user) return;
 
-        const saved = await saveAvatar(user.uid, result.assets[0].uri);
-        if (!(await setPhotoUri(saved))) {
-          deleteAvatar(saved);
+        if (!photoUploadAvailable()) {
+          setError(UPLOAD_UNAVAILABLE);
+          return;
+        }
+
+        // The photo is hosted online, so the https link follows the account to
+        // every device. The old photo is kept if the upload or the save fails.
+        const asset = result.assets[0];
+        let hosted: string;
+        try {
+          hosted = await uploadPhoto(asset.uri, {
+            folder: AVATAR_FOLDER,
+            fileSize: asset.fileSize,
+          });
+        } catch (failure) {
+          setError(
+            failure instanceof Error && failure.message ? failure.message : PHOTO_FAILED,
+          );
+          return;
+        }
+
+        if (!(await setPhotoUri(hosted))) {
           setError(PHOTO_FAILED);
           return;
         }

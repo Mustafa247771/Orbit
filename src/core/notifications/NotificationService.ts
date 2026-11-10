@@ -128,6 +128,7 @@ export function syncNotifications(
           title: "Today's space picture is ready",
           body: "Open Orbit to view today's NASA space picture.",
           sound: "default",
+          data: { href: "/apod" },
         },
         trigger: {
           type: SchedulableTriggerInputTypes.DAILY,
@@ -161,6 +162,7 @@ export function syncNotifications(
           title: "Upcoming launch",
           body: `${launch.name || launch.mission} launches in ${leadMinutes} minutes.`,
           sound: "default",
+          data: { href: "/launches" },
         },
         trigger: {
           type: SchedulableTriggerInputTypes.DATE,

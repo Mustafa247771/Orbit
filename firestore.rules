@@ -170,6 +170,18 @@ service cloud.firestore {
         && request.resource.data.createdAt == request.time;
     }
 
+    // Account documents that follow the user across devices.
+    match /userData/{uid}/docs/{name} {
+      allow read, delete: if signedIn() && request.auth.uid == uid
+        && name in ['profile', 'apodFavorites', 'tracking'];
+      allow create, update: if signedIn() && request.auth.uid == uid
+        && name in ['profile', 'apodFavorites', 'tracking']
+        && request.resource.data.keys().hasOnly(['data', 'updatedAt', 'clientUpdatedAt'])
+        && request.resource.data.keys().hasAll(['data', 'updatedAt', 'clientUpdatedAt'])
+        && request.resource.data.updatedAt == request.time
+        && request.resource.data.clientUpdatedAt is number;
+    }
+
     match /{document=**} {
       allow read, write: if false;
     }

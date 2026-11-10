@@ -46,7 +46,7 @@ import {
   makePost,
   todayStart,
 } from "./feedPaging";
-import { getDb } from "./firestoreClient";
+import { getDb } from "@/core/firebase/firestore";
 
 const COMMENT_LIMIT = 100;
 const SEARCH_LIMIT = 20;

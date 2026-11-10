@@ -93,6 +93,7 @@ export function useProfileViewModel() {
     accountError: logout.error,
     loading: account.loading,
     storageError: account.error,
+    storageNotice: account.notice,
     stats,
     edit,
     avatar,

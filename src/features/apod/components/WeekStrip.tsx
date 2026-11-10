@@ -1,37 +1,68 @@
-import { Text, View } from "react-native";
+import { View } from "react-native";
 
+import { IconButton } from "@/components/ui/IconButton";
 import { Label } from "@/components/ui/Label";
-import type { StripDay } from "../viewmodels/useApodViewModel";
+import { FIRST_APOD_DATE } from "../model/apodDates";
+import { DayChip } from "./DayChip";
 
-type WeekStripProps = {
-  month: string;
-  year: string;
-  days: readonly StripDay[];
+export type WeekStripProps = {
+  days: readonly string[];
+  selected: string;
+  today: string;
+  onSelect: (date: string) => void;
+  onOpenPicker: () => void;
+  onPrev: () => void;
+  onNext: () => void;
 };
 
-/** This week's dates with today circled in gold; upcoming days are dimmed. */
-export function WeekStrip({ month, year, days }: WeekStripProps) {
+export function WeekStrip({
+  days,
+  selected,
+  today,
+  onSelect,
+  onOpenPicker,
+  onPrev,
+  onNext,
+}: WeekStripProps) {
+  const month = new Date(`${selected}T12:00:00Z`).toLocaleDateString("en-US", {
+    month: "long",
+    year: "numeric",
+    timeZone: "UTC",
+  });
   return (
-    <View className="mx-5 mt-5 flex-row items-center gap-3">
-      <View>
-        <Text className="text-[13px] text-ink">{month}</Text>
-        <Label className="mt-0.5">{year}</Label>
+    <View className="mx-5 mt-5 gap-3">
+      <View className="flex-row items-center gap-2">
+        <IconButton
+          icon="back"
+          label="Previous day"
+          disabled={selected <= FIRST_APOD_DATE}
+          onPress={onPrev}
+        />
+        <Label tone="ink" className="flex-1 text-center">
+          {month}
+        </Label>
+        <IconButton
+          icon="chevron"
+          label="Next day"
+          disabled={selected >= today}
+          onPress={onNext}
+        />
+        <IconButton
+          icon="calendar"
+          label="Choose an APOD date"
+          onPress={onOpenPicker}
+        />
       </View>
-
-      <View className="flex-1 flex-row items-center justify-between">
-        {days.map((day) => (
-          <View
-            key={day.key}
-            accessibilityLabel={
-              day.today ? `Today, ${month} ${day.day}` : undefined
-            }
-            className={`h-8 w-8 items-center justify-center rounded-full ${day.today ? "bg-gold" : ""}`}
-          >
-            <Text
-              className={`text-[12px] ${day.today ? "font-semibold text-space" : day.future ? "text-line" : "text-muted"}`}
-            >
-              {day.day}
-            </Text>
+      <View className="flex-row gap-1">
+        {days.map((date) => (
+          <View key={date} className="min-w-0 flex-1">
+            <DayChip
+              date={date}
+              today={today}
+              selected={date === selected}
+              disabled={date < FIRST_APOD_DATE || date > today}
+              onPress={() => onSelect(date)}
+            />
           </View>
         ))}
       </View>

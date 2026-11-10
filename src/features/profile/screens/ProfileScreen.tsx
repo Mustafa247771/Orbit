@@ -46,6 +46,9 @@ export default function ProfileScreen() {
       <FormMessage className="mx-5 mt-4 text-center">
         {vm.storageError}
       </FormMessage>
+      <FormMessage tone="gold" className="mx-5 mt-4 text-center">
+        {vm.storageError ? null : vm.storageNotice}
+      </FormMessage>
 
       {vm.loading ? (
         <View className="mt-10 items-center">

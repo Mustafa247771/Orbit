@@ -1,113 +1,202 @@
-import { Pressable, Text, View } from "react-native";
-import Svg, {
-    Circle,
-    ClipPath,
-    Defs,
-    G,
-    Path,
-    Image as SvgImage,
-} from "react-native-svg";
+import { Image } from "expo-image";
+import { useState } from "react";
+import { Text, View } from "react-native";
+import Svg, { Circle, G, Path } from "react-native-svg";
 
+import { Button } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/Icon";
+import { IconButton } from "@/components/ui/IconButton";
+import { Label } from "@/components/ui/Label";
+import { Skeleton } from "@/components/ui/Skeleton";
+import { StateMessage } from "@/components/ui/StateMessage";
+import { Tag } from "@/components/ui/Tag";
+import { useReduceMotion } from "@/core/preferences";
 import colors from "@/theme/colors";
-import type { SpacePicture } from "../model/SpacePicture";
+import type { ApodEntry } from "../model/Apod";
 
-export function ObservatoryHero({ picture }: { picture: SpacePicture }) {
+export type ObservatoryHeroProps = {
+  entry: ApodEntry | null;
+  loading?: boolean;
+  source: "live" | "offline";
+  saved: boolean;
+  busy?: boolean;
+  onExpand: () => void;
+  onWatch: () => void;
+  onToggleFavorite: () => void;
+  onShare: () => void;
+};
+
+function LensImage({ uri, title }: { uri: string | null; title: string }) {
+  const [status, setStatus] = useState<"loading" | "ready" | "error">(
+    "loading",
+  );
+  const reduceMotion = useReduceMotion();
+  return (
+    <View className="absolute inset-[6%] overflow-hidden rounded-full bg-shade">
+      {uri && status !== "error" ? (
+        <Image
+          source={{ uri }}
+          contentFit="cover"
+          transition={reduceMotion ? 0 : 180}
+          accessibilityLabel={title}
+          className="h-full w-full"
+          onLoad={() => setStatus("ready")}
+          onError={() => setStatus("error")}
+        />
+      ) : (
+        <View className="flex-1 items-center justify-center gap-3 px-8">
+          <Icon name="photo" size={32} color={colors.muted} />
+          <Text className="text-center text-sm text-muted">
+            Preview unavailable
+          </Text>
+        </View>
+      )}
+      {uri && status === "loading" ? (
+        <View
+          pointerEvents="none"
+          className="absolute inset-0 items-center justify-center bg-shade"
+          accessibilityLabel="Loading picture"
+          accessibilityRole="progressbar"
+        >
+          <Skeleton width="70%" height={160} radius={80} />
+        </View>
+      ) : null}
+    </View>
+  );
+}
+
+export function ObservatoryHero({
+  entry,
+  loading = false,
+  source,
+  saved,
+  busy = false,
+  onExpand,
+  onWatch,
+  onToggleFavorite,
+  onShare,
+}: ObservatoryHeroProps) {
+  const uri =
+    entry?.kind === "image"
+      ? (entry.imageUrl ?? entry.hdUrl)
+      : (entry?.thumbnailUrl ?? entry?.imageUrl ?? null);
   return (
     <View className="mt-3 overflow-hidden">
-      <View className="-mx-3 aspect-square">
-        <Svg
-          width="100%"
-          height="100%"
-          viewBox="0 0 400 400"
-          accessible
-          accessibilityLabel={picture.title}
-        >
-          <Defs>
-            <ClipPath id="apodLens">
-              <Circle cx={200} cy={200} r={176.4} />
-            </ClipPath>
-          </Defs>
-
-          <SvgImage
-            href={{ uri: picture.thumbnailUrl }}
-            x={23.6}
-            y={23.6}
-            width={352.8}
-            height={352.8}
-            preserveAspectRatio="xMidYMid slice"
-            clipPath="url(#apodLens)"
+      <View className="mx-2 aspect-square">
+        {loading ? (
+          <View
+            className="absolute inset-[6%] items-center justify-center overflow-hidden rounded-full bg-shade"
+            accessibilityRole="progressbar"
+            accessibilityLabel="Loading discovery"
+          >
+            <Skeleton width="80%" height={180} radius={90} />
+          </View>
+        ) : entry ? (
+          <LensImage
+            key={`${entry.date}-${uri}`}
+            uri={uri}
+            title={entry.title}
           />
-
-          <G fill="none" stroke={colors.edge.bright} strokeWidth={0.7}>
-            <Circle cx={200} cy={200} r={188} />
-            <Circle
-              cx={200}
-              cy={200}
-              r={181}
-              stroke={colors.ink}
-              opacity={0.15}
-              strokeWidth={0.5}
-            />
-            <Path d="M200 0v17m0 366v17M0 200h17m366 0h17M62 62l10 10m256 256 10 10M62 338l10-10M328 72l10-10" />
-            <Path
-              d="M13 173A190 190 0 0 1 87 47"
-              stroke={colors.cyan}
-              strokeWidth={1.2}
-            />
-            <Circle
-              cx={87}
-              cy={47}
-              r={4}
-              fill={colors.cyan}
-              stroke={colors.space}
-              strokeWidth={2}
-            />
-          </G>
-        </Svg>
-
-        <Pressable
-          disabled
-          accessibilityLabel="View full picture"
-          className="absolute bottom-[12%] right-[11%] h-[40px] w-[40px] items-center justify-center rounded-full border border-pale/40 bg-space/80"
+        ) : null}
+        <View
+          pointerEvents="none"
+          className="absolute inset-0"
+          accessibilityElementsHidden
+          importantForAccessibility="no-hide-descendants"
         >
-          <Icon name="expand" size={16} />
-        </Pressable>
+          <Svg width="100%" height="100%" viewBox="0 0 400 400">
+            <G fill="none" stroke={colors.edge.bright} strokeWidth={0.7}>
+              <Circle cx={200} cy={200} r={188} />
+              <Circle
+                cx={200}
+                cy={200}
+                r={181}
+                stroke={colors.ink}
+                opacity={0.15}
+              />
+              <Path d="M200 0v17m0 366v17M0 200h17m366 0h17M62 62l10 10m256 256 10 10M62 338l10-10M328 72l10-10" />
+              <Path
+                d="M13 173A190 190 0 0 1 87 47"
+                stroke={colors.cyan}
+                strokeWidth={1.2}
+              />
+              <Circle
+                cx={87}
+                cy={47}
+                r={4}
+                fill={colors.cyan}
+                stroke={colors.space}
+                strokeWidth={2}
+              />
+            </G>
+            <G fill={colors.ice} opacity={0.6}>
+              <Circle cx={24} cy={60} r={1} />
+              <Circle cx={372} cy={106} r={1.5} />
+              <Circle cx={35} cy={338} r={1.2} />
+            </G>
+          </Svg>
+        </View>
+        {!loading &&
+        entry?.kind === "image" &&
+        (entry.imageUrl || entry.hdUrl) ? (
+          <View className="absolute bottom-[12%] right-[11%]">
+            <IconButton
+              icon="expand"
+              label={`Expand ${entry.title}`}
+              onPress={onExpand}
+            />
+          </View>
+        ) : null}
       </View>
-
-      <View className="-mt-[38px] items-center px-6">
-        <Text className="bg-space px-3 py-1 text-[10px] tracking-[0.7px] text-cyan">
-          NASA image library
-        </Text>
-        <Text
-          accessibilityRole="header"
-          className="mt-2 text-center font-display text-[45px] leading-[45px] tracking-[-2px] text-ink"
-        >
-          {picture.title}
-        </Text>
-        <Text className="mt-3 text-center text-[11px] text-haze">
-          {picture.credit} · {picture.year}
-        </Text>
-      </View>
-
-      <View className="mt-6 flex-row items-center justify-center gap-3">
-        <Pressable
-          disabled
-          className="h-[46px] w-[166px] flex-row items-center justify-center gap-2 rounded-full bg-ice"
-        >
-          <Icon name="bookmark" size={17} color={colors.deep} />
-          <Text className="text-[12px] font-semibold text-deep">
-            Save picture
+      {loading ? (
+        <StateMessage loading message="Loading NASA discovery…" />
+      ) : entry ? (
+        <View className="items-center gap-3 px-6">
+          <Label tone="cyan">NASA · Astronomy picture of the day</Label>
+          <Text
+            accessibilityRole="header"
+            numberOfLines={3}
+            className="text-center font-display text-[36px] leading-[40px] tracking-[-1px] text-ink"
+          >
+            {entry.title}
           </Text>
-        </Pressable>
-        <Pressable
-          disabled
-          accessibilityLabel="Share picture"
-          className="h-[46px] w-[46px] items-center justify-center rounded-full border border-edge-bright bg-shade"
-        >
-          <Icon name="share" size={18} color={colors.pale} />
-        </Pressable>
-      </View>
+          <Text className="text-center text-xs leading-5 text-haze">{`${entry.date} · ${entry.copyright ?? "NASA / APOD"}`}</Text>
+          <Tag
+            label={source === "offline" ? "Saved offline" : "Live"}
+            tone={source === "offline" ? "gold" : "cyan"}
+            dot
+          />
+          {entry.kind === "video" ? (
+            <Button
+              label="Watch video"
+              icon="open"
+              tone="cyan"
+              variant="outline"
+              onPress={onWatch}
+            />
+          ) : null}
+          <View className="mt-2 flex-row flex-wrap items-center justify-center gap-3">
+            <Button
+              label={saved ? "Saved" : "Favourite"}
+              accessibilityLabel={`${saved ? "Remove from" : "Add to"} favourites: ${entry.title}`}
+              icon={saved ? "bookmarkFilled" : "bookmark"}
+              loading={busy}
+              tone="cyan"
+              onPress={onToggleFavorite}
+            />
+            <IconButton
+              icon="share"
+              label={`Share ${entry.title}`}
+              onPress={onShare}
+            />
+          </View>
+        </View>
+      ) : (
+        <StateMessage
+          title="No discovery selected"
+          message="Choose a day to explore NASA’s archive."
+        />
+      )}
     </View>
   );
 }
