@@ -2,7 +2,7 @@ import { View } from "react-native";
 import Svg, { Circle, G, Path, Text as SvgText } from "react-native-svg";
 
 import colors from "@/theme/colors";
-import type { Observer } from "../model/Post";
+import type { ObserverView } from "../model/communityViews";
 
 const POINTS = [
   { x: 54, y: 84, tint: colors.violet },
@@ -12,7 +12,7 @@ const POINTS = [
 ];
 
 type ObserverConstellationProps = {
-  observers: readonly Observer[];
+  observers: readonly ObserverView[];
   moreObservers: number;
 };
 
@@ -32,7 +32,10 @@ export function ObserverConstellation({
         viewBox="0 0 360 154"
         accessible
         accessibilityLabel={`Community observers: ${visible
-          .map((observer) => observer.name)
+          .map(
+            (observer) =>
+              `${observer.name}${observer.online ? ", online" : ", offline"}`,
+          )
           .join(", ")}`}
       >
         <G fill="none" stroke={colors.edge.DEFAULT} strokeWidth={0.8}>
@@ -57,7 +60,7 @@ export function ObserverConstellation({
 
           return (
             <G
-              key={observer.id}
+              key={observer.uid}
               transform={`translate(${point.x}, ${point.y})`}
             >
               <Circle r={25} fill={colors.space} />
@@ -95,7 +98,9 @@ export function ObserverConstellation({
                 fontSize={10}
                 fill={colors.haze}
               >
-                {observer.name}
+                {observer.name.length > 12
+                  ? `${observer.name.slice(0, 11)}…`
+                  : observer.name}
               </SvgText>
             </G>
           );

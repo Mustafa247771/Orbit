@@ -1,63 +1,13 @@
-import * as Haptics from "expo-haptics";
 import { Image } from "expo-image";
-import { Pressable, Text, View } from "react-native";
-import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  withSequence,
-  withSpring,
-  withTiming,
-} from "react-native-reanimated";
+import { Alert, Text, View } from "react-native";
 
 import { Avatar } from "@/components/ui/Avatar";
+import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
-import { Icon } from "@/components/ui/Icon";
-import { Tag } from "@/components/ui/Tag";
+import { IconButton } from "@/components/ui/IconButton";
 import { Label } from "@/components/ui/Label";
-import colors from "@/theme/colors";
-import type { PostView } from "../viewmodels/useCommunityViewModel";
-import { PassTrace } from "./PassTrace";
-
-type StarButtonProps = {
-  active: boolean;
-  count: number;
-  onPress: () => void;
-};
-
-function StarButton({ active, count, onPress }: StarButtonProps) {
-  const pop = useSharedValue(1);
-  const style = useAnimatedStyle(() => ({ transform: [{ scale: pop.get() }] }));
-
-  return (
-    <Pressable
-      onPress={() => {
-        Haptics.selectionAsync();
-        if (!active)
-          pop.set(
-            withSequence(withTiming(1.35, { duration: 120 }), withSpring(1)),
-          );
-        onPress();
-      }}
-      accessibilityRole="button"
-      accessibilityLabel={`${active ? "Starred" : "Star"}, ${count} stars`}
-      accessibilityState={{ selected: active }}
-      className="h-11 flex-row items-center gap-1.5 px-2.5 active:opacity-60"
-    >
-      <Animated.View style={style}>
-        <Icon
-          name={active ? "starFilled" : "star"}
-          color={active ? colors.gold : colors.muted}
-        />
-      </Animated.View>
-      <Text
-        className={`text-sm font-semibold ${active ? "text-gold" : "text-ink/80"}`}
-        style={{ fontVariant: ["tabular-nums"] }}
-      >
-        {count}
-      </Text>
-    </Pressable>
-  );
-}
+import { Tag } from "@/components/ui/Tag";
+import type { PostView } from "../model/communityViews";
 
 type PostCardProps = {
   post: PostView;
@@ -65,6 +15,9 @@ type PostCardProps = {
   onToggleSeen: () => void;
   onOpenComments: () => void;
   onShare: () => void;
+  onReport: () => void;
+  onDelete: () => void;
+  onFollow: () => void;
 };
 
 export function PostCard({
@@ -73,110 +26,87 @@ export function PostCard({
   onToggleSeen,
   onOpenComments,
   onShare,
+  onReport,
+  onDelete,
+  onFollow,
 }: PostCardProps) {
+  const confirmDelete = () =>
+    Alert.alert("Delete post?", "This also deletes all comments on this post.", [
+      { text: "Cancel", style: "cancel" },
+      { text: "Delete", style: "destructive", onPress: onDelete },
+    ]);
+  const overflow = () =>
+    Alert.alert("Post options", post.objectName, [
+      { text: "Report", onPress: onReport },
+      post.own
+        ? { text: "Delete", style: "destructive", onPress: confirmDelete }
+        : {
+            text: post.following ? "Unfollow observer" : "Follow observer",
+            onPress: onFollow,
+          },
+      { text: "Cancel", style: "cancel" },
+    ]);
+
   return (
     <Card>
       <View className="flex-row items-center gap-3 px-4 py-3.5">
         <Avatar initials={post.author.initials} />
-        <View className="flex-1 gap-0.5">
-          <Text className="text-[15px] font-semibold text-ink">
-            {post.author.name}
-          </Text>
-          <Label numberOfLines={1}>{post.meta}</Label>
+        <View className="flex-1 gap-1.5">
+          <Text className="text-[15px] font-semibold text-ink">{post.author.name}</Text>
+          <Label>{`${post.city ? `${post.city} · ` : ""}${post.ago}`}</Label>
+          <View className="flex-row">
+            <Tag label={post.author.rank} tone="gold" />
+          </View>
         </View>
-        <Tag
-          label={post.author.rank}
-          tone={post.author.rank === "Navigator" ? "gold" : "neutral"}
+        <IconButton
+          icon="menu"
+          label={`Options for ${post.author.name}'s post`}
+          onPress={overflow}
         />
       </View>
-
-      {post.photoUri ? (
-        <View className="aspect-[4/3] bg-space">
-          <Image
-            source={{ uri: post.photoUri }}
-            contentFit="cover"
-            transition={300}
-            accessibilityLabel={`${post.object} photo`}
-            className="flex-1"
-          />
-          <View className="absolute left-3 top-3">
-            <Tag label={post.object} tone="dark" />
-          </View>
-          {post.photoCredit ? (
-            <View className="absolute bottom-2.5 right-3 rounded-full bg-space/70 px-2 py-0.5">
-              <Text className="font-mono text-[11px] text-ink/80">
-                Photo · {post.photoCredit}
-              </Text>
-            </View>
-          ) : null}
+      {post.photoUrl ? (
+        <Image
+          source={{ uri: post.photoUrl }}
+          contentFit="cover"
+          accessibilityLabel={`${post.objectName} photo`}
+          className="aspect-[4/3] w-full bg-space"
+        />
+      ) : null}
+      <View className="gap-3 px-4 pt-3.5">
+        <View className="flex-row flex-wrap">
+          <Tag label={post.objectName} tone="cyan" />
         </View>
-      ) : (
-        <View className="flex-row px-4">
-          <Tag label={post.object} />
-        </View>
-      )}
-
-      <View className="gap-2.5 px-4 pt-3.5">
-        <Text className="text-[15px] leading-[22px] text-ink/90">
-          {post.caption}
-        </Text>
-        {post.pass ? <PassTrace {...post.pass} /> : null}
-        <View className="flex-row flex-wrap items-center gap-x-2 gap-y-1">
-          {post.verified ? (
-            <View className="flex-row items-center gap-1">
-              <Icon name="check" size={14} color={colors.accent} />
-              <Label tone="accent">Pass matched</Label>
-            </View>
-          ) : null}
-          <Label>{post.details}</Label>
-        </View>
+        <Text className="text-[15px] leading-[22px] text-ink/90">{post.caption}</Text>
       </View>
-
-      <View className="flex-row items-center px-1.5 py-1.5">
-        <StarButton
-          active={post.starred}
-          count={post.starCount}
+      <View className="flex-row flex-wrap items-center gap-1 px-2 py-2">
+        <Button
+          label={`${post.starredBy.length}`}
+          icon={post.starred ? "starFilled" : "star"}
+          accessibilityLabel={`${post.starred ? "Unstar" : "Star"} post, ${post.starredBy.length} stars`}
+          variant="ghost"
+          tone={post.starred ? "gold" : "cyan"}
+          className="px-2"
           onPress={onToggleStar}
         />
-        <Pressable
+        <Button
+          label={`${post.commentCount}`}
+          icon="comment"
+          accessibilityLabel={`Open ${post.commentCount} comments`}
+          variant="ghost"
+          tone="cyan"
+          className="px-2"
           onPress={onOpenComments}
-          accessibilityRole="button"
-          accessibilityLabel={`${post.comments.length} comments`}
-          className="h-11 flex-row items-center gap-1.5 px-2.5 active:opacity-60"
-        >
-          <Icon name="comment" color={colors.muted} />
-          <Text className="text-sm font-semibold text-ink/80">
-            {post.comments.length}
-          </Text>
-        </Pressable>
+        />
+        <Button
+          label={`${post.seen ? "Seen" : "Seen too"} · ${post.seenBy.length}`}
+          icon={post.seen ? "check" : "eye"}
+          accessibilityLabel={`${post.seen ? "Unmark" : "Mark"} seen, ${post.seenBy.length} observers saw this`}
+          variant={post.seen ? "outline" : "ghost"}
+          className="px-2"
+          onPress={onToggleSeen}
+        />
         <View className="flex-1" />
-        <Pressable
-          onPress={() => {
-            Haptics.selectionAsync();
-            onToggleSeen();
-          }}
-          hitSlop={4}
-          accessibilityRole="button"
-          accessibilityState={{ selected: post.seen }}
-          className={`h-9 flex-row items-center gap-1.5 rounded-full border px-3.5 active:opacity-60 ${post.seen ? "border-accent/50 bg-accent/15" : "border-line"}`}
-        >
-          {post.seen ? (
-            <Icon name="check" size={14} color={colors.accent} />
-          ) : null}
-          <Text
-            className={`text-[13px] font-semibold ${post.seen ? "text-accent" : "text-ink"}`}
-          >
-            {post.seen ? `Seen · ${post.seenCount}` : "Seen it too"}
-          </Text>
-        </Pressable>
-        <Pressable
-          onPress={onShare}
-          accessibilityRole="button"
-          accessibilityLabel="Share post"
-          className="h-11 w-11 items-center justify-center active:opacity-60"
-        >
-          <Icon name="share" color={colors.muted} />
-        </Pressable>
+        <IconButton icon="share" label="Share post" onPress={onShare} />
       </View>
     </Card>
   );
