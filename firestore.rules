@@ -1,0 +1,177 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function validCaption(caption) {
+      return caption is string && caption.size() >= 3 && caption.size() <= 500;
+    }
+
+    // Preserve every other observer's membership and order; forbid duplicates.
+    function ownMembershipOnly(before, after) {
+      return before is list && after is list
+        && after.toSet().size() == after.size()
+        && after.removeAll([request.auth.uid]) == before.removeAll([request.auth.uid]);
+    }
+
+    function nullOrNumber(value) {
+      return value == null || value is number;
+    }
+
+    function nullOrInRange(value, low, high) {
+      return value == null || (value is number && value >= low && value <= high);
+    }
+
+    function nullOrString(value, max) {
+      return value == null || (value is string && value.size() <= max);
+    }
+
+    function validAuthor(author) {
+      return author is map
+        && author.keys().hasOnly(['uid', 'name', 'initials', 'rank'])
+        && author.keys().hasAll(['uid', 'name', 'initials', 'rank'])
+        && author.uid == request.auth.uid
+        && author.name is string && author.name.size() >= 1 && author.name.size() <= 40
+        && author.initials is string && author.initials.size() <= 3
+        && author.rank is string && author.rank.size() <= 30;
+    }
+
+    function validPhotoUrl(value) {
+      return value == null
+        || (value is string && value.size() <= 500
+          && value.matches('^https://res\\.cloudinary\\.com/.*'));
+    }
+
+    // Engagement may only touch the caller's own entry in starredBy / seenBy.
+    function validEngagement() {
+      let before = resource.data;
+      let after = request.resource.data;
+      return after.diff(before).affectedKeys().hasOnly(['starredBy', 'seenBy'])
+        && ownMembershipOnly(before.starredBy, after.starredBy)
+        && ownMembershipOnly(before.seenBy, after.seenBy);
+    }
+
+    // commentCount moves by exactly one. The comment rules below pin that move
+    // to a comment create/delete committed in the same batch.
+    function validCommentCountStep() {
+      let before = resource.data;
+      let after = request.resource.data;
+      return after.diff(before).affectedKeys().hasOnly(['commentCount'])
+        && after.commentCount is int && after.commentCount >= 0
+        && (after.commentCount == before.commentCount + 1
+          || after.commentCount == before.commentCount - 1);
+    }
+
+    match /posts/{postId} {
+      allow read: if signedIn();
+      allow create: if signedIn()
+        && request.resource.data.keys().hasAll([
+          'author', 'authorUid', 'sightingId', 'objectName', 'caption', 'photoUrl',
+          'city', 'latitude', 'longitude', 'cell', 'createdAt', 'observedAt',
+          'starredBy', 'seenBy', 'commentCount'
+        ])
+        && request.resource.data.keys().hasOnly([
+          'author', 'authorUid', 'sightingId', 'objectName', 'caption', 'photoUrl',
+          'city', 'latitude', 'longitude', 'cell', 'createdAt', 'observedAt',
+          'starredBy', 'seenBy', 'commentCount'
+        ])
+        && request.resource.data.authorUid == request.auth.uid
+        && validAuthor(request.resource.data.author)
+        && (request.resource.data.sightingId == null || request.resource.data.sightingId == postId)
+        && validCaption(request.resource.data.caption)
+        && request.resource.data.objectName is string
+        && request.resource.data.objectName.size() >= 2
+        && request.resource.data.objectName.size() <= 40
+        && validPhotoUrl(request.resource.data.photoUrl)
+        && nullOrString(request.resource.data.city, 80)
+        && nullOrInRange(request.resource.data.latitude, -90, 90)
+        && nullOrInRange(request.resource.data.longitude, -180, 180)
+        && nullOrString(request.resource.data.cell, 20)
+        && nullOrNumber(request.resource.data.observedAt)
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.starredBy == []
+        && request.resource.data.seenBy == []
+        && request.resource.data.commentCount == 0;
+      allow update: if signedIn() && (
+        (resource.data.authorUid == request.auth.uid
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['caption'])
+          && validCaption(request.resource.data.caption))
+        || validEngagement()
+        || validCommentCountStep()
+      );
+      allow delete: if signedIn() && resource.data.authorUid == request.auth.uid;
+
+      match /comments/{commentId} {
+        allow read: if signedIn();
+        allow create: if signedIn()
+          && exists(/databases/$(database)/documents/posts/$(postId))
+          && request.resource.data.keys().hasAll(['postId', 'author', 'authorUid', 'text', 'createdAt'])
+          && request.resource.data.keys().hasOnly(['postId', 'author', 'authorUid', 'text', 'createdAt'])
+          && request.resource.data.postId == postId
+          && request.resource.data.authorUid == request.auth.uid
+          && validAuthor(request.resource.data.author)
+          && getAfter(/databases/$(database)/documents/posts/$(postId)).data.commentCount
+            == get(/databases/$(database)/documents/posts/$(postId)).data.commentCount + 1
+          && request.resource.data.text is string
+          && request.resource.data.text.size() >= 1
+          && request.resource.data.text.size() <= 300
+          && request.resource.data.createdAt == request.time;
+        // Live post: the author or the post owner deletes it and the count drops by
+        // one in the same batch. Orphans (post already deleted) can be swept by anyone.
+        allow delete: if signedIn() && (
+          !exists(/databases/$(database)/documents/posts/$(postId))
+          || (
+            (resource.data.authorUid == request.auth.uid
+              || get(/databases/$(database)/documents/posts/$(postId)).data.authorUid == request.auth.uid)
+            && getAfter(/databases/$(database)/documents/posts/$(postId)).data.commentCount
+              == get(/databases/$(database)/documents/posts/$(postId)).data.commentCount - 1
+          )
+        );
+      }
+    }
+
+    match /users/{uid} {
+      allow read: if signedIn();
+      allow create, update: if signedIn() && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly([
+          'uid', 'name', 'nameLower', 'initials', 'rank', 'lastActiveAt'
+        ])
+        && request.resource.data.keys().hasAll([
+          'uid', 'name', 'nameLower', 'initials', 'rank', 'lastActiveAt'
+        ])
+        && request.resource.data.uid == uid
+        && request.resource.data.name is string
+        && request.resource.data.name.size() >= 1 && request.resource.data.name.size() <= 40
+        && request.resource.data.nameLower is string
+        && request.resource.data.nameLower.size() >= 1 && request.resource.data.nameLower.size() <= 40
+        && request.resource.data.initials is string && request.resource.data.initials.size() <= 3
+        && request.resource.data.rank is string && request.resource.data.rank.size() <= 30
+        && request.resource.data.lastActiveAt == request.time;
+      allow delete: if signedIn() && request.auth.uid == uid;
+    }
+
+    match /follows/{uid}/{document=**} {
+      allow read, write: if signedIn() && request.auth.uid == uid;
+    }
+
+    // One report per observer and post: the id is postId_reporterUid, so a second
+    // report is an update, which is not allowed.
+    match /reports/{reportId} {
+      allow create: if signedIn()
+        && reportId == request.resource.data.postId + '_' + request.auth.uid
+        && request.resource.data.keys().hasAll(['postId', 'reporterUid', 'reason', 'note', 'createdAt'])
+        && request.resource.data.keys().hasOnly(['postId', 'reporterUid', 'reason', 'note', 'createdAt'])
+        && request.resource.data.reporterUid == request.auth.uid
+        && request.resource.data.postId is string && request.resource.data.postId.size() <= 128
+        && request.resource.data.reason in ['spam', 'offensive', 'misleading', 'other']
+        && request.resource.data.note is string && request.resource.data.note.size() <= 200
+        && request.resource.data.createdAt == request.time;
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
