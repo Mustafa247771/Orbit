@@ -1,6 +1,7 @@
-import { Text, View } from "react-native";
+import { View } from "react-native";
 
 import { Button } from "@/components/ui/Button";
+import { FormMessage } from "@/components/ui/FormMessage";
 import { Label } from "@/components/ui/Label";
 
 type AccountActionsProps = {
@@ -37,14 +38,7 @@ export function AccountActions({
         onPress={onDelete}
         disabled={signingOut}
       />
-      {error ? (
-        <Text
-          accessibilityLiveRegion="polite"
-          className="mt-2 text-center text-sm leading-6 text-danger"
-        >
-          {error}
-        </Text>
-      ) : null}
+      <FormMessage className="mt-2 text-center">{error}</FormMessage>
       <Label className="mt-2.5 text-center">Orbit {version}</Label>
     </View>
   );

@@ -1,4 +1,4 @@
-import * as Haptics from "expo-haptics";
+import { selectionHaptic } from "@/core/preferences";
 import { Image } from "expo-image";
 import { Pressable, Text, View } from "react-native";
 
@@ -54,7 +54,7 @@ export function ArticleRow({
       </Pressable>
       <Pressable
         onPress={() => {
-          Haptics.selectionAsync();
+          selectionHaptic();
           onToggleSaved();
         }}
         accessibilityRole="button"

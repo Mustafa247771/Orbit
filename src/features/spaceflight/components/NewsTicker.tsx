@@ -2,9 +2,9 @@ import { Text, View } from "react-native";
 import Animated, {
   FadeInDown,
   FadeOutUp,
-  useReducedMotion,
 } from "react-native-reanimated";
 
+import { useReduceMotion } from "@/core/preferences";
 import { Label } from "@/components/ui/Label";
 
 type NewsTickerProps = {
@@ -13,7 +13,7 @@ type NewsTickerProps = {
 };
 
 export function NewsTicker({ headline, tick }: NewsTickerProps) {
-  const reduceMotion = useReducedMotion();
+  const reduceMotion = useReduceMotion();
 
   return (
     <View className="mx-5 mt-5 h-11 flex-row items-center overflow-hidden rounded-2xl border border-line bg-surface/80">

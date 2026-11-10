@@ -1,4 +1,4 @@
-import * as Haptics from "expo-haptics";
+import { selectionHaptic } from "@/core/preferences";
 import { Pressable, Text, View } from "react-native";
 
 const TONES = {
@@ -30,7 +30,7 @@ export function SegmentedControl<T extends string>({
 }: SegmentedControlProps<T>) {
   const choose = (next: T) => {
     if (next === value) return;
-    Haptics.selectionAsync();
+    selectionHaptic();
     onChange(next);
   };
 

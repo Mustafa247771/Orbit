@@ -5,9 +5,7 @@ import { SectionLabel } from "@/components/ui/SectionLabel";
 import { SegmentedControl } from "@/components/ui/SegmentedControl";
 import { SettingRow } from "@/components/ui/SettingRow";
 import { Toggle } from "@/components/ui/Toggle";
-import { VISIBILITY_OPTIONS } from "@/features/sightings/model/Sighting";
-import type { ProfileSettings } from "../model/Profile";
-import type { UpdateSetting } from "../viewmodels/useProfileViewModel";
+import type { DeviceSettings } from "../model/Profile";
 
 const UNITS = [
   { value: "metric", label: "Metric" },
@@ -15,12 +13,12 @@ const UNITS = [
 ] as const;
 
 type AppSectionProps = {
-  settings: ProfileSettings;
-  onUpdate: UpdateSetting;
+  device: DeviceSettings;
+  onDeviceChange: (patch: Partial<DeviceSettings>) => void;
 };
 
-/** Units, haptics, motion and who sees new sightings. */
-export function AppSection({ settings, onUpdate }: AppSectionProps) {
+/** Units, haptics and motion. */
+export function AppSection({ device, onDeviceChange }: AppSectionProps) {
   return (
     <View className="mx-5 mt-8">
       <SectionLabel title="App" />
@@ -30,36 +28,24 @@ export function AppSection({ settings, onUpdate }: AppSectionProps) {
             <SegmentedControl
               label="Units"
               options={UNITS}
-              value={settings.units}
-              onChange={(units) => onUpdate("units", units)}
+              value={device.units}
+              onChange={(units) => onDeviceChange({ units })}
             />
           </View>
         </SettingRow>
         <SettingRow label="Haptics">
           <Toggle
             label="Haptics"
-            value={settings.haptics}
-            onChange={(value) => onUpdate("haptics", value)}
+            value={device.haptics}
+            onChange={(haptics) => onDeviceChange({ haptics })}
           />
         </SettingRow>
-        <SettingRow label="Reduce motion" hint="Stops the orbit animations">
+        <SettingRow label="Reduce motion" hint="Stops the orbit animations" last>
           <Toggle
             label="Reduce motion"
-            value={settings.reduceMotion}
-            onChange={(value) => onUpdate("reduceMotion", value)}
+            value={device.reduceMotion}
+            onChange={(reduceMotion) => onDeviceChange({ reduceMotion })}
           />
-        </SettingRow>
-        <SettingRow label="New sightings" last>
-          <View className="w-48">
-            <SegmentedControl
-              label="New sightings visibility"
-              options={VISIBILITY_OPTIONS}
-              value={settings.sightingVisibility}
-              onChange={(visibility) =>
-                onUpdate("sightingVisibility", visibility)
-              }
-            />
-          </View>
         </SettingRow>
       </Card>
     </View>

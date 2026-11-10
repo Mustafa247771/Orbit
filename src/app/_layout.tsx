@@ -6,10 +6,12 @@ import { Stack } from "expo-router";
 import { ActivityIndicator, Text, View } from "react-native";
 import "../../global.css";
 
+import { NotificationSync } from "@/core/notifications/NotificationSync";
 import {
   AuthProvider,
   useAuthSession,
 } from "@/features/auth/viewmodels/AuthProvider";
+import { ProfileProvider } from "@/features/profile/viewmodels/ProfileProvider";
 import colors from "@/theme/colors";
 import { JetBrainsMono_500Medium } from "@expo-google-fonts/jetbrains-mono";
 import { SpaceGrotesk_600SemiBold } from "@expo-google-fonts/space-grotesk";
@@ -72,9 +74,12 @@ export default function RootLayout() {
 
   return (
     <AuthProvider>
-      <View className="flex-1 bg-space">
-        <AppNavigator />
-      </View>
+      <ProfileProvider>
+        <NotificationSync />
+        <View className="flex-1 bg-space">
+          <AppNavigator />
+        </View>
+      </ProfileProvider>
     </AuthProvider>
   );
 }

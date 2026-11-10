@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Text, type TextProps } from "react-native";
-import { useReducedMotion } from "react-native-reanimated";
+
+import { useReduceMotion } from "@/core/preferences";
 
 const GLYPHS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#%&*+<>/";
 const FRAME_MS = 40;
@@ -16,7 +17,7 @@ export function ScrambleText({
   duration = 700,
   ...props
 }: ScrambleTextProps) {
-  const reduceMotion = useReducedMotion();
+  const reduceMotion = useReduceMotion();
   const [shown, setShown] = useState(() => text.replace(/\S/g, "_"));
 
   useEffect(() => {

@@ -2,9 +2,9 @@
 import { Canvas, useFrame } from "@react-three/fiber/native";
 import { useEffect, useMemo, useRef, type RefObject } from "react";
 import { View, type GestureResponderEvent } from "react-native";
-import { useReducedMotion } from "react-native-reanimated";
 import * as THREE from "three";
 
+import { useReduceMotion } from "@/core/preferences";
 import { quietPixelStorei } from "@/components/three/expoGl";
 import colors from "@/theme/colors";
 import type { BadgeTier } from "../model/Achievement";
@@ -35,7 +35,7 @@ type MedalCanvasProps = {
 
 /** A metal medal you can spin with a finger; it keeps turning slowly on its own. */
 export function MedalCanvas({ tier, locked }: MedalCanvasProps) {
-  const reduceMotion = useReducedMotion();
+  const reduceMotion = useReduceMotion();
   const spinRef = useRef<Spin>({
     dragging: false,
     pending: 0,
