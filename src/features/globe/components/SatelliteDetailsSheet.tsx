@@ -3,6 +3,7 @@ import Animated, { FadeInDown, FadeOutDown } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { Button } from "@/components/ui/Button";
+import { FormMessage } from "@/components/ui/FormMessage";
 import { IconButton } from "@/components/ui/IconButton";
 import { ScrambleText } from "@/components/ui/ScrambleText";
 import { Stat } from "@/components/ui/Stat";
@@ -100,14 +101,9 @@ export function SatelliteDetailsSheet({
             className="mt-4"
           />
 
-          {trackingError && (
-            <Text
-              accessibilityRole="alert"
-              className="mt-2 text-xs text-danger"
-            >
-              {trackingError}
-            </Text>
-          )}
+          <FormMessage size="xs" className="mt-2">
+            {trackingError}
+          </FormMessage>
         </View>
       </SafeAreaView>
     </Animated.View>

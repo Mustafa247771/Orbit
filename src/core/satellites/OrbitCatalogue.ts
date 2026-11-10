@@ -1,11 +1,12 @@
-import { eciToScene } from "@/core/orbit/frames";
+import { eciAxesToScene, eciToScene } from "@/core/orbit/frames";
 import {
-    fromSatelliteElements,
-    stateEci,
-    type TrackedSatellite,
+  fromSatelliteElements,
+  positionEci,
+  stateEci,
+  type TrackedSatellite,
 } from "@/core/orbit/propagate";
 import type { Vec3 } from "@/core/orbit/types";
-import type { CatalogueObject } from "./CatalogueRepository";
+import type { CatalogueObject } from "@/core/satellites/catalogueTypes";
 
 export type SceneState = {
   position: Vec3;
@@ -50,5 +51,17 @@ export class OrbitCatalogue {
       position: eciToScene(state.position),
       velocity: eciToScene(state.velocity),
     };
+  }
+
+  scenePosition(id: number, date: Date): Vec3 | null {
+    const orbit = this.get(id);
+    const position = orbit ? positionEci(orbit.satrec, date) : null;
+    return position ? eciToScene(position) : null;
+  }
+
+  sceneVelocity(id: number, date: Date): Vec3 | null {
+    const orbit = this.get(id);
+    const state = orbit ? stateEci(orbit.satrec, date) : null;
+    return state ? eciAxesToScene(state.velocity) : null;
   }
 }

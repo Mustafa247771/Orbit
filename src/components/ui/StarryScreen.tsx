@@ -77,6 +77,7 @@ export function StarryScreen({
         refreshControl={refreshControl}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
+        automaticallyAdjustKeyboardInsets
         contentContainerStyle={{
           paddingTop: edgeToEdge ? 0 : insets.top,
           paddingBottom: insets.bottom + 120,

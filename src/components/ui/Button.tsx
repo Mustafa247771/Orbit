@@ -37,6 +37,7 @@ const SIZES = {
 
 type ButtonProps = {
   label: string;
+  accessibilityLabel?: string;
   onPress: () => void;
   icon?: IconName;
   /** solid: filled, outline: bordered, ghost: text only. */
@@ -51,6 +52,7 @@ type ButtonProps = {
 
 export function Button({
   label,
+  accessibilityLabel,
   onPress,
   icon,
   variant = "solid",
@@ -75,6 +77,7 @@ export function Button({
       onPress={onPress}
       disabled={inactive}
       accessibilityRole="button"
+      accessibilityLabel={accessibilityLabel}
       accessibilityState={{ disabled: inactive, busy: loading }}
       className={`flex-row items-center justify-center gap-2 rounded-full active:opacity-60 ${SIZES[size]} ${box} ${disabled && !loading ? "opacity-40" : ""} ${className}`}
     >

@@ -1,54 +1,19 @@
-import { File, Paths } from "expo-file-system";
-import type { CatalogueObject } from "./CatalogueRepository";
+import { readJson, writeJson } from "@/core/storage/jsonFile";
+import type { CatalogueMode } from "./catalogueFilters";
 import { isRecord } from "./SatelliteData";
 
-export type CatalogueMode = "all" | "bright" | "tracked";
+const FILE_NAME = "satellite-tracking.json";
 
 export type TrackingPreferences = {
   mode: CatalogueMode | null;
   trackedIds: number[];
 };
 
-export const CATALOGUE_MODES = [
-  { value: "all", label: "All available" },
-  { value: "bright", label: "Bright" },
-  { value: "tracked", label: "Tracked" },
-] as const;
-
-export function matchesMode(
-  id: number,
-  mode: CatalogueMode | null,
-  tracked: ReadonlySet<number>,
-  bright: ReadonlySet<number>,
-) {
-  return (
-    mode === "all" ||
-    (mode === "bright" && bright.has(id)) ||
-    (mode === "tracked" && tracked.has(id))
-  );
-}
-
-export function searchCatalogue(objects: CatalogueObject[], query: string) {
-  const normalized = query.trim().toLowerCase();
-
-  return normalized
-    ? objects
-        .filter(
-          (item) =>
-            item.name.toLowerCase().includes(normalized) ||
-            String(item.id).includes(normalized),
-        )
-        .slice(0, 50)
-    : [];
-}
-
 export class TrackingRepository {
   async read(): Promise<TrackingPreferences> {
-    const file = new File(Paths.document, "satellite-tracking.json");
+    const value = await readJson(FILE_NAME);
 
-    if (!file.exists) return { mode: null, trackedIds: [] };
-
-    const value: unknown = JSON.parse(await file.text());
+    if (value === null) return { mode: null, trackedIds: [] };
 
     if (
       !isRecord(value) ||
@@ -65,23 +30,11 @@ export class TrackingRepository {
         typeof id === "number" && Number.isSafeInteger(id) && id > 0,
     );
 
-    return {
-      mode: value.mode,
-      trackedIds: [...new Set(trackedIds)],
-    };
+    return { mode: value.mode, trackedIds: [...new Set(trackedIds)] };
   }
 
-  async write(value: TrackingPreferences): Promise<void> {
-    const file = new File(Paths.document, "satellite-tracking.json");
-    const temporary = new File(Paths.document, "satellite-tracking.tmp.json");
-
-    temporary.create({
-      overwrite: true,
-      intermediates: true,
-    });
-
-    await temporary.write(JSON.stringify(value));
-    await temporary.move(file, { overwrite: true });
+  write(value: TrackingPreferences): Promise<void> {
+    return writeJson(FILE_NAME, value);
   }
 }
 

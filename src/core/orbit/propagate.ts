@@ -1,16 +1,10 @@
-import {
-  json2satrec,
-  propagate,
-  twoline2satrec,
-  type SatRec,
-} from "satellite.js";
+import { json2satrec, propagate, type SatRec } from "satellite.js";
 
 import {
   satelliteFamily,
   type SatelliteFamily,
 } from "@/core/satellites/family";
 import type { SatelliteElements } from "@/core/satellites/SatelliteData";
-import type { SatelliteTle } from "@/core/satellites/types";
 import type { Vec3 } from "./types";
 
 export type TrackedSatellite = {
@@ -22,17 +16,6 @@ export type TrackedSatellite = {
 };
 
 export type StateEci = { position: Vec3; velocity: Vec3 };
-
-export function toTrackedSatellite(tle: SatelliteTle): TrackedSatellite {
-  const revolutionsPerDay = Number(tle.line2.substring(52, 63));
-  return {
-    id: tle.noradId,
-    name: tle.name,
-    satrec: twoline2satrec(tle.line1, tle.line2),
-    family: satelliteFamily(tle.name),
-    periodMinutes: 1440 / revolutionsPerDay,
-  };
-}
 
 export function fromSatelliteElements(
   elements: SatelliteElements,

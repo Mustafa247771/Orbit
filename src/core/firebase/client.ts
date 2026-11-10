@@ -2,6 +2,8 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getApp, getApps, initializeApp, type FirebaseApp } from "firebase/app";
 import * as FirebaseAuth from "firebase/auth";
 
+import { errorCode } from "@/features/auth/model/authErrors";
+
 // Firebase exposes this function in its native bundle, but omits it from
 // the shared TypeScript declarations. Keep that typing bridge local.
 const { getReactNativePersistence } = FirebaseAuth as typeof FirebaseAuth & {
@@ -47,12 +49,7 @@ export function getFirebaseAuth(): FirebaseAuth.Auth {
     });
   } catch (error) {
     // Fast Refresh can reuse an Auth instance from the previous module.
-    if (
-      typeof error === "object" &&
-      error !== null &&
-      "code" in error &&
-      error.code === "auth/already-initialized"
-    ) {
+    if (errorCode(error) === "auth/already-initialized") {
       auth = FirebaseAuth.getAuth(firebaseApp);
     } else {
       throw error;

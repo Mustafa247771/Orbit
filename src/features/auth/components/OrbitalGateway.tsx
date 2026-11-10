@@ -1,15 +1,9 @@
 /* eslint-disable react/no-unknown-property */
 import { Canvas, useFrame, useThree } from "@react-three/fiber/native";
 import { useEffect, useMemo, useRef, useState, type RefObject } from "react";
-import {
-  AppState,
-  StyleSheet,
-  View,
-  type StyleProp,
-  type ViewStyle,
-} from "react-native";
-import { useReducedMotion } from "react-native-reanimated";
+import { AppState, View } from "react-native";
 
+import { useReduceMotion } from "@/core/preferences";
 import { quietPixelStorei } from "@/components/three/expoGl";
 import colors from "@/theme/colors";
 import {
@@ -20,13 +14,13 @@ import {
 } from "./gatewayScene";
 
 type Props = {
-  height?: number;
   still?: boolean;
-  style?: StyleProp<ViewStyle>;
+  /** Size and position, e.g. "absolute inset-0". */
+  className?: string;
 };
 
-export function OrbitalGateway({ height, still = false, style }: Props) {
-  const reduceMotion = useReducedMotion();
+export function OrbitalGateway({ still = false, className = "" }: Props) {
+  const reduceMotion = useReduceMotion();
   const [foreground, setForeground] = useState(
     () =>
       AppState.currentState !== "background" &&
@@ -38,7 +32,7 @@ export function OrbitalGateway({ height, still = false, style }: Props) {
     dragging: false,
     pulse: 0,
   });
-  const size = useRef({ width: 1, height: height ?? 1 });
+  const size = useRef({ width: 1, height: 1 });
   const invalidate = useRef<(() => void) | null>(null);
   const paused = still || reduceMotion;
 
@@ -55,15 +49,7 @@ export function OrbitalGateway({ height, still = false, style }: Props) {
 
   return (
     <View
-      style={[
-        {
-          height,
-          flex: height === undefined ? 1 : undefined,
-          backgroundColor: colors.space,
-          overflow: "hidden",
-        },
-        style,
-      ]}
+      className={`overflow-hidden bg-space ${className}`}
       onLayout={({ nativeEvent }) => {
         size.current = {
           width: Math.max(1, nativeEvent.layout.width),
@@ -73,7 +59,7 @@ export function OrbitalGateway({ height, still = false, style }: Props) {
       accessibilityElementsHidden
       importantForAccessibility="no-hide-descendants"
     >
-      <View pointerEvents="none" style={StyleSheet.absoluteFill}>
+      <View pointerEvents="none" className="absolute inset-0">
         <Canvas
           flat
           gl={{ antialias: false, alpha: false, depth: false, stencil: false }}
@@ -89,7 +75,7 @@ export function OrbitalGateway({ height, still = false, style }: Props) {
         </Canvas>
       </View>
       <View
-        style={StyleSheet.absoluteFill}
+        className="absolute inset-0"
         onStartShouldSetResponder={() => true}
         onMoveShouldSetResponder={() => true}
         onResponderGrant={({ nativeEvent }) => {

@@ -1,3 +1,4 @@
+import { formatDistance, formatSpeed, type DevicePreferences } from "@/core/preferences";
 import type { SatelliteDetails } from "@/core/orbit/details";
 
 export type SatelliteDetailsView = {
@@ -11,17 +12,19 @@ export type SatelliteDetailsView = {
   period: string;
 };
 
-const grouped = (value: number) => Math.round(value).toLocaleString("en-US");
 const degrees = (value: number, positive: string, negative: string) =>
   `${Math.abs(value).toFixed(2)}° ${value >= 0 ? positive : negative}`;
 
-export function formatDetails(details: SatelliteDetails): SatelliteDetailsView {
+export function formatDetails(
+  details: SatelliteDetails,
+  units: DevicePreferences["units"] = "metric",
+): SatelliteDetailsView {
   return {
     id: details.noradId,
     name: details.name,
     noradId: String(details.noradId),
-    altitude: `${grouped(details.altitudeKm)} km`,
-    speed: `${grouped(details.speedKmh)} km/h`,
+    altitude: formatDistance(details.altitudeKm, units),
+    speed: formatSpeed(details.speedKmh, units),
     latitude: degrees(details.latitude, "N", "S"),
     longitude: degrees(details.longitude, "E", "W"),
     period: `${details.periodMinutes.toFixed(1)} min`,

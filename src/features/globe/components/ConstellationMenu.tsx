@@ -1,4 +1,4 @@
-import * as Haptics from "expo-haptics";
+import { selectionHaptic } from "@/core/preferences";
 import { router, type Href } from "expo-router";
 import { useEffect, useMemo } from "react";
 import { Pressable, Text, View, useWindowDimensions } from "react-native";
@@ -153,7 +153,7 @@ function ChartStar({
   }));
 
   const go = () => {
-    Haptics.selectionAsync();
+    selectionHaptic();
     router.push(item.href);
   };
 

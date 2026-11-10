@@ -36,20 +36,26 @@ const MESSAGES: Record<string, string> = {
   "auth/user-disabled":
     "This account has been disabled. Please contact support.",
   "auth/requires-recent-login": "Please sign in again to continue.",
+  "auth/user-mismatch":
+    "That sign-in belongs to a different account. Use the account you are signed in with.",
+  "auth/user-token-expired":
+    "Your session has expired. Please sign out, log in again and retry.",
+  "auth/credential-already-in-use":
+    "That sign-in is already linked to another account.",
 };
 
-export function authErrorMessage(error: unknown): string {
-  const code =
-    typeof error === "object" &&
+export function errorCode(error: unknown): string {
+  return typeof error === "object" &&
     error !== null &&
     "code" in error &&
     typeof error.code === "string"
-      ? error.code
-      : "";
+    ? error.code
+    : "";
+}
 
-  const message = MESSAGES[code];
-
-  return typeof message === "string"
-    ? message
-    : "We could not complete that request. Please try again.";
+export function authErrorMessage(error: unknown): string {
+  return (
+    MESSAGES[errorCode(error)] ??
+    "We could not complete that request. Please try again."
+  );
 }

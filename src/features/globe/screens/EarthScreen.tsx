@@ -8,14 +8,16 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Button } from "@/components/ui/Button";
 import { CameraRig } from "../components/CameraRig";
 import { CAMERA_FOV, START_DISTANCE } from "../components/cameraSettings";
+import { CatalogueModePicker } from "../components/CatalogueModePicker";
 import { ConstellationMenu } from "../components/ConstellationMenu";
 import { Earth } from "../components/Earth";
 import { FocusedSatellite } from "../components/FocusedSatellite";
 import { GlobeHeader } from "../components/GlobeHeader";
 import { MenuButton } from "../components/MenuButton";
 import { Moon } from "../components/Moon";
+import { ObjectSearchSheet } from "../components/ObjectSearchSheet";
 import { OrbitPath } from "../components/OrbitPath";
-import { SatelliteBrowser } from "../components/SatelliteBrowser";
+import { OrbitalViewPrompt } from "../components/OrbitalViewPrompt";
 import { SatelliteCloud } from "../components/SatelliteCloud";
 import { SatelliteDetailsSheet } from "../components/SatelliteDetailsSheet";
 import { ShootingStar } from "../components/ShootingStar";
@@ -55,7 +57,8 @@ export default function EarthScreen() {
 
         <CameraRig
           selectedId={vm.selectedId}
-          getSatellitePosition={vm.getSatellitePosition}
+          orbitCatalogue={vm.orbitCatalogue}
+          getDate={vm.getDate}
           menuOpen={vm.menuOpen}
         />
 
@@ -88,8 +91,8 @@ export default function EarthScreen() {
               key={vm.selected.id}
               id={vm.selected.id}
               family={vm.selected.family}
-              getPosition={vm.getSatellitePosition}
-              getVelocity={vm.getSatelliteVelocity}
+              orbitCatalogue={vm.orbitCatalogue}
+              getDate={vm.getDate}
               getSunDirection={vm.getSunDirection}
             />
           </Suspense>
@@ -107,7 +110,42 @@ export default function EarthScreen() {
         refreshing={vm.refreshing}
         onRetry={vm.retrySatellites}
       >
-        {!vm.selected && <SatelliteBrowser vm={vm} />}
+        {!vm.selected && (
+          <>
+            <CatalogueModePicker
+              mode={vm.catalogueMode}
+              saving={vm.savingTracking}
+              loaded={vm.preferencesLoaded}
+              error={vm.preferenceError}
+              objectCount={vm.satellites.length}
+              missingTracked={vm.missingTracked}
+              refreshing={vm.refreshing}
+              onChangeMode={vm.changeMode}
+              onOpenSearch={() => vm.setSearchOpen(true)}
+              onRetry={vm.retryTracking}
+            />
+            <OrbitalViewPrompt
+              visible={vm.preferencesLoaded && vm.catalogueMode === null}
+              saving={vm.savingTracking}
+              error={vm.preferenceError}
+              onChangeMode={vm.changeMode}
+            />
+            <ObjectSearchSheet
+              visible={vm.searchOpen}
+              query={vm.query}
+              results={vm.searchResults}
+              trackedIds={vm.trackedIds}
+              loaded={vm.preferencesLoaded}
+              saving={vm.savingTracking}
+              refreshing={vm.refreshing}
+              error={vm.preferenceError}
+              onClose={() => vm.setSearchOpen(false)}
+              onChangeQuery={vm.setQuery}
+              onSelect={vm.selectFromSearch}
+              onToggleTracked={vm.toggleTracked}
+            />
+          </>
+        )}
       </GlobeHeader>
 
       {vm.details && vm.selected && (
