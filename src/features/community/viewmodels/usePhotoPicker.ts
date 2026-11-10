@@ -2,7 +2,7 @@ import * as ImagePicker from "expo-image-picker";
 import { useCallback, useState, type RefObject } from "react";
 
 import { communityErrorMessage } from "../model/communityErrors";
-import { MAX_PHOTO_BYTES } from "../model/PhotoUploader";
+import { MAX_PHOTO_BYTES } from "@/core/media/PhotoUploader";
 
 export function usePhotoPicker(
   busyRef: RefObject<boolean>,

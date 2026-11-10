@@ -1,104 +1,95 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { usingDemoKey } from "../model/ApodService";
+import { useApodActions } from "./useApodActions";
+import { useApodDay } from "./useApodDay";
+import { useApodFavorites } from "./useApodFavorites";
+import { useApodWeek } from "./useApodWeek";
 
-import { nasaImageService } from "../model/NasaImageService";
-import type { SpacePicture } from "../model/SpacePicture";
-
-const DAILY_TOPICS = [
-  "nebula",
-  "galaxy",
-  "aurora",
-  "saturn",
-  "jupiter",
-  "star cluster",
-  "earth from space",
-];
-const ARCHIVE_SIZE = 8;
-const DAY_MS = 86_400_000;
-// The strip shows six days with today fourth, so two upcoming days sit after it.
-const STRIP_DAYS = 6;
-const TODAY_INDEX = 3;
-
-export type StripDay = {
-  key: string;
-  day: number;
-  today: boolean;
-  future: boolean;
-};
-
-function dayOfYear(date: Date) {
-  const startOfYear = new Date(date.getFullYear(), 0, 0);
-  return Math.floor((date.getTime() - startOfYear.getTime()) / DAY_MS);
-}
-
+/** Everything the APOD screen needs, as slices that match the components' props. */
 export function useApodViewModel() {
-  const [today] = useState(() => new Date());
-  const topic = DAILY_TOPICS[dayOfYear(today) % DAILY_TOPICS.length];
+  const day = useApodDay();
+  const week = useApodWeek(day.selected, day.today, day.entry?.date ?? null);
+  const favorites = useApodFavorites();
+  const actions = useApodActions(day.entry);
 
-  const [pictures, setPictures] = useState<SpacePicture[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  const load = useCallback(
-    () =>
-      nasaImageService
-        .search(topic)
-        .then(
-          (results) => {
-            setPictures(results);
-            setError(null);
-          },
-          (caught: unknown) => {
-            setError(
-              caught instanceof Error
-                ? caught.message
-                : "NASA pictures are unavailable.",
-            );
-          },
-        )
-        .finally(() => setLoading(false)),
-    [topic],
-  );
-
-  useEffect(() => {
-    load();
-  }, [load]);
-
-  const retry = useCallback(() => {
-    setLoading(true);
-    load();
-  }, [load]);
-
-  const archive = useMemo(
-    () => pictures.slice(1, ARCHIVE_SIZE + 1),
-    [pictures],
-  );
-
-  const days = useMemo<StripDay[]>(
-    () =>
-      Array.from({ length: STRIP_DAYS }, (_, index) => {
-        const date = new Date(
-          today.getFullYear(),
-          today.getMonth(),
-          today.getDate() + index - TODAY_INDEX,
-        );
-        return {
-          key: date.toDateString(),
-          day: date.getDate(),
-          today: index === TODAY_INDEX,
-          future: index > TODAY_INDEX,
-        };
-      }),
-    [today],
-  );
+  const selectSaved = (date: string) => {
+    actions.closeSaved();
+    day.goToDate(date);
+  };
 
   return {
-    loading,
-    error,
-    retry,
-    picture: pictures[0] ?? null,
-    archive,
-    days,
-    month: today.toLocaleDateString([], { month: "long" }),
-    year: String(today.getFullYear()),
+    status: {
+      loading: day.loading,
+      error: day.emptyError,
+      retry: () => {
+        day.retry();
+        week.reload(true);
+      },
+    },
+    refresh: {
+      refreshing: day.refreshing,
+      onRefresh: () => {
+        day.refresh();
+        week.reload(true);
+      },
+    },
+    notices: {
+      fallback: day.fallbackNotice,
+      cached: day.notice,
+      date: day.dateError,
+      action: actions.error,
+      favorites: favorites.error,
+      favoritesSoft: favorites.notice,
+    },
+    openSaved: actions.openSaved,
+    strip: {
+      days: week.days,
+      selected: day.selected,
+      today: day.today,
+      onSelect: day.goToDate,
+      onOpenPicker: actions.openPicker,
+      onPrev: day.goPrevious,
+      onNext: day.goNext,
+    },
+    hero: {
+      entry: day.entry,
+      loading: day.loading,
+      source: day.source ?? "live",
+      saved: day.entry ? favorites.isSaved(day.entry.date) : false,
+      busy: favorites.loading,
+      onExpand: actions.openViewer,
+      onWatch: actions.watch,
+      onToggleFavorite: () => {
+        if (day.entry) favorites.toggle(day.entry);
+      },
+      onShare: actions.share,
+    },
+    details: {
+      archive: week.archive,
+      savedCount: favorites.savedCount,
+      onOpenStory: actions.openStory,
+      onSelectDay: day.goToDate,
+      onOpenSaved: actions.openSaved,
+    },
+    viewer: {
+      visible: actions.viewerVisible,
+      entry: day.entry,
+      onClose: actions.closeViewer,
+    },
+    picker: {
+      visible: actions.pickerVisible,
+      selected: day.selected,
+      today: day.today,
+      onPick: day.goToDate,
+      onClose: actions.closePicker,
+    },
+    saved: {
+      visible: actions.savedVisible,
+      items: favorites.items,
+      onSelect: selectSaved,
+      onRemove: favorites.remove,
+      onClose: actions.closeSaved,
+      error: favorites.error,
+    },
+    demoKey: usingDemoKey(),
   };
 }

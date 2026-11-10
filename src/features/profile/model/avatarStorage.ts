@@ -1,23 +1,16 @@
-import { Directory, File, Paths } from "expo-file-system";
+import { File } from "expo-file-system";
 
-const avatarDirectory = new Directory(Paths.document, "avatars");
-
-/** Copies a picked photo into the app's own storage and returns its new uri. */
-export async function saveAvatar(
-  uid: string,
-  sourceUri: string,
-): Promise<string> {
-  if (!avatarDirectory.exists) {
-    avatarDirectory.create({ idempotent: true, intermediates: true });
-  }
-  const stored = new File(avatarDirectory, `${uid}-${Date.now()}.jpg`);
-  await new File(sourceUri).copy(stored);
-  return stored.uri;
+/** True for a photo stored on this phone (older versions kept avatars locally). */
+export function isLocalAvatar(uri: string | null): uri is string {
+  return !!uri && !/^https?:\/\//i.test(uri);
 }
 
-/** Removes an old avatar file. Never throws. */
+/**
+ * Removes an old avatar file from this phone. Never throws, and ignores
+ * account photos hosted online (unsigned uploads cannot be deleted from there).
+ */
 export function deleteAvatar(uri: string | null) {
-  if (!uri) return;
+  if (!isLocalAvatar(uri)) return;
   try {
     const file = new File(uri);
     if (file.exists) file.delete();

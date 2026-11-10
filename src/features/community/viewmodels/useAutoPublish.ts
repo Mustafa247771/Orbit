@@ -5,7 +5,7 @@ import { sightingRepository } from "@/features/sightings/model/LocalSightingRepo
 import { communityErrorMessage } from "../model/communityErrors";
 import { communityRepository } from "../model/communityRepository";
 import type { AuthorSnapshot, CommunityPost } from "../model/communityTypes";
-import { photoUploadAvailable, uploadPostPhoto } from "../model/PhotoUploader";
+import { photoUploadAvailable, uploadPhoto } from "@/core/media/PhotoUploader";
 import { validatePostDraft } from "../model/postValidation";
 import { markPublished, unpublishedSightings } from "../model/publishLedger";
 import { sightingToPostDraft } from "../model/sightingToPostDraft";
@@ -20,6 +20,7 @@ async function publishSightings(author: AuthorSnapshot): Promise<Published> {
   let failed = 0;
   let invalid = 0;
   let missingSettings = false;
+  let uploadFailure: string | null = null;
   try {
     const sightings = await unpublishedSightings(author.uid, await sightingRepository.list());
     for (const sighting of sightings) {
@@ -33,7 +34,17 @@ async function publishSightings(author: AuthorSnapshot): Promise<Published> {
           missingSettings = true;
           continue;
         }
-        const photoUrl = photoUri ? await uploadPostPhoto(photoUri) : null;
+        let photoUrl: string | null = null;
+        if (photoUri) {
+          try {
+            photoUrl = await uploadPhoto(photoUri, { folder: "orbit/community" });
+          } catch (failure) {
+            // Stay out of the ledger so the next focus retries this sighting.
+            uploadFailure ??=
+              failure instanceof Error ? failure.message : "Photo upload failed. Try again.";
+            continue;
+          }
+        }
         const post = await communityRepository.createPost(
           author,
           { ...draft, photoUrl },
@@ -50,6 +61,7 @@ async function publishSightings(author: AuthorSnapshot): Promise<Published> {
     return { posts, notice: communityErrorMessage(failure) };
   }
   const notices = [
+    uploadFailure,
     missingSettings ? "Add your Cloudinary settings to share photo sightings." : null,
     failed
       ? `${failed} ${failed === 1 ? "sighting couldn't" : "sightings couldn't"} be shared. Try again.`

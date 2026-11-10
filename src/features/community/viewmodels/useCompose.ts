@@ -4,7 +4,7 @@ import type { SavedLocation } from "@/features/profile/model/Profile";
 import { communityErrorMessage } from "../model/communityErrors";
 import { communityRepository } from "../model/communityRepository";
 import type { AuthorSnapshot, CommunityPost, PostDraft } from "../model/communityTypes";
-import { MAX_PHOTO_BYTES, photoUploadAvailable, uploadPostPhoto } from "../model/PhotoUploader";
+import { MAX_PHOTO_BYTES, photoUploadAvailable, uploadPhoto } from "@/core/media/PhotoUploader";
 import {
   canPostAgain,
   POST_COOLDOWN_MS,
@@ -108,8 +108,15 @@ export function useCompose(
     guard.current = true;
     setBusy(true);
     try {
-      if (asset && !current.photoUrl)
-        current.photoUrl = await uploadPostPhoto(asset.uri, asset.fileSize);
+      if (asset && !current.photoUrl) {
+        try {
+          current.photoUrl = await uploadPhoto(asset.uri, { folder: "orbit/community", fileSize: asset.fileSize });
+        } catch (failure) {
+          if (token === generationRef.current)
+            setError(failure instanceof Error ? failure.message : "Photo upload failed. Try again.");
+          return;
+        }
+      }
       if (token !== generationRef.current) return;
       const post = await communityRepository.createPost(
         author,

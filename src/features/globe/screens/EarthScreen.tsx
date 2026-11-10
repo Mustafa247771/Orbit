@@ -117,6 +117,7 @@ export default function EarthScreen() {
               saving={vm.savingTracking}
               loaded={vm.preferencesLoaded}
               error={vm.preferenceError}
+              notice={vm.trackingNotice}
               objectCount={vm.satellites.length}
               missingTracked={vm.missingTracked}
               refreshing={vm.refreshing}

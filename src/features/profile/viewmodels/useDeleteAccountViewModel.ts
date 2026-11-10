@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
 
+import { deleteAccountDocs } from "@/core/storage/cloudDoc";
 import { authErrorMessage, errorCode } from "@/features/auth/model/authErrors";
 import {
   deleteAccount,
@@ -8,10 +9,15 @@ import {
   signInMethod,
 } from "@/features/auth/model/AuthService";
 import { useAuthSession } from "@/features/auth/viewmodels/AuthProvider";
+import { removeLegacyFavorites } from "@/features/apod/model/ApodFavoritesRepository";
 import { deleteAvatar } from "../model/avatarStorage";
 import { useAccountProfile } from "./ProfileProvider";
 
 const CONFIRM_WORD = "DELETE";
+// Account documents removed with the account (every signed-in feature that syncs).
+const ACCOUNT_DOCS = ["profile", "apodFavorites", "tracking"];
+const DOCS_FAILED =
+  "We could not remove your saved data, so your account was not deleted. Check your connection and try again.";
 
 const WRONG_PASSWORD_CODES = ["auth/invalid-credential", "auth/wrong-password"];
 
@@ -91,9 +97,17 @@ export function useDeleteAccountViewModel() {
 
       const uid = user.uid;
       const photoUri = profile?.photoUri ?? null;
+      // Firestore rules need the user signed in, so the data goes first. If it
+      // cannot be removed, stop and keep the account so nothing is orphaned.
+      const removed = await deleteAccountDocs(uid, ACCOUNT_DOCS);
+      if (removed.error) {
+        setError(DOCS_FAILED);
+        return;
+      }
       await deleteAccount();
       // Cleanup comes after the account is gone, so a failure here is ignored.
       await purge(uid).catch(() => undefined);
+      await removeLegacyFavorites(uid);
       deleteAvatar(photoUri);
       // The root route guard leaves the profile screen once auth state is null.
     } catch (failure) {

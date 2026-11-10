@@ -1,3 +1,5 @@
+import * as Notifications from "expo-notifications";
+import { router } from "expo-router";
 import { useEffect } from "react";
 import { AppState, Platform } from "react-native";
 
@@ -9,6 +11,10 @@ import {
   cancelAppNotifications,
   syncNotifications,
 } from "./NotificationService";
+import {
+  type NotificationTarget,
+  notificationTarget,
+} from "./notificationTarget";
 
 export function useNotificationSync() {
   const uid = useAuthSession().user?.uid ?? null;
@@ -57,7 +63,37 @@ export function useNotificationSync() {
   }, [uid, launchReminders, dailyPicture, leadMinutes]);
 }
 
+let handledResponseKey: string | null = null;
+let pendingHref: NotificationTarget | null = null;
+
+function useNotificationTap() {
+  const { ready, canAccessAccount } = useAuthSession();
+  const response = Notifications.useLastNotificationResponse();
+
+  useEffect(() => {
+    if (Platform.OS === "web") return;
+    if (response) {
+      const key = `${response.notification.request.identifier}:${response.notification.date}`;
+      if (handledResponseKey !== key) {
+        handledResponseKey = key;
+        if (
+          response.actionIdentifier === Notifications.DEFAULT_ACTION_IDENTIFIER
+        ) {
+          pendingHref = notificationTarget(
+            response.notification.request.content.data,
+          );
+        }
+      }
+    }
+    if (!pendingHref || !ready || !canAccessAccount) return;
+    const href = pendingHref;
+    pendingHref = null;
+    router.navigate(href);
+  }, [response, ready, canAccessAccount]);
+}
+
 export function NotificationSync() {
   useNotificationSync();
+  useNotificationTap();
   return null;
 }

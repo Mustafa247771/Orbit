@@ -14,6 +14,7 @@ type CatalogueModePickerProps = {
   saving: boolean;
   loaded: boolean;
   error: string | null;
+  notice?: string | null;
   objectCount: number;
   missingTracked: number;
   refreshing: boolean;
@@ -27,6 +28,7 @@ export function CatalogueModePicker({
   saving,
   loaded,
   error,
+  notice,
   objectCount,
   missingTracked,
   refreshing,
@@ -58,6 +60,11 @@ export function CatalogueModePicker({
         Green: satellites · Gold: rocket bodies · Pink: debris · Grey: unknown
       </Text>
 
+      {!error && notice && (
+        <FormMessage tone="gold" size="xs" className="mt-2">
+          {notice}
+        </FormMessage>
+      )}
       {error && (
         <View className="mt-2 gap-2">
           <FormMessage size="xs">{error}</FormMessage>

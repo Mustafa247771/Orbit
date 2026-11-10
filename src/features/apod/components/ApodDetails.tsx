@@ -1,126 +1,141 @@
 import { Image } from "expo-image";
+import { useState } from "react";
 import { Pressable, Text, View } from "react-native";
 
+import { Button } from "@/components/ui/Button";
+import { Card } from "@/components/ui/Card";
 import { Icon } from "@/components/ui/Icon";
-import { Footnote } from "@/components/ui/Footnote";
 import { Label } from "@/components/ui/Label";
+import { useReduceMotion } from "@/core/preferences";
 import colors from "@/theme/colors";
-import type { SpacePicture } from "../model/SpacePicture";
+import type { ApodEntry } from "../model/Apod";
 
-function ArchiveImage({
-  photo,
-  wide = false,
+export type ApodDetailsProps = {
+  entry: ApodEntry;
+  archive: readonly ApodEntry[];
+  savedCount: number;
+  onOpenStory: () => void;
+  onSelectDay: (date: string) => void;
+  onOpenSaved: () => void;
+};
+
+function ArchiveCard({
+  entry,
+  onSelect,
 }: {
-  photo: SpacePicture;
-  wide?: boolean;
+  entry: ApodEntry;
+  onSelect: () => void;
 }) {
+  const [failed, setFailed] = useState(false);
+  const reduceMotion = useReduceMotion();
+  const uri = entry.thumbnailUrl ?? entry.imageUrl;
   return (
-    <View className={wide ? "w-full" : "flex-1"}>
-      <View
-        className={
-          wide
-            ? "h-[180px] overflow-hidden rounded"
-            : "h-[155px] overflow-hidden rounded"
-        }
-      >
-        <Image
-          source={{ uri: photo.thumbnailUrl }}
-          contentFit="cover"
-          accessibilityLabel={photo.title}
-          className="h-full w-full"
-        />
-      </View>
-
-      <View className="mt-2.5 flex-row items-center justify-between gap-1">
-        <Text numberOfLines={1} className="flex-1 text-[10px] text-pale">
-          {photo.title}
-        </Text>
-        <Text className="text-[9px] text-mist">{photo.year}</Text>
-      </View>
-    </View>
+    <Pressable
+      onPress={onSelect}
+      accessibilityRole="button"
+      accessibilityLabel={`Explore ${entry.date}: ${entry.title}`}
+      className="mb-3 active:opacity-60"
+    >
+      <Card>
+        <View>
+          <View className="h-40 items-center justify-center bg-shade">
+            {uri && !failed ? (
+              <Image
+                source={{ uri }}
+                contentFit="cover"
+                transition={reduceMotion ? 0 : 150}
+                accessibilityLabel={entry.title}
+                className="h-full w-full"
+                onError={() => setFailed(true)}
+              />
+            ) : (
+              <Icon name="photo" size={28} color={colors.muted} />
+            )}
+          </View>
+          <View className="gap-2 p-4">
+            <Label>{entry.date}</Label>
+            <Text numberOfLines={2} className="font-display text-lg text-ink">
+              {entry.title}
+            </Text>
+            <Label tone="cyan">Explore day ↗</Label>
+          </View>
+        </View>
+      </Card>
+    </Pressable>
   );
 }
 
-type ApodDetailsProps = {
-  picture: SpacePicture;
-  archive: readonly SpacePicture[];
-};
-
-export function ApodDetails({ picture, archive }: ApodDetailsProps) {
+export function ApodDetails({
+  entry,
+  archive,
+  savedCount,
+  onOpenStory,
+  onSelectDay,
+  onOpenSaved,
+}: ApodDetailsProps) {
   return (
-    <>
-      <View className="mx-6 mt-8 border-y border-edge-dim px-3 py-7">
-        <Label>Inside the image</Label>
-
+    <View className="px-6">
+      <View className="mt-8 gap-4 border-y border-edge-dim py-7">
+        <Label>Inside the discovery</Label>
         <Text
           accessibilityRole="header"
-          className="mt-4 font-display text-[29px] leading-[33px] tracking-[-1px] text-ink"
+          className="font-display text-[29px] leading-[33px] text-ink"
         >
-          About this picture
+          About this discovery
         </Text>
-        <Text className="mt-4 text-[13px] leading-[24px] text-haze">
-          {picture.description ||
-            "NASA has not supplied a description for this image."}
+        <Text selectable className="text-sm leading-6 text-haze">
+          {entry.explanation ||
+            "NASA has not supplied an explanation for this discovery."}
         </Text>
-
-        <Pressable
-          disabled
-          className="mt-3 min-h-[44px] flex-row items-center gap-3"
+        <Text
+          selectable
+          className="text-xs leading-5 text-muted"
+        >{`Credit: ${entry.copyright ?? "NASA / APOD"}`}</Text>
+        <Button
+          label="Read the full story"
+          variant="ghost"
+          tone="cyan"
+          icon="open"
+          onPress={onOpenStory}
+        />
+      </View>
+      <View className="mt-8 gap-2">
+        <Label>Keep exploring</Label>
+        <Text
+          accessibilityRole="header"
+          className="mb-3 font-display text-[30px] text-ink"
         >
-          <Text className="text-[12px] text-cyan">Read the full story</Text>
-          <Icon name="open" size={16} color={colors.cyan} />
-        </Pressable>
-
-        <View className="mt-4 flex-row justify-between">
-          <Text className="flex-1 text-[9px] text-dusk">{picture.credit}</Text>
-          <Text className="text-[9px] text-dusk">{picture.year}</Text>
-        </View>
+          The archive.
+        </Text>
+        {archive.map((day) => (
+          <ArchiveCard
+            key={`${day.date}-${day.thumbnailUrl ?? day.imageUrl}`}
+            entry={day}
+            onSelect={() => onSelectDay(day.date)}
+          />
+        ))}
+        {archive.length === 0 ? (
+          <Text className="py-4 text-sm text-muted">
+            Recent discoveries will appear here.
+          </Text>
+        ) : null}
       </View>
-
-      <View className="mt-8 px-6">
-        <View className="mb-5 flex-row items-center justify-between">
-          <View>
-            <Text className="text-[10px] text-haze">Keep exploring</Text>
-            <Text
-              accessibilityRole="header"
-              className="mt-1 font-display text-[30px] tracking-[-1px] text-ink"
-            >
-              The archive.
-            </Text>
-          </View>
-
-          <Pressable
-            disabled
-            accessibilityLabel="View archive"
-            className="h-[44px] w-[44px] items-center justify-center rounded-full border border-edge"
-          >
-            <Icon name="chevron" size={18} color={colors.pale} />
-          </Pressable>
+      <View className="mt-5 flex-row items-center gap-3 border-y border-edge-dim py-6">
+        <Icon name="bookmark" size={23} color={colors.gold} />
+        <View className="flex-1 gap-1">
+          <Text className="font-display text-base text-ink">
+            Saved discoveries
+          </Text>
+          <Text className="text-xs text-muted">{`${savedCount} ${savedCount === 1 ? "discovery" : "discoveries"}`}</Text>
         </View>
-
-        {archive[0] && <ArchiveImage photo={archive[0]} wide />}
-
-        <View className="mt-5 flex-row gap-3">
-          {archive.slice(1, 3).map((photo) => (
-            <ArchiveImage key={photo.id} photo={photo} />
-          ))}
-        </View>
-
-        <View className="mt-8 flex-row items-center gap-4 border-y border-edge-dim py-6">
-          <Icon name="bookmark" size={23} color={colors.gold} />
-          <View className="flex-1">
-            <Text className="font-display text-[13px] text-ink">
-              Your saved discoveries
-            </Text>
-            <Text className="mt-1 text-[10px] text-muted">
-              A small universe of your own.
-            </Text>
-          </View>
-          <Icon name="chevron" size={17} color={colors.mist} />
-        </View>
-
-        <Footnote>NASA imagery · Explored with Orbit</Footnote>
+        <Button
+          label="View"
+          accessibilityLabel={`Open saved discoveries, ${savedCount} saved`}
+          variant="ghost"
+          tone="gold"
+          onPress={onOpenSaved}
+        />
       </View>
-    </>
+    </View>
   );
 }
