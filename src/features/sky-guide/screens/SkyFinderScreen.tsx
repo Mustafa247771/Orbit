@@ -287,7 +287,7 @@ export default function SkyFinderScreen() {
               Alignment vibration
             </Text>
             <Text className="mt-[3px] text-[9px] text-mist">
-              A pulse when the target is centered
+              Vibration intensifies as your phone aligns
             </Text>
           </View>
           <View

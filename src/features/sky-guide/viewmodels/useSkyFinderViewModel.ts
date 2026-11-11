@@ -21,6 +21,7 @@ export function useSkyFinderViewModel() {
   const [sensorState, setSensorState] = useState<SensorState>("checking");
   const [hapticsEnabled, setHapticsEnabled] = useState(true);
   const wasAligned = useRef(false);
+  const lastPulseAt = useRef(0);
 
   useEffect(() => {
     let active = true;
@@ -89,11 +90,21 @@ export function useSkyFinderViewModel() {
   }, [bearing, dataState, sensorState, heading, elevation, aligned, azimuthDifference, elevationDifference]);
 
   useEffect(() => {
-    if (aligned && !wasAligned.current && hapticsEnabled && sensorState === "active") {
+    if (!hapticsEnabled || sensorState !== "active" || !bearing || bearing.elevation < 0 || heading === null || elevation === null) {
+      wasAligned.current = false;
+      return;
+    }
+    const distance = Math.hypot(azimuthDifference, elevationDifference);
+    const at = Date.now();
+    if (aligned && !wasAligned.current) {
+      lastPulseAt.current = at;
       void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => undefined);
+    } else if (!aligned && distance < 35 && at - lastPulseAt.current > (distance < 12 ? 1300 : 3000)) {
+      lastPulseAt.current = at;
+      void Haptics.impactAsync(distance < 12 ? Haptics.ImpactFeedbackStyle.Medium : Haptics.ImpactFeedbackStyle.Light).catch(() => undefined);
     }
     wasAligned.current = aligned;
-  }, [aligned, hapticsEnabled, sensorState]);
+  }, [aligned, hapticsEnabled, sensorState, bearing, heading, elevation, azimuthDifference, elevationDifference]);
 
   return {
     noradId, heading, elevation, bearing, targetName, dataState, sensorState,
