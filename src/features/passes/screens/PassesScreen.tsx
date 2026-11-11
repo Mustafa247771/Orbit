@@ -209,8 +209,8 @@ export default function VisiblePassesScreen() {
           </Text>
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel={`Observing location ${vm.location.label}. Refresh passes`}
-            onPress={() => void vm.refresh()}
+            accessibilityLabel={`Observing location ${vm.location.label}. Change location`}
+            onPress={vm.nextLocation}
             className="mt-[17px] min-h-[45px] flex-row items-center self-start rounded-[22px] border border-edge-bright bg-panel/[0.72] px-[14px] active:scale-[0.985] active:opacity-[0.68]"
           >
             <Text className="mr-[8px] text-[22px] text-cyan">⌾</Text>
@@ -219,6 +219,7 @@ export default function VisiblePassesScreen() {
             </Text>
             <Text className="ml-[9px] text-[15px] text-haze">⌄</Text>
           </Pressable>
+          {vm.locationMessage && <Text className="mt-[8px] text-[10px] text-gold">{vm.locationMessage}</Text>}
         </View>
 
         <LinearGradient
