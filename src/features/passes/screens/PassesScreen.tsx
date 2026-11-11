@@ -125,6 +125,7 @@ export default function VisiblePassesScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const noradId = Number(id) > 0 ? Number(id) : 25544;
   const vm = usePassesViewModel(noradId);
+  const [visibleOnly, setVisibleOnly] = useState(false);
   const [reminderEnabled, setReminderEnabled] = useState(true);
   const [leadMinutes, setLeadMinutes] = useState(10);
   const screenSize = useRef({ height: 1, width: 1 });
@@ -135,6 +136,7 @@ export default function VisiblePassesScreen() {
     vm.next ? Math.max(0, Math.floor((vm.next.startAt - vm.now) / 1000)) : 0,
   );
   const nextDate = vm.next ? new Date(vm.next.startAt) : null;
+  const displayedPasses = visibleOnly ? vm.future.filter((pass) => pass.opticallyVisible) : vm.future;
 
 
   function trackStars(event: GestureResponderEvent | PointerEvent) {
@@ -342,10 +344,11 @@ export default function VisiblePassesScreen() {
           </View>
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel="Pass filters"
+            accessibilityLabel={visibleOnly ? "Show all passes" : "Show only visible passes"}
+            onPress={() => setVisibleOnly((previous) => !previous)}
           >
             <Text className="text-[12px] font-semibold text-cyan">
-              Filter ≡
+              {visibleOnly ? "Visible only ✓" : "Filter ≡"}
             </Text>
           </Pressable>
         </View>
@@ -355,7 +358,10 @@ export default function VisiblePassesScreen() {
         {!vm.loading && vm.passes.length === 0 && (
           <Text className="mx-[26px] mt-[14px] text-[12px] text-haze">No orbital passes could be predicted. Tap the location above to retry.</Text>
         )}
-        {vm.passes.map((pass) => {
+        {!vm.loading && displayedPasses.length === 0 && vm.passes.length > 0 && (
+          <Text className="mx-[26px] mt-[14px] text-[12px] text-haze">No passes meet the darkness, sunlight, and cloud-cover checks. Toggle Filter to see all orbital passes.</Text>
+        )}
+        {displayedPasses.map((pass) => {
           const start = new Date(pass.startAt);
           return <UpcomingPass
             key={pass.id}
