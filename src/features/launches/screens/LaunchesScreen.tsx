@@ -5,6 +5,8 @@ import {
 import { LinearGradient } from "expo-linear-gradient";
 import { Stack, router } from "expo-router";
 import { useRef, useState } from "react";
+import { Alert } from "react-native";
+import { addLaunchToCalendar } from "../model/LaunchCalendarService";
 import { LaunchDetailsModal } from "../components/LaunchDetailsModal";
 import {
   ActivityIndicator,
@@ -115,6 +117,15 @@ export default function LaunchCalendarScreen() {
   const viewModel = useLaunchCalendarViewModel();
   const featured = viewModel.featuredLaunch;
   const [selectedLaunch, setSelectedLaunch] = useState<Launch | null>(null);
+  const [addingCalendar, setAddingCalendar] = useState(false);
+  async function openCalendar() {
+    if (!selectedLaunch || addingCalendar) return;
+    setAddingCalendar(true);
+    try { await addLaunchToCalendar(selectedLaunch); }
+    catch (caught) {
+      Alert.alert("Calendar unavailable", caught instanceof Error ? caught.message : "Could not open the calendar editor.");
+    } finally { setAddingCalendar(false); }
+  }
   const screenSize = useRef({ height: 1, width: 1 });
 
   const starPointer = useRef<StarPointer>({
@@ -337,7 +348,8 @@ export default function LaunchCalendarScreen() {
           timezone
         </Text>
       </ScrollView>
-      <LaunchDetailsModal launch={selectedLaunch} onClose={() => setSelectedLaunch(null)} />
+      <LaunchDetailsModal launch={selectedLaunch} onClose={() => setSelectedLaunch(null)}
+        onCalendar={() => void openCalendar()} adding={addingCalendar} />
     </SafeAreaView>
   );
 }

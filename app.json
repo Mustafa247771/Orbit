@@ -25,6 +25,9 @@
     },
     "plugins": [
       "expo-router",
+      ["expo-calendar", {
+        "calendarPermission": "Allow Orbit to add upcoming rocket launches to your calendar."
+      }],
       [
         "expo-splash-screen",
         {
