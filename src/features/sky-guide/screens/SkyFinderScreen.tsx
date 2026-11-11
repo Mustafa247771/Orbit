@@ -2,11 +2,10 @@ import {
   InteractiveStarField,
   StarPointer,
 } from "@/components/ui/InteractiveStarField";
-import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
 import { Stack, router, useLocalSearchParams } from "expo-router";
-import { DeviceMotion, Magnetometer } from "expo-sensors";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useRef } from "react";
+import { useSkyFinderViewModel } from "../viewmodels/useSkyFinderViewModel";
 import {
   GestureResponderEvent,
   LayoutChangeEvent,
@@ -17,24 +16,6 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-const TARGET_AZIMUTH = 312;
-const TARGET_ELEVATION = 48;
-
-type SensorState = "checking" | "active" | "unavailable" | "denied";
-
-function normalizeAngle(value: number) {
-  return ((value % 360) + 360) % 360;
-}
-
-function shortestAngle(from: number, to: number) {
-  return ((to - from + 540) % 360) - 180;
-}
-
-function cardinalDirection(heading: number) {
-  const directions = ["N", "NE", "E", "SE", "S", "SW", "W", "NW"];
-  return directions[Math.round(heading / 45) % directions.length];
-}
-
 export default function SkyFinderScreen() {
   const screenSize = useRef({ height: 1, width: 1 });
 
@@ -61,122 +42,9 @@ export default function SkyFinderScreen() {
   function measureScreen(event: LayoutChangeEvent) {
     screenSize.current = event.nativeEvent.layout;
   }
-  const { id } = useLocalSearchParams<{ id: string }>();
-  const [heading, setHeading] = useState(276);
-  const [elevation, setElevation] = useState(34);
-  const [sensorState, setSensorState] = useState<SensorState>("checking");
-  const [hapticsEnabled, setHapticsEnabled] = useState(true);
-  const wasAligned = useRef(false);
-
-  useEffect(() => {
-    let magnetometerSubscription: { remove: () => void } | undefined;
-    let motionSubscription: { remove: () => void } | undefined;
-    let mounted = true;
-
-    async function startSensors() {
-      try {
-        const [magnetometerAvailable, motionAvailable] = await Promise.all([
-          Magnetometer.isAvailableAsync(),
-          DeviceMotion.isAvailableAsync(),
-        ]);
-
-        if (!mounted) return;
-        if (!magnetometerAvailable || !motionAvailable) {
-          setSensorState("unavailable");
-          return;
-        }
-
-        const [magnetometerPermission, motionPermission] = await Promise.all([
-          Magnetometer.requestPermissionsAsync(),
-          DeviceMotion.requestPermissionsAsync(),
-        ]);
-
-        if (!mounted) return;
-        if (!magnetometerPermission.granted || !motionPermission.granted) {
-          setSensorState("denied");
-          return;
-        }
-
-        Magnetometer.setUpdateInterval(120);
-        DeviceMotion.setUpdateInterval(120);
-
-        magnetometerSubscription = Magnetometer.addListener(({ x, y }) => {
-          const calculatedHeading = normalizeAngle(
-            Math.atan2(y, x) * (180 / Math.PI) - 90,
-          );
-          setHeading((current) => current * 0.82 + calculatedHeading * 0.18);
-        });
-
-        motionSubscription = DeviceMotion.addListener(({ rotation }) => {
-          if (!rotation) return;
-          const pitchDegrees = Math.abs(rotation.beta * (180 / Math.PI));
-          const calculatedElevation = Math.max(
-            0,
-            Math.min(90, 90 - pitchDegrees),
-          );
-          setElevation((current) => current * 0.8 + calculatedElevation * 0.2);
-        });
-
-        setSensorState("active");
-      } catch {
-        if (mounted) setSensorState("unavailable");
-      }
-    }
-
-    startSensors();
-
-    return () => {
-      mounted = false;
-      magnetometerSubscription?.remove();
-      motionSubscription?.remove();
-    };
-  }, []);
-
-  const azimuthDifference = shortestAngle(heading, TARGET_AZIMUTH);
-  const elevationDifference = TARGET_ELEVATION - elevation;
-  const aligned =
-    Math.abs(azimuthDifference) < 6 && Math.abs(elevationDifference) < 7;
-
-  useEffect(() => {
-    if (aligned && !wasAligned.current && hapticsEnabled) {
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(
-        () => undefined,
-      );
-    }
-    wasAligned.current = aligned;
-  }, [aligned, hapticsEnabled]);
-
-  const guidance = useMemo(() => {
-    if (sensorState === "checking") return "Calibrating your sky view…";
-    if (sensorState === "denied")
-      return "Sensor access is off — use the numeric bearings below";
-    if (sensorState === "unavailable")
-      return "Sensors unavailable — follow the numeric bearings";
-    if (aligned) return "Target aligned — look up now";
-
-    const turn =
-      Math.abs(azimuthDifference) < 6
-        ? "Hold this direction"
-        : azimuthDifference > 0
-          ? "Turn slowly right"
-          : "Turn slowly left";
-    const tilt =
-      Math.abs(elevationDifference) < 7
-        ? "keep your tilt"
-        : elevationDifference > 0
-          ? "tilt upward"
-          : "tilt downward";
-
-    return `${turn} and ${tilt}`;
-  }, [aligned, azimuthDifference, elevationDifference, sensorState]);
-
-  const statusText =
-    sensorState === "active"
-      ? "Sensors live"
-      : sensorState === "checking"
-        ? "Calibrating"
-        : "Numeric mode";
-
+  const vm = useSkyFinderViewModel();
+  const { heading, elevation, bearing, targetName, dataState, sensorState, hapticsEnabled,
+    setHapticsEnabled, aligned, guidance, azimuthDifference, statusText, cardinalDirection } = vm;
   return (
     <SafeAreaView
       onLayout={measureScreen}
@@ -242,14 +110,14 @@ export default function SkyFinderScreen() {
 
         <View className="px-[24px] pt-[28px]">
           <Text className="text-[10px] font-extrabold tracking-[2px] text-cyan">
-            ISS · NORAD {id ?? "25544"}
+            {targetName} · NORAD {vm.noradId}
           </Text>
           <Text className="mt-[12px] text-[39px] font-bold leading-[43px] tracking-[-1.3px] text-frost">
             Find your{`\n`}moving star.
           </Text>
           <Text className="mt-[12px] max-w-[340px] text-[14px] leading-[21px] text-haze">
             Hold your phone upright and follow the guide toward the
-            International Space Station.
+            {targetName}.
           </Text>
         </View>
 
@@ -313,7 +181,7 @@ export default function SkyFinderScreen() {
               TARGET
             </Text>
             <Text className="mt-[2px] text-[11px] font-bold text-cyan">
-              ISS / {TARGET_ELEVATION}°
+              {targetName} / {bearing ? `${Math.round(bearing.elevation)}°` : "—"}
             </Text>
           </View>
         </View>
@@ -340,9 +208,9 @@ export default function SkyFinderScreen() {
               className="mt-[7px] text-[22px] font-bold text-frost"
               style={{ fontVariant: ["tabular-nums"] }}
             >
-              {Math.round(normalizeAngle(heading))}°{" "}
+              {heading === null ? "—" : `${Math.round(heading)}°`}{" "}
               <Text className="text-[12px] text-cyan">
-                {cardinalDirection(heading)}
+                {heading === null ? "" : cardinalDirection(heading)}
               </Text>
             </Text>
           </View>
@@ -355,7 +223,7 @@ export default function SkyFinderScreen() {
               className="mt-[7px] text-[22px] font-bold text-frost"
               style={{ fontVariant: ["tabular-nums"] }}
             >
-              {Math.round(elevation)}°{" "}
+              {elevation === null ? "—" : `${Math.round(elevation)}°`}{" "}
               <Text className="text-[12px] text-cyan">UP</Text>
             </Text>
           </View>
@@ -382,23 +250,23 @@ export default function SkyFinderScreen() {
           </View>
           <View className="mt-[19px] flex-row items-center justify-between">
             <View>
-              <Text className="text-[17px] font-bold text-frost">312° NW</Text>
+              <Text className="text-[17px] font-bold text-frost">{bearing ? `${Math.round(bearing.azimuth)}° ${cardinalDirection(bearing.azimuth)}` : "—"}</Text>
               <Text className="mt-[5px] text-[7px] font-extrabold tracking-[1.1px] text-mist">
                 AZIMUTH
               </Text>
             </View>
             <View className="h-[36px] w-[1px] bg-edge" />
             <View>
-              <Text className="text-[17px] font-bold text-frost">48°</Text>
+              <Text className="text-[17px] font-bold text-frost">{bearing ? `${Math.round(bearing.elevation)}°` : "—"}</Text>
               <Text className="mt-[5px] text-[7px] font-extrabold tracking-[1.1px] text-mist">
                 ELEVATION
               </Text>
             </View>
             <View className="h-[36px] w-[1px] bg-edge" />
             <View>
-              <Text className="text-[17px] font-bold text-frost">6 min</Text>
+              <Text className="text-[17px] font-bold text-frost">{bearing ? (bearing.elevation > 0 ? "Above" : "Below") : "—"}</Text>
               <Text className="mt-[5px] text-[7px] font-extrabold tracking-[1.1px] text-mist">
-                VISIBLE
+                HORIZON
               </Text>
             </View>
           </View>
@@ -419,7 +287,7 @@ export default function SkyFinderScreen() {
               Alignment vibration
             </Text>
             <Text className="mt-[3px] text-[9px] text-mist">
-              A single pulse when the ISS is centered
+              A pulse when the target is centered
             </Text>
           </View>
           <View
