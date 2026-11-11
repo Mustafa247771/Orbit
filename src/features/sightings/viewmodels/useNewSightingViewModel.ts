@@ -43,16 +43,29 @@ export function useNewSightingViewModel() {
     [observedAt],
   );
 
-  const acceptPickerResult = useCallback(
-    (result: ImagePicker.ImagePickerResult) => {
-      if (!result.canceled && result.assets[0]) {
-        setPhotoUri(result.assets[0].uri);
-        setObservedAt(new Date());
-        setError(null);
-      }
-    },
-    [],
-  );
+  const readCurrentLocation = useCallback(async (): Promise<SightingLocation> => {
+    const permission = await Location.requestForegroundPermissionsAsync();
+    if (!permission.granted) throw new Error("Location permission is required to attach your observing location.");
+    const position = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
+    let cityLabel = "Current location";
+    try {
+      const addresses = await Location.reverseGeocodeAsync(position.coords);
+      const address = addresses[0];
+      cityLabel = [address?.city ?? address?.district ?? address?.region, address?.country]
+        .filter(Boolean).join(", ") || cityLabel;
+    } catch { /* GPS coordinates are useful even when geocoding is unavailable. */ }
+    return { cityLabel, latitude: position.coords.latitude, longitude: position.coords.longitude };
+  }, []);
+
+  const acceptPickerResult = useCallback(async (result: ImagePicker.ImagePickerResult) => {
+    if (result.canceled || !result.assets[0]) return;
+    setPhotoUri(result.assets[0].uri);
+    setObservedAt(new Date());
+    setLocation(null); // Never silently reuse GPS coordinates from an earlier photo.
+    setError(null);
+    try { setLocation(await readCurrentLocation()); }
+    catch (caught) { setError(`${readableError(caught)} Tap Location to retry.`); }
+  }, [readCurrentLocation]);
 
   const takePhoto = useCallback(async () => {
     setBusyAction("camera");
@@ -60,7 +73,7 @@ export function useNewSightingViewModel() {
       const permission = await ImagePicker.requestCameraPermissionsAsync();
       if (!permission.granted)
         throw new Error("Camera permission is required to capture a sighting.");
-      acceptPickerResult(
+      await acceptPickerResult(
         await ImagePicker.launchCameraAsync({
           allowsEditing: true,
           aspect: [4, 3],
@@ -85,7 +98,7 @@ export function useNewSightingViewModel() {
         throw new Error(
           "Photo-library permission is required to choose a sighting.",
         );
-      acceptPickerResult(
+      await acceptPickerResult(
         await ImagePicker.launchImageLibraryAsync({
           allowsEditing: true,
           aspect: [4, 3],
@@ -103,36 +116,10 @@ export function useNewSightingViewModel() {
 
   const useCurrentLocation = useCallback(async () => {
     setBusyAction("location");
-    try {
-      const permission = await Location.requestForegroundPermissionsAsync();
-      if (!permission.granted)
-        throw new Error(
-          "Location permission is required to attach your observing location.",
-        );
-      const result = await Location.getCurrentPositionAsync({
-        accuracy: Location.Accuracy.Balanced,
-      });
-      const addresses = await Location.reverseGeocodeAsync(result.coords);
-      const address = addresses[0];
-      const cityLabel =
-        [
-          address?.city ?? address?.district ?? address?.region,
-          address?.country,
-        ]
-          .filter(Boolean)
-          .join(", ") || "Current location";
-      setLocation({
-        cityLabel,
-        latitude: result.coords.latitude,
-        longitude: result.coords.longitude,
-      });
-      setError(null);
-    } catch (caught) {
-      setError(readableError(caught));
-    } finally {
-      setBusyAction(null);
-    }
-  }, []);
+    try { setLocation(await readCurrentLocation()); setError(null); }
+    catch (caught) { setError(readableError(caught)); }
+    finally { setBusyAction(null); }
+  }, [readCurrentLocation]);
 
   const save = useCallback(async () => {
     if (!photoUri) {
