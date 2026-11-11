@@ -2,7 +2,7 @@ import {
   InteractiveStarField,
   StarPointer,
 } from "@/components/ui/InteractiveStarField";
-import { useNewSightingViewModel } from "@/features/sightings/viewmodels/useNewSightingViewModel";
+import { SIGHTING_OBJECTS, useNewSightingViewModel } from "@/features/sightings/viewmodels/useNewSightingViewModel";
 import { LinearGradient } from "expo-linear-gradient";
 import { Stack, router } from "expo-router";
 import { useRef } from "react";
@@ -229,7 +229,12 @@ export default function NewSightingScreen() {
         </View>
 
         <View className="mx-[20px] mt-[20px] overflow-hidden rounded-[22px] border border-edge bg-panel/[0.58] px-[16px]">
-          <View className="min-h-[76px] flex-row items-center">
+          <Pressable accessibilityRole="button" accessibilityLabel="Choose observed object"
+            onPress={() => Alert.alert("What did you see?", "Select the object you observed.", [
+              ...SIGHTING_OBJECTS.map((choice) => ({ text: choice.name, onPress: () => viewModel.setObject(choice) })),
+              { text: "Cancel", style: "cancel" as const },
+            ])}
+            className="min-h-[76px] flex-row items-center">
             <View className="mr-[12px] h-[34px] w-[34px] items-center justify-center rounded-[16px] bg-cyan/[0.08]">
               <Text className="text-[20px] text-cyan">⌁</Text>
             </View>
@@ -242,7 +247,7 @@ export default function NewSightingScreen() {
               </Text>
             </View>
             <Text className="text-[25px] text-cyan">›</Text>
-          </View>
+          </Pressable>
           <View className="ml-[46px] h-[1px] bg-edge" />
           <View className="min-h-[76px] flex-row items-center">
             <View className="mr-[12px] h-[34px] w-[34px] items-center justify-center rounded-[16px] bg-cyan/[0.08]">

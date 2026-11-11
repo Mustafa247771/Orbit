@@ -8,7 +8,11 @@ import type {
   SightingVisibility,
 } from "@/features/sightings/model/Sighting";
 
-const OBJECT = { id: "25544", name: "International Space Station" };
+export const SIGHTING_OBJECTS = [
+  { id: "25544", name: "International Space Station" },
+  { id: "satellite", name: "Satellite" },
+  { id: "other", name: "Other sky object" },
+] as const;
 
 function readableError(error: unknown) {
   return error instanceof Error
@@ -18,6 +22,7 @@ function readableError(error: unknown) {
 
 export function useNewSightingViewModel() {
   const [caption, setCaption] = useState("");
+  const [object, setObject] = useState<(typeof SIGHTING_OBJECTS)[number]>(SIGHTING_OBJECTS[0]);
   const [visibility, setVisibility] = useState<SightingVisibility>("private");
   const [photoUri, setPhotoUri] = useState<string | null>(null);
   const [location, setLocation] = useState<SightingLocation | null>(null);
@@ -144,8 +149,8 @@ export function useNewSightingViewModel() {
       const saved = await sightingRepository.save({
         caption: caption.trim(),
         location,
-        objectId: OBJECT.id,
-        objectName: OBJECT.name,
+        objectId: object.id,
+        objectName: object.name,
         observedAt: observedAt.toISOString(),
         sourcePhotoUri: photoUri,
         visibility,
@@ -154,6 +159,7 @@ export function useNewSightingViewModel() {
       setPhotoUri(null);
       setLocation(null);
       setVisibility("private");
+      setObject(SIGHTING_OBJECTS[0]);
       setObservedAt(new Date());
       setError(null);
       return saved;
@@ -163,7 +169,7 @@ export function useNewSightingViewModel() {
     } finally {
       setBusyAction(null);
     }
-  }, [caption, location, observedAt, photoUri, visibility]);
+  }, [caption, location, object, observedAt, photoUri, visibility]);
 
   return {
     busyAction,
@@ -171,7 +177,8 @@ export function useNewSightingViewModel() {
     choosePhoto,
     error,
     location,
-    object: OBJECT,
+    object,
+    setObject,
     observedLabel,
     photoUri,
     save,
