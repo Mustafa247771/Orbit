@@ -4,7 +4,8 @@ import {
 } from "@/components/ui/InteractiveStarField";
 import { LinearGradient } from "expo-linear-gradient";
 import { Stack, router } from "expo-router";
-import { useRef } from "react";
+import { useRef, useState } from "react";
+import { LaunchDetailsModal } from "../components/LaunchDetailsModal";
 import {
   ActivityIndicator,
   GestureResponderEvent,
@@ -58,11 +59,12 @@ function Countdown({ launch, now }: { launch: Launch; now: number }) {
   );
 }
 
-function LaunchCard({ launch, now }: { launch: Launch; now: number }) {
+function LaunchCard({ launch, now, onPress }: { launch: Launch; now: number; onPress: () => void }) {
   const countdown = launchCountdown(launch.net, now);
   const date = new Date(launch.net);
   return (
-    <View className="mb-[11px] min-h-[128px] flex-row overflow-hidden rounded-[22px] border border-edge bg-panel/[0.76]">
+    <Pressable accessibilityRole="button" accessibilityLabel={`Show launch details for ${launch.name}`}
+      onPress={onPress} className="mb-[11px] min-h-[128px] flex-row overflow-hidden rounded-[22px] border border-edge bg-panel/[0.76]">
       <View className="w-[82px] items-center justify-center bg-[rgba(26,48,78,0.9)]">
         <Text className="text-[8px] font-black tracking-[1.3px] text-cyan">
           {date.toLocaleDateString([], { month: "short" }).toUpperCase()}
@@ -105,13 +107,14 @@ function LaunchCard({ launch, now }: { launch: Launch; now: number }) {
           {String(countdown.minutes).padStart(2, "0")}m
         </Text>
       </View>
-    </View>
+    </Pressable>
   );
 }
 
 export default function LaunchCalendarScreen() {
   const viewModel = useLaunchCalendarViewModel();
   const featured = viewModel.featuredLaunch;
+  const [selectedLaunch, setSelectedLaunch] = useState<Launch | null>(null);
   const screenSize = useRef({ height: 1, width: 1 });
 
   const starPointer = useRef<StarPointer>({
@@ -216,7 +219,9 @@ export default function LaunchCalendarScreen() {
             </Text>
           </View>
         ) : featured ? (
-          <View className="mx-[20px] mt-[24px] h-[500px] overflow-hidden rounded-[30px] border border-[#304866]">
+          <Pressable accessibilityRole="button" accessibilityLabel="Open next launch details"
+            onPress={() => setSelectedLaunch(featured)}
+            className="mx-[20px] mt-[24px] h-[500px] overflow-hidden rounded-[30px] border border-[#304866]">
             {featured.imageUrl ? (
               <Image
                 resizeMode="cover"
@@ -285,7 +290,7 @@ export default function LaunchCalendarScreen() {
                 </View>
               </View>
             </View>
-          </View>
+          </Pressable>
         ) : (
           <View className="mx-[20px] mt-[24px] items-center rounded-[26px] border border-[#394B67] bg-panel p-[28px]">
             <Text className="text-[18px] font-bold text-frost">
@@ -322,7 +327,7 @@ export default function LaunchCalendarScreen() {
               </Text>
             </View>
             {viewModel.launches.slice(1).map((launch) => (
-              <LaunchCard key={launch.id} launch={launch} now={viewModel.now} />
+              <LaunchCard key={launch.id} launch={launch} now={viewModel.now} onPress={() => setSelectedLaunch(launch)} />
             ))}
           </View>
         )}
@@ -332,6 +337,7 @@ export default function LaunchCalendarScreen() {
           timezone
         </Text>
       </ScrollView>
+      <LaunchDetailsModal launch={selectedLaunch} onClose={() => setSelectedLaunch(null)} />
     </SafeAreaView>
   );
 }
