@@ -1,6 +1,9 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { Stack, router, useLocalSearchParams } from "expo-router";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
+import { ActivityIndicator, Alert } from "react-native";
+import { usePassesViewModel } from "../viewmodels/usePassesViewModel";
+import type { PredictedPass } from "../model/PassPredictionService";
 import {
   GestureResponderEvent,
   LayoutChangeEvent,
@@ -17,15 +20,14 @@ import {
   type StarPointer,
 } from "@/components/ui/InteractiveStarField";
 
-const LOCATIONS = ["Cairo, Egypt", "Alexandria, Egypt", "New Cairo, Egypt"];
-
 type UpcomingPassProps = {
   day: string;
   time: string;
   direction: string;
   duration: string;
   elevation: string;
-  quality: "Good" | "Fair";
+  quality: "Good" | "Fair" | "Unknown";
+  onPress?: () => void;
 };
 
 function formatCountdown(totalSeconds: number) {
@@ -72,11 +74,13 @@ function UpcomingPass({
   duration,
   elevation,
   quality,
+  onPress,
 }: UpcomingPassProps) {
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={`${day} at ${time}, ${duration} visible`}
+      accessibilityLabel={`${day} at ${time}, ${duration} above horizon`}
+      onPress={onPress}
       className="mx-[20px] mt-[12px] flex-row items-center rounded-[21px] border border-edge bg-panel/[0.48] p-[14px] active:scale-[0.985] active:opacity-[0.68]"
     >
       <View className="min-h-[66px] w-[78px] items-center justify-center rounded-[15px] border border-edge-strong bg-[#152238] px-[10px]">
@@ -103,10 +107,10 @@ function UpcomingPass({
             {elevation} elevation
           </Text>
           <View
-            className={`ml-[8px] rounded-[10px] px-[7px] py-[3px] ${quality === "Fair" ? "bg-gold/[0.12]" : "bg-mint/[0.12]"}`}
+            className={`ml-[8px] rounded-[10px] px-[7px] py-[3px] ${quality === "Good" ? "bg-mint/[0.12]" : "bg-gold/[0.12]"}`}
           >
             <Text
-              className={`text-[8px] font-bold ${quality === "Fair" ? "text-gold" : "text-mint"}`}
+              className={`text-[8px] font-bold ${quality === "Good" ? "text-mint" : "text-gold"}`}
             >
               {quality}
             </Text>
@@ -119,22 +123,19 @@ function UpcomingPass({
 
 export default function VisiblePassesScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const [locationIndex, setLocationIndex] = useState(0);
+  const noradId = Number(id) > 0 ? Number(id) : 25544;
+  const vm = usePassesViewModel(noradId);
   const [reminderEnabled, setReminderEnabled] = useState(true);
   const [leadMinutes, setLeadMinutes] = useState(10);
-  const [countdown, setCountdown] = useState(1 * 3600 + 18 * 60 + 32);
   const screenSize = useRef({ height: 1, width: 1 });
   const starPointer = useRef<StarPointer>({ active: false, x: 0.5, y: 0.5 });
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCountdown((current) => (current > 0 ? current - 1 : 0));
-    }, 1000);
 
-    return () => clearInterval(interval);
-  }, []);
+  const [hours, minutes, seconds] = formatCountdown(
+    vm.next ? Math.max(0, Math.floor((vm.next.startAt - vm.now) / 1000)) : 0,
+  );
+  const nextDate = vm.next ? new Date(vm.next.startAt) : null;
 
-  const [hours, minutes, seconds] = formatCountdown(countdown);
 
   function trackStars(event: GestureResponderEvent | PointerEvent) {
     const nativeEvent = event.nativeEvent;
@@ -193,7 +194,7 @@ export default function VisiblePassesScreen() {
               VISIBLE PASSES
             </Text>
             <Text className="mt-[4px] text-[15px] font-semibold text-frost">
-              ISS · {id ?? "25544"}
+              {noradId === 25544 ? "ISS" : "SATELLITE"} · {noradId}
             </Text>
           </View>
           <View className="h-[50px] w-[50px] items-center justify-center rounded-[25px] border border-edge-strong bg-panel/[0.9]">
@@ -208,15 +209,13 @@ export default function VisiblePassesScreen() {
           </Text>
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel={`Observing location ${LOCATIONS[locationIndex]}. Change location`}
-            onPress={() =>
-              setLocationIndex((current) => (current + 1) % LOCATIONS.length)
-            }
+            accessibilityLabel={`Observing location ${vm.location.label}. Refresh passes`}
+            onPress={() => void vm.refresh()}
             className="mt-[17px] min-h-[45px] flex-row items-center self-start rounded-[22px] border border-edge-bright bg-panel/[0.72] px-[14px] active:scale-[0.985] active:opacity-[0.68]"
           >
             <Text className="mr-[8px] text-[22px] text-cyan">⌾</Text>
             <Text className="text-[13px] font-semibold text-frost">
-              {LOCATIONS[locationIndex]}
+              {vm.location.label}
             </Text>
             <Text className="ml-[9px] text-[15px] text-haze">⌄</Text>
           </Pressable>
@@ -239,7 +238,7 @@ export default function VisiblePassesScreen() {
             <View className="flex-row items-center rounded-[17px] border border-cyan/[0.45] bg-[rgba(22,82,82,0.55)] px-[12px] py-[8px]">
               <View className="mr-[7px] h-[7px] w-[7px] rounded-[4px] bg-mint" />
               <Text className="text-[9px] font-extrabold tracking-[1.1px] text-cyan">
-                GOOD CONDITIONS
+                {vm.next?.opticallyVisible ? "GOOD CONDITIONS" : "CONDITIONS UNCONFIRMED"}
               </Text>
             </View>
             <Text className="text-[9px] font-bold tracking-[1.4px] text-haze">
@@ -248,14 +247,13 @@ export default function VisiblePassesScreen() {
           </View>
 
           <Text className="mt-[30px] text-[11px] font-bold tracking-[1.8px] text-haze">
-            NEXT VISIBLE PASS
+            NEXT ORBITAL PASS
           </Text>
           <Text className="mt-[7px] text-[52px] font-semibold tracking-[-2px] text-frost">
-            7:42{" "}
-            <Text className="text-[19px] tracking-[0px] text-haze">PM</Text>
+            {vm.loading ? "Loading…" : nextDate ? nextDate.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }) : "No pass"}
           </Text>
           <Text className="mt-[2px] text-[14px] text-haze">
-            Tonight · Northwest → Southeast
+            {vm.next ? `${nextDate?.toLocaleDateString([], { weekday: "short", month: "short", day: "numeric" })} · ${vm.next.direction}` : "No upcoming pass was predicted"}
           </Text>
 
           <View className="mt-[22px] rounded-[20px] border border-[rgba(64,86,117,0.55)] bg-night/[0.38] px-[18px] py-[15px]">
@@ -272,11 +270,11 @@ export default function VisiblePassesScreen() {
           </View>
 
           <View className="mt-[23px] flex-row items-center justify-between">
-            <PassMetric label="VISIBLE" value="6 min" />
+            <PassMetric label="ABOVE 10°" value={vm.next ? `${vm.next.durationMinutes} min` : "—"} />
             <View className="h-[35px] w-[1px] bg-edge" />
-            <PassMetric label="MAX ELEV." value="64°" />
+            <PassMetric label="MAX ELEV." value={vm.next ? `${Math.round(vm.next.peakElevation)}°` : "—"} />
             <View className="h-[35px] w-[1px] bg-edge" />
-            <PassMetric label="CLOUDS" value="12%" />
+            <PassMetric label="CLOUDS" value={vm.next?.cloudPercent === null || !vm.next ? "N/A" : `${Math.round(vm.next.cloudPercent)}%`} />
           </View>
         </LinearGradient>
 
@@ -290,7 +288,7 @@ export default function VisiblePassesScreen() {
                 Pass reminder
               </Text>
               <Text className="mt-[3px] text-[10px] text-haze">
-                Alert me before the ISS becomes visible
+                Schedule an alert for optically visible passes
               </Text>
             </View>
             <Pressable
@@ -351,38 +349,30 @@ export default function VisiblePassesScreen() {
           </Pressable>
         </View>
 
-        <UpcomingPass
-          day="TOMORROW"
-          time="5:18 AM"
-          direction="West → Northeast"
-          duration="4 min"
-          elevation="42°"
-          quality="Good"
-        />
-        <UpcomingPass
-          day="WED 23"
-          time="8:31 PM"
-          direction="Southwest → East"
-          duration="3 min"
-          elevation="27°"
-          quality="Fair"
-        />
-        <UpcomingPass
-          day="FRI 25"
-          time="6:54 PM"
-          direction="Northwest → Southeast"
-          duration="5 min"
-          elevation="58°"
-          quality="Good"
-        />
+        {vm.loading && <ActivityIndicator color="#7CE1F5" style={{ marginTop: 22 }} />}
+        {vm.error && <Text className="mx-[26px] mt-[12px] text-[11px] text-gold">{vm.error}</Text>}
+        {!vm.loading && vm.passes.length === 0 && (
+          <Text className="mx-[26px] mt-[14px] text-[12px] text-haze">No orbital passes could be predicted. Tap the location above to retry.</Text>
+        )}
+        {vm.passes.map((pass) => {
+          const start = new Date(pass.startAt);
+          return <UpcomingPass
+            key={pass.id}
+            day={start.toLocaleDateString([], { weekday: "short", day: "numeric" }).toUpperCase()}
+            time={start.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}
+            direction={pass.direction}
+            duration={`${pass.durationMinutes} min`}
+            elevation={`${Math.round(pass.peakElevation)}°`}
+            quality={pass.opticallyVisible ? "Good" : pass.cloudPercent === null ? "Unknown" : "Fair"}
+          />;
+        })}
 
         <View className="mx-[28px] mt-[20px] flex-row items-start">
           <Text className="mr-[9px] h-[18px] w-[18px] rounded-[9px] border border-[#52647E] text-center text-[10px] leading-[16px] text-haze">
             i
           </Text>
           <Text className="flex-1 text-[10px] leading-[15px] text-fog">
-            Passes are optical predictions. Clear skies improve visibility but
-            do not guarantee a sighting.
+            Pass times are approximate SGP4 calculations. Only passes marked Good meet current darkness, sunlight, and cloud checks; visibility is never guaranteed.
           </Text>
         </View>
       </ScrollView>
