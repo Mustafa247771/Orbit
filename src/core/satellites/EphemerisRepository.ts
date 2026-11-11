@@ -1,63 +1,58 @@
-import { fromSatelliteElements, type TrackedSatellite } from "@/core/orbit/propagate";
+import { toTrackedSatellite, type TrackedSatellite } from "@/core/orbit/propagate";
 import { readJson, writeJson } from "@/core/storage/jsonFile";
-import { isRecord, parseElements, type SatelliteElements } from "./SatelliteData";
+import type { SatelliteTle } from "./types";
 
-const TTL = 3 * 60 * 60 * 1000;
-const MAX_STALE = 2 * 24 * 60 * 60 * 1000;
-const pending = new Map<number, Promise<EphemerisResult>>();
-const memory = new Map<number, EphemerisResult>();
+const CACHE_TTL_MS = 3 * 60 * 60 * 1000;
+const STALE_LIMIT_MS = 48 * 60 * 60 * 1000;
+const cachedRequests = new Map<number, Promise<EphemerisResult>>();
+
+type CachedTle = { cachedAt: number; tle: SatelliteTle };
 export type EphemerisResult = { satellite: TrackedSatellite; stale: boolean; epoch: string };
 
-type Cached = { cachedAt: number; elements: SatelliteElements };
-
-async function readCached(id: number): Promise<Cached | null> {
-  try {
-    const saved = await readJson(`orbit-elements-${id}.json`);
-    if (!isRecord(saved) || typeof saved.cachedAt !== "number") return null;
-    const elements = parseElements(saved.elements);
-    return elements ? { cachedAt: saved.cachedAt, elements } : null;
-  } catch { return null; }
+function parseTle(source: string, id: number): SatelliteTle {
+  const lines = source.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+  const one = lines.find((line) => line.startsWith("1 "));
+  const two = lines.find((line) => line.startsWith("2 "));
+  if (!one || !two || one.slice(2, 7).trim() !== String(id) || two.slice(2, 7).trim() !== String(id)) {
+    throw new Error(`No valid TLE was returned for NORAD ${id}.`);
+  }
+  const title = lines.find((line) => !line.startsWith("1 ") && !line.startsWith("2 "));
+  return { noradId: id, name: title?.replace(/^0 /, "") ?? (id === 25544 ? "ISS (ZARYA)" : `NORAD ${id}`), line1: one, line2: two };
 }
 
-async function load(id: number): Promise<EphemerisResult> {
-  const cached = await readCached(id);
-  if (cached && Date.now() - cached.cachedAt < TTL) {
-    const result = { satellite: fromSatelliteElements(cached.elements), stale: false, epoch: cached.elements.EPOCH };
-    memory.set(id, result);
-    return result;
-  }
+function asResult(tle: SatelliteTle, stale: boolean): EphemerisResult {
+  // The epoch substring is UTC day-of-year in a TLE, not an ISO timestamp.
+  return { satellite: toTrackedSatellite(tle), stale, epoch: tle.line1.slice(18, 32).trim() };
+}
+
+async function loadEphemeris(id: number): Promise<EphemerisResult> {
+  const filename = `orbit-tle-${id}.json`;
+  let cache: CachedTle | null = null;
   try {
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 20000);
-    let response: Response;
-    try {
-      response = await fetch(`https://celestrak.org/NORAD/elements/gp.php?CATNR=${id}&FORMAT=JSON`, {
-        headers: { Accept: "application/json" }, signal: controller.signal,
-      });
-    } finally { clearTimeout(timer); }
-    if (!response.ok) throw new Error(`CelesTrak returned HTTP ${response.status}`);
-    const body: unknown = await response.json();
-    const elements = Array.isArray(body) ? parseElements(body[0]) : null;
-    if (!elements) throw new Error(`No valid orbital elements were returned for NORAD ${id}.`);
-    await writeJson(`orbit-elements-${id}.json`, { elements, cachedAt: Date.now() }).catch(() => undefined);
-    const result = { satellite: fromSatelliteElements(elements), stale: false, epoch: elements.EPOCH };
-    memory.set(id, result);
-    return result;
+    const value = await readJson(filename) as CachedTle;
+    if (value?.tle?.noradId === id && value.tle.line1 && value.tle.line2 && Number.isFinite(value.cachedAt)) cache = value;
+  } catch { /* No cache yet. */ }
+  if (cache && Date.now() - cache.cachedAt < CACHE_TTL_MS) return asResult(cache.tle, false);
+
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 15000);
+  try {
+    const response = await fetch(`https://celestrak.org/NORAD/elements/gp.php?CATNR=${id}&FORMAT=TLE`, { signal: controller.signal });
+    if (!response.ok) throw new Error(`CelesTrak returned HTTP ${response.status}.`);
+    const tle = parseTle(await response.text(), id);
+    await writeJson(filename, { cachedAt: Date.now(), tle }).catch(() => undefined);
+    return asResult(tle, false);
   } catch (error) {
-    if (cached && Date.now() - cached.cachedAt <= MAX_STALE) {
-      return { satellite: fromSatelliteElements(cached.elements), stale: true, epoch: cached.elements.EPOCH };
-    }
+    if (cache && Date.now() - cache.cachedAt < STALE_LIMIT_MS) return asResult(cache.tle, true);
     throw error;
-  }
+  } finally { clearTimeout(timer); }
 }
 
 export function getEphemeris(id: number): Promise<EphemerisResult> {
-  const memo = memory.get(id);
-  if (memo && Date.now() - Date.parse(memo.epoch) < 2 * 24 * 3600_000) {
-    // Only reuse within the same short session; persistent freshness comes from the cache timestamp.
-    if (pending.has(id)) return pending.get(id)!;
-  }
-  const job = pending.get(id) ?? load(id).finally(() => pending.delete(id));
-  pending.set(id, job);
-  return job;
+  if (!Number.isSafeInteger(id) || id < 1) return Promise.reject(new Error("Invalid NORAD ID."));
+  const previous = cachedRequests.get(id);
+  if (previous) return previous;
+  const request = loadEphemeris(id).finally(() => cachedRequests.delete(id));
+  cachedRequests.set(id, request);
+  return request;
 }
