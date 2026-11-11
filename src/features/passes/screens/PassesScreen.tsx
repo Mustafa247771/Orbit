@@ -371,6 +371,10 @@ export default function VisiblePassesScreen() {
             duration={`${pass.durationMinutes} min`}
             elevation={`${Math.round(pass.peakElevation)}°`}
             quality={pass.opticallyVisible ? "Good" : pass.cloudPercent === null ? "Unknown" : "Fair"}
+            onPress={() => Alert.alert(
+              "Orbital pass details",
+              `${new Date(pass.startAt).toLocaleString()}\nDirection: ${pass.direction}\nDuration above 10°: ${pass.durationMinutes} min\nMaximum elevation: ${Math.round(pass.peakElevation)}°\nClouds: ${pass.cloudPercent === null ? "unavailable" : `${Math.round(pass.cloudPercent)}%`}\n\n${pass.reason}`,
+            )}
           />;
         })}
 
