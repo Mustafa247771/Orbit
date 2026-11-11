@@ -1,6 +1,8 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { Stack, router, useLocalSearchParams } from "expo-router";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import * as Notifications from "expo-notifications";
+import { syncPassReminders } from "../model/PassNotifications";
 import { ActivityIndicator, Alert } from "react-native";
 import { usePassesViewModel } from "../viewmodels/usePassesViewModel";
 import type { PredictedPass } from "../model/PassPredictionService";
@@ -126,7 +128,7 @@ export default function VisiblePassesScreen() {
   const noradId = Number(id) > 0 ? Number(id) : 25544;
   const vm = usePassesViewModel(noradId);
   const [visibleOnly, setVisibleOnly] = useState(false);
-  const [reminderEnabled, setReminderEnabled] = useState(true);
+  const [reminderEnabled, setReminderEnabled] = useState(false);
   const [leadMinutes, setLeadMinutes] = useState(10);
   const screenSize = useRef({ height: 1, width: 1 });
   const starPointer = useRef<StarPointer>({ active: false, x: 0.5, y: 0.5 });
@@ -136,6 +138,19 @@ export default function VisiblePassesScreen() {
     vm.next ? Math.max(0, Math.floor((vm.next.startAt - vm.now) / 1000)) : 0,
   );
   const nextDate = vm.next ? new Date(vm.next.startAt) : null;
+  useEffect(() => {
+    void syncPassReminders(reminderEnabled, leadMinutes, vm.passes, noradId).catch(() => undefined);
+  }, [reminderEnabled, leadMinutes, vm.passes, noradId]);
+  async function toggleReminder() {
+    if (reminderEnabled) { setReminderEnabled(false); return; }
+    if (noradId !== 25544) {
+      Alert.alert("ISS-only reminders", "Naked-eye mode currently schedules reminders for the ISS only.");
+      return;
+    }
+    const permission = await Notifications.requestPermissionsAsync();
+    if (!permission.granted) { Alert.alert("Notifications off", "Enable Orbit notifications in iPhone Settings to receive reminders."); return; }
+    setReminderEnabled(true);
+  }
   const displayedPasses = visibleOnly ? vm.future.filter((pass) => pass.opticallyVisible) : vm.future;
 
 
@@ -298,7 +313,7 @@ export default function VisiblePassesScreen() {
               accessibilityRole="switch"
               accessibilityState={{ checked: reminderEnabled }}
               accessibilityLabel="Pass reminder"
-              onPress={() => setReminderEnabled((current) => !current)}
+              onPress={() => void toggleReminder()}
               className={`h-[30px] w-[52px] justify-center rounded-[16px] px-[3px] ${reminderEnabled ? "bg-teal" : "bg-edge-dim"}`}
             >
               <View

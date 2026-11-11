@@ -50,6 +50,7 @@
           "locationWhenInUsePermission": "Allow Orbit to attach your observing location to a sighting."
         }
       ],
+      "expo-notifications",
       "expo-status-bar",
       "expo-web-browser"
     ],
