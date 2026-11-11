@@ -6,6 +6,7 @@ const API_URL =
   "https://ll.thespacedevs.com/2.3.0/launches/upcoming/?limit=12&mode=normal&format=json";
 const CACHE_FILE = new File(Paths.cache, "upcoming-launches.json");
 const CACHE_TTL_MS = 15 * 60 * 1000;
+const MAX_STALE_MS = 24 * 60 * 60 * 1000;
 
 type ApiLaunch = {
   id: string;
@@ -76,9 +77,12 @@ export class LaunchService {
       return { launches: cache.launches, source: "cache" };
     }
 
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 15000);
     try {
       const response = await fetch(API_URL, {
         headers: { Accept: "application/json" },
+        signal: controller.signal,
       });
       if (!response.ok)
         throw new Error(`Launch service returned ${response.status}`);
@@ -95,10 +99,12 @@ export class LaunchService {
       writeCache({ cachedAt: Date.now(), launches });
       return { launches, source: "live" };
     } catch (error) {
-      if (cache?.launches.length)
-        return { launches: cache.launches, source: "cache" };
+      if (cache?.launches.length && Date.now() - cache.cachedAt <= MAX_STALE_MS) {
+        const future = cache.launches.filter((item) => Date.parse(item.net) > Date.now() - 3600000);
+        if (future.length) return { launches: future, source: "cache" };
+      }
       throw error;
-    }
+    } finally { clearTimeout(timeout); }
   }
 }
 
