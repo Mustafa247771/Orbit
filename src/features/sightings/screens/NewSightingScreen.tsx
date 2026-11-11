@@ -53,12 +53,18 @@ export default function NewSightingScreen() {
   async function saveSighting() {
     const saved = await viewModel.save();
     if (!saved) return;
-    Alert.alert(
-      "Sighting saved",
-      saved.syncStatus === "pending-upload"
-        ? "Saved safely on this device and queued for community upload."
-        : "Saved safely in your private observation journal.",
-    );
+    if (saved.visibility === "community") {
+      Alert.alert(
+        "Community preview saved",
+        "Your sighting is saved on this phone and appears in your local Community feed. Other users cannot see it until the backend is connected.",
+        [
+          { text: "Stay here", style: "cancel" },
+          { text: "View community", onPress: () => router.push("/community") },
+        ],
+      );
+    } else {
+      Alert.alert("Sighting saved", "Saved in your private on-device observation journal.");
+    }
   }
 
   return (
@@ -353,7 +359,7 @@ export default function NewSightingScreen() {
             <View className="mt-[10px] flex-row items-start rounded-[15px] border border-mint/[0.2] bg-mint/[0.07] p-[11px]">
               <Text className="mr-[8px] text-[11px] text-mint">✓</Text>
               <Text className="flex-1 text-[9px] leading-[13px] text-[#8FB7AC]">
-                Exact GPS and photo metadata will be removed before publishing.
+                Only a city label is shown in your local feed. Cloud publishing is not yet configured.
               </Text>
             </View>
           )}
@@ -388,8 +394,8 @@ export default function NewSightingScreen() {
         </Pressable>
 
         <Text className="mx-[30px] mt-[14px] text-center text-[9px] text-dusk">
-          Photos and sightings are saved offline on this device. Community posts
-          are queued until a backend is connected.
+          Photos and sightings are saved on this device. Community posts are shown
+          locally only until a backend is connected.
         </Text>
       </ScrollView>
     </SafeAreaView>
