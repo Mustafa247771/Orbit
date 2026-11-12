@@ -6,6 +6,7 @@ import { View } from "react-native";
 import "../../global.css";
 import "@/theme/interop";
 
+import { BackgroundMusicProvider } from "@/core/audio/BackgroundMusicProvider";
 import colors from "@/theme/colors";
 import { JetBrainsMono_500Medium } from "@expo-google-fonts/jetbrains-mono";
 import { SpaceGrotesk_600SemiBold } from "@expo-google-fonts/space-grotesk";
@@ -27,13 +28,15 @@ export default function RootLayout() {
 
   if (!ready) return null;
   return (
-    <View className="flex-1 bg-space">
-      <Stack
-        screenOptions={{
-          headerShown: false,
-          contentStyle: { backgroundColor: colors.space },
-        }}
-      />
-    </View>
+    <BackgroundMusicProvider>
+      <View className="flex-1 bg-space">
+        <Stack
+          screenOptions={{
+            headerShown: false,
+            contentStyle: { backgroundColor: colors.space },
+          }}
+        />
+      </View>
+    </BackgroundMusicProvider>
   );
 }

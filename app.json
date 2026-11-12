@@ -25,15 +25,26 @@
     },
     "plugins": [
       "expo-router",
-      ["expo-calendar", {
-        "calendarPermission": "Allow Orbit to add upcoming rocket launches to your calendar."
-      }],
+      [
+        "expo-calendar",
+        {
+          "calendarPermission": "Allow Orbit to add upcoming rocket launches to your calendar."
+        }
+      ],
       [
         "expo-splash-screen",
         {
           "backgroundColor": "#208AEF",
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 76
+        }
+      ],
+      [
+        "expo-audio",
+        {
+          "enableBackgroundPlayback": true,
+          "recordAudioAndroid": false,
+          "microphonePermission": false
         }
       ],
       "expo-asset",
