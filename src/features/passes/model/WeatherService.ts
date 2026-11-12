@@ -2,12 +2,12 @@ import { readJson, writeJson } from "@/core/storage/jsonFile";
 import type { ObserverLocation } from "@/core/orbit/observer";
 
 export type CloudForecast = { times: number[]; cloudCover: number[] };
+type CachedCloudForecast = { fetched: number; forecast: CloudForecast };
 const TTL = 60 * 60 * 1000;
 
 export async function getCloudForecast(location: ObserverLocation): Promise<CloudForecast | null> {
   const key = `clouds-${location.latitude.toFixed(2)}-${location.longitude.toFixed(2)}.json`;
-  let cached: { fetched: number; forecast: CloudForecast } | null = null;
-  try { cached = await readJson(key) as typeof cached; } catch { /* no cache */ }
+  const cached = (await readJson(key).catch(() => null)) as CachedCloudForecast | null;
   if (cached && Date.now() - cached.fetched < TTL) return cached.forecast;
   try {
     const url = `https://api.open-meteo.com/v1/forecast?latitude=${location.latitude}&longitude=${location.longitude}&hourly=cloud_cover&forecast_days=8&timezone=GMT`;
