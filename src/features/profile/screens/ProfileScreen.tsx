@@ -2,6 +2,7 @@ import Constants from "expo-constants";
 import { Pressable, Text, View } from "react-native";
 
 import { Card } from "@/components/ui/Card";
+import { useBackgroundMusic } from "@/core/audio/BackgroundMusicProvider";
 import { Icon } from "@/components/ui/Icon";
 import { ScrambleText } from "@/components/ui/ScrambleText";
 import { ScreenHeader } from "@/components/ui/ScreenHeader";
@@ -43,6 +44,7 @@ const NOTIFICATIONS = [
 const noop = () => {};
 
 export default function ProfileScreen() {
+  const { musicEnabled, setMusicEnabled } = useBackgroundMusic();
   const vm = useProfileViewModel();
   const { profile, settings } = vm;
 
@@ -190,6 +192,16 @@ export default function ProfileScreen() {
       <View className="mx-5 mt-8">
         <SectionLabel title="App" />
         <Card>
+          <SettingRow
+            label="Background music"
+            hint="Loop the ambient soundtrack while using Orbit"
+          >
+            <Toggle
+              label="Background music"
+              value={musicEnabled}
+              onChange={setMusicEnabled}
+            />
+          </SettingRow>
           <SettingRow label="Units">
             <View className="w-44">
               <SegmentedControl
