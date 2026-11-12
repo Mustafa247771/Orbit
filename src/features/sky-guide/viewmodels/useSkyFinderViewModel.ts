@@ -33,12 +33,17 @@ export function useSkyFinderViewModel() {
         const locationPermission = await Location.requestForegroundPermissionsAsync();
         if (!locationPermission.granted) { setSensorState("denied"); throw new Error("Enable location to calculate live target bearings."); }
         const where = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
+        const observer = {
+          latitude: where.coords.latitude,
+          longitude: where.coords.longitude,
+          altitude: where.coords.altitude ?? undefined,
+        };
         const ephemeris = await getEphemeris(noradId);
         if (!active) return;
         setTargetName(noradId === 25544 ? "ISS" : ephemeris.satellite.name);
         setDataState(ephemeris.stale ? "Using cached orbital data" : "Live orbital calculation");
         const update = () => {
-          if (active) setBearing(satelliteBearing(ephemeris.satellite, where.coords, new Date()));
+          if (active) setBearing(satelliteBearing(ephemeris.satellite, observer, new Date()));
         };
         update();
         orbitalTimer = setInterval(update, 5000);
